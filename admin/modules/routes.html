@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Routes Planner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="modules.css" />
+  </head>
+  <body>
+    <header class="page-head">
+      <div>
+        <h1>Routes Planner</h1>
+        <p>Manage routes independently with bulk actions and stop assignment across multiple routes.</p>
+      </div>
+    </header>
+
+    <section class="kpis">
+      <article class="kpi"><span>Total Routes</span><strong id="kpi-total">0</strong></article>
+      <article class="kpi"><span>Selected</span><strong id="kpi-selected">0</strong></article>
+      <article class="kpi"><span>Hidden</span><strong id="kpi-hidden">0</strong></article>
+      <article class="kpi"><span>Total Stops In Routes</span><strong id="kpi-stops">0</strong></article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Create Route</h2></div>
+      <div class="panel-body row">
+        <input id="new-name" placeholder="Route name" />
+        <input id="new-color" type="color" value="#e74c3c" style="max-width:72px;padding:4px;" />
+        <select id="new-style">
+          <option value="solid">Solid</option>
+          <option value="dashed">Dashed</option>
+          <option value="dotted">Dotted</option>
+        </select>
+        <input id="new-weight" type="number" min="1" max="10" value="4" placeholder="Weight" />
+        <button class="primary" id="btn-add">Add Route</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Route Inventory</h2>
+        <div class="row" style="flex:1;justify-content:flex-end;">
+          <input id="search" placeholder="Search routes" style="max-width:240px;" />
+          <button id="btn-refresh" class="ghost"><i class="fa-solid fa-rotate"></i></button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="bulk-strip">
+          <strong id="selected-text">0 selected</strong>
+          <select id="bulk-stop" style="min-width:180px;"></select>
+          <button id="btn-add-stop-selected" class="primary">Add Stop To Selected Routes</button>
+          <button id="btn-remove-stop-selected">Remove Stop From Selected Routes</button>
+          <button id="btn-hide-selected">Hide Selected</button>
+          <button id="btn-show-all">Show All</button>
+          <button id="btn-delete-selected" class="warn">Delete Selected</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="check-all" /></th>
+              <th>Name</th>
+              <th>Stops</th>
+              <th>Style</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div id="toast-wrap" class="toast-wrap"></div>
+    <script src="common.js"></script>
+    <script>
+      let routes = [];
+      let stops = [];
+      const selected = new Set();
+      const hidden = new Set();
+
+      function updateKpis() {
+        byId('kpi-total').textContent = routes.length;
+        byId('kpi-selected').textContent = selected.size;
+        byId('kpi-hidden').textContent = hidden.size;
+        byId('kpi-stops').textContent = routes.reduce((n, r) => n + (r.stopIds?.length || 0), 0);
+        byId('selected-text').textContent = `${selected.size} selected`;
+      }
+
+      function renderStopOptions() {
+        byId('bulk-stop').innerHTML = '<option value="">Choose stop</option>' + stops.map((s) => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+      }
+
+      function renderRows() {
+        const q = byId('search').value.trim().toLowerCase();
+        const list = routes.filter((r) => !q || r.name.toLowerCase().includes(q));
+        const body = byId('rows');
+        if (!list.length) {
+          body.innerHTML = '<tr><td colspan="5" class="empty">No routes found</td></tr>';
+          updateKpis();
+          return;
+        }
+        body.innerHTML = list.map((r) => `
+          <tr style="opacity:${hidden.has(r.id) ? 0.4 : 1}">
+            <td><input type="checkbox" data-id="${r.id}" ${selected.has(r.id) ? 'checked' : ''} /></td>
+            <td><strong>${escapeHtml(r.name)}</strong></td>
+            <td><span class="badge">${(r.stopIds || []).length} stops</span></td>
+            <td>${escapeHtml(r.style || 'solid')} / ${Number(r.weight || 4)}</td>
+            <td class="actions">
+              <button data-edit="${r.id}">Edit</button>
+              <button data-del="${r.id}" class="warn">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+        updateKpis();
+      }
+
+      async function load() {
+        [routes, stops] = await Promise.all([api('routes'), api('stops')]);
+        renderStopOptions();
+        renderRows();
+      }
+
+      async function mutateSelectedRoutes(mutator, okMsg) {
+        if (!selected.size) return toast('Select routes first');
+        const selectedRoutes = routes.filter((r) => selected.has(r.id));
+        await Promise.all(selectedRoutes.map((r) => api('routes', 'PUT', mutator(r))));
+        toast(okMsg);
+        await load();
+      }
+
+      byId('rows').addEventListener('change', (e) => {
+        const id = Number(e.target.dataset.id);
+        if (!id) return;
+        if (e.target.checked) selected.add(id); else selected.delete(id);
+        updateKpis();
+      });
+
+      byId('check-all').addEventListener('change', (e) => {
+        const boxes = byId('rows').querySelectorAll('input[type="checkbox"][data-id]');
+        boxes.forEach((b) => {
+          b.checked = e.target.checked;
+          const id = Number(b.dataset.id);
+          if (e.target.checked) selected.add(id); else selected.delete(id);
+        });
+        updateKpis();
+      });
+
+      byId('rows').addEventListener('click', async (e) => {
+        const del = e.target.closest('[data-del]');
+        if (del) {
+          const id = Number(del.dataset.del);
+          await api('routes', 'DELETE', null, `&id=${id}`);
+          selected.delete(id);
+          hidden.delete(id);
+          toast('Route deleted');
+          await load();
+          return;
+        }
+        const edit = e.target.closest('[data-edit]');
+        if (edit) {
+          const id = Number(edit.dataset.edit);
+          const route = routes.find((r) => r.id === id);
+          if (!route) return;
+          const name = prompt('Route name', route.name);
+          if (!name) return;
+          await api('routes', 'PUT', { ...route, name: name.trim() });
+          toast('Route updated');
+          await load();
+        }
+      });
+
+      byId('btn-add').addEventListener('click', async () => {
+        const name = byId('new-name').value.trim();
+        if (!name) return toast('Enter route name');
+        await api('routes', 'POST', {
+          name,
+          color: byId('new-color').value,
+          style: byId('new-style').value,
+          weight: Number(byId('new-weight').value) || 4,
+          stopIds: []
+        });
+        byId('new-name').value = '';
+        toast('Route created');
+        await load();
+      });
+
+      byId('btn-add-stop-selected').addEventListener('click', async () => {
+        const stopId = Number(byId('bulk-stop').value);
+        if (!stopId) return toast('Choose a stop first');
+        await mutateSelectedRoutes((r) => {
+          const stopIds = [...(r.stopIds || [])];
+          if (!stopIds.includes(stopId)) stopIds.push(stopId);
+          return { ...r, stopIds };
+        }, 'Stop added to selected routes');
+      });
+
+      byId('btn-remove-stop-selected').addEventListener('click', async () => {
+        const stopId = Number(byId('bulk-stop').value);
+        if (!stopId) return toast('Choose a stop first');
+        await mutateSelectedRoutes((r) => ({ ...r, stopIds: (r.stopIds || []).filter((id) => id !== stopId) }), 'Stop removed from selected routes');
+      });
+
+      byId('btn-hide-selected').addEventListener('click', () => {
+        if (!selected.size) return toast('Select routes first');
+        selected.forEach((id) => hidden.add(id));
+        renderRows();
+      });
+
+      byId('btn-show-all').addEventListener('click', () => {
+        hidden.clear();
+        renderRows();
+      });
+
+      byId('btn-delete-selected').addEventListener('click', async () => {
+        if (!selected.size) return toast('Select routes first');
+        if (!confirm(`Delete ${selected.size} selected routes?`)) return;
+        await Promise.all([...selected].map((id) => api('routes', 'DELETE', null, `&id=${id}`)));
+        selected.clear();
+        toast('Selected routes deleted');
+        await load();
+      });
+
+      byId('search').addEventListener('input', renderRows);
+      byId('btn-refresh').addEventListener('click', load);
+
+      load();
+    </script>
+  </body>
+</html>

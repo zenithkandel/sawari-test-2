@@ -179,7 +179,7 @@
         });
       }
 
-      function renderMap(list) {
+      function renderMap(list, preserveView = false) {
         if (!mapLayer) return;
         mapLayer.clearLayers();
         vehicleMarkers.clear();
@@ -200,12 +200,13 @@
             const idx = vehicles.findIndex((x) => x.id === v.id);
             if (idx >= 0) vehicles[idx] = update;
             toast(`Moved ${v.name}`);
-            renderRows();
+            renderRows(true);
           });
           mapLayer.addLayer(marker);
           vehicleMarkers.set(v.id, marker);
           bounds.push([v.lat, v.lng]);
         });
+        if (preserveView) return;
         if (bounds.length === 1) map.setView(bounds[0], 14);
         else map.fitBounds(bounds, { padding: [18, 18] });
       }
@@ -235,7 +236,7 @@
         byId("selected-text").textContent = `${selected.size} selected`;
       }
 
-      function renderRows() {
+      function renderRows(preserveMapView = false) {
         const q = byId("search").value.trim().toLowerCase();
         const list = vehicles.filter(
           (v) => !q || v.name.toLowerCase().includes(q),
@@ -244,7 +245,7 @@
         if (!list.length) {
           body.innerHTML =
             '<tr><td colspan="6" class="empty">No vehicles found</td></tr>';
-          renderMap([]);
+          renderMap([], preserveMapView);
           updateKpis();
           return;
         }
@@ -268,7 +269,7 @@
           )
           .join("");
 
-        renderMap(list);
+        renderMap(list, preserveMapView);
 
         updateKpis();
       }

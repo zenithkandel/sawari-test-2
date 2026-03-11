@@ -134,6 +134,19 @@
       const hidden = new Set();
       let map = null;
       let mapLayer = null;
+      const stopMarkers = new Map();
+
+      function createStopIcon(stop) {
+        const iconClass = stop.icon || "fa-map-pin";
+        const color = stop.color || "#e74c3c";
+        return L.divIcon({
+          className: "",
+          html: `<div style="width:28px;height:28px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.28)"><i class="fa-solid ${escapeHtml(iconClass)}" style="color:#fff;font-size:13px;"></i></div>`,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14],
+          popupAnchor: [0, -14],
+        });
+      }
 
       function initMap() {
         if (map) return;
@@ -206,18 +219,26 @@
       function renderRows() {
         const q = byId("search").value.trim().toLowerCase();
         const rows = stops.filter(
+        stopMarkers.clear();
           (s) => !q || s.name.toLowerCase().includes(q),
         );
         const body = byId("rows");
         if (!rows.length) {
-          body.innerHTML =
-            '<tr><td colspan="5" class="empty">No stops found</td></tr>';
-          renderMap([]);
-          updateKpis();
-          return;
-        }
-        body.innerHTML = rows
+          const marker = L.marker([s.lat, s.lng], {
+            icon: createStopIcon(s),
+            draggable: true,
+          }).bindPopup(`<b>${escapeHtml(s.name)}</b><br/><small>${Number(s.lat).toFixed(5)}, ${Number(s.lng).toFixed(5)}</small>`);
+          marker.on("dragend", async (e) => {
+            const p = e.target.getLatLng();
+            const update = { ...s, lat: p.lat, lng: p.lng };
+            await api("stops", "PUT", update);
+            const idx = stops.findIndex((x) => x.id === s.id);
+            if (idx >= 0) stops[idx] = update;
+            toast(`Moved ${s.name}`);
+            renderRows();
+          });
           .map(
+          stopMarkers.set(s.id, marker);
             (s) => `
           <tr style="opacity:${hidden.has(s.id) ? 0.4 : 1}">
             <td><input type="checkbox" data-id="${s.id}" ${selected.has(s.id) ? "checked" : ""} /></td>
@@ -225,6 +246,7 @@
             <td>${Number(s.lat).toFixed(5)}, ${Number(s.lng).toFixed(5)}</td>
             <td><span class="badge">${routeCount(s.id)} routes</span></td>
             <td class="actions">
+              <button data-focus="${s.id}">Focus</button>
               <button data-edit="${s.id}">Edit</button>
               <button data-del="${s.id}" class="warn">Delete</button>
             </td>
@@ -267,6 +289,15 @@
       });
 
       byId("rows").addEventListener("click", async (e) => {
+        const focus = e.target.closest("[data-focus]");
+        if (focus) {
+          const id = Number(focus.dataset.focus);
+          const marker = stopMarkers.get(id);
+          if (!marker) return;
+          map.flyTo(marker.getLatLng(), 16);
+          marker.openPopup();
+          return;
+        }
         const del = e.target.closest("[data-del]");
         if (del) {
           const id = Number(del.dataset.del);

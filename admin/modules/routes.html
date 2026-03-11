@@ -228,6 +228,7 @@
             <td><span class="badge">${(r.stopIds || []).length} stops</span></td>
             <td>${escapeHtml(r.style || "solid")} / ${Number(r.weight || 4)}</td>
             <td class="actions">
+              <button data-focus="${r.id}">Focus</button>
               <button data-edit="${r.id}">Edit</button>
               <button data-del="${r.id}" class="warn">Delete</button>
             </td>
@@ -237,6 +238,15 @@
           .join("");
         renderMap(list);
         updateKpis();
+      }
+
+      function routeCoords(routeId) {
+        const route = routes.find((r) => r.id === routeId);
+        if (!route) return [];
+        return (route.stopIds || [])
+          .map((id) => stops.find((s) => s.id === id))
+          .filter(Boolean)
+          .map((s) => [s.lat, s.lng]);
       }
 
       async function load() {
@@ -277,6 +287,15 @@
       });
 
       byId("rows").addEventListener("click", async (e) => {
+        const focus = e.target.closest("[data-focus]");
+        if (focus) {
+          const id = Number(focus.dataset.focus);
+          const coords = routeCoords(id);
+          if (!coords.length) return;
+          if (coords.length === 1) map.setView(coords[0], 14);
+          else map.fitBounds(coords, { padding: [24, 24] });
+          return;
+        }
         const del = e.target.closest("[data-del]");
         if (del) {
           const id = Number(del.dataset.del);

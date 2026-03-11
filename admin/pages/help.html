@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Help</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="page.css" />
+  </head>
+  <body>
+    <header class="page-head">
+      <h1>Help and Productivity</h1>
+      <p>Shortcuts, workflows, and one-click jumps for faster operations.</p>
+    </header>
+
+    <section class="grid">
+      <article class="card span-6">
+        <h2>Global Shortcuts</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Shortcut</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Ctrl/Cmd + K</td>
+              <td>Focus navigation search</td>
+            </tr>
+            <tr>
+              <td>Ctrl/Cmd + R</td>
+              <td>Reload active iframe page</td>
+            </tr>
+            <tr>
+              <td>Esc</td>
+              <td>Close mobile menu / exit focus mode</td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+
+      <article class="card span-6">
+        <h2>Suggested Workflow</h2>
+        <div class="list">
+          <div class="list-item">
+            <strong>1. Add or refine stops</strong>
+            <p
+              style="
+                margin-top: 6px;
+                color: var(--ink-soft);
+                font-size: 0.86rem;
+              "
+            >
+              Place precise stop coordinates and labels first.
+            </p>
+          </div>
+          <div class="list-item">
+            <strong>2. Build routes</strong>
+            <p
+              style="
+                margin-top: 6px;
+                color: var(--ink-soft);
+                font-size: 0.86rem;
+              "
+            >
+              Create route order and style, then verify map geometry.
+            </p>
+          </div>
+          <div class="list-item">
+            <strong>3. Attach fleet</strong>
+            <p
+              style="
+                margin-top: 6px;
+                color: var(--ink-soft);
+                font-size: 0.86rem;
+              "
+            >
+              Assign vehicles to routes and start/stop motion simulation.
+            </p>
+          </div>
+          <div class="list-item">
+            <strong>4. Validate reports</strong>
+            <p
+              style="
+                margin-top: 6px;
+                color: var(--ink-soft);
+                font-size: 0.86rem;
+              "
+            >
+              Review load index and unassigned routes regularly.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card span-12">
+        <h2>Quick Jump</h2>
+        <div class="toolbar">
+          <button
+            class="btn primary"
+            onclick="openPortalPage('workspace.html#stops')"
+          >
+            <i class="fa-solid fa-map-pin"></i> Open Stops Manager
+          </button>
+          <button
+            class="btn primary"
+            onclick="openPortalPage('workspace.html#routes')"
+          >
+            <i class="fa-solid fa-route"></i> Open Routes Planner
+          </button>
+          <button
+            class="btn primary"
+            onclick="openPortalPage('workspace.html#vehicles')"
+          >
+            <i class="fa-solid fa-bus"></i> Open Fleet Control
+          </button>
+          <button class="btn" onclick="openPortalPage('pages/reports.html')">
+            <i class="fa-solid fa-file-chart-column"></i> Open Reports
+          </button>
+        </div>
+      </article>
+    </section>
+
+    <script src="common.js"></script>
+  </body>
+</html>

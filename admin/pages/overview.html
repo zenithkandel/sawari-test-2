@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Overview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="page.css" />
+  </head>
+  <body>
+    <header class="page-head">
+      <h1>Network Overview</h1>
+      <p>
+        Live snapshot of stops, routes, fleet status, and quick launch actions.
+      </p>
+    </header>
+
+    <section class="grid">
+      <article class="card span-3 metric">
+        <span>Total Stops</span>
+        <strong class="kpi-blue" id="kpi-stops">0</strong>
+      </article>
+      <article class="card span-3 metric">
+        <span>Total Routes</span>
+        <strong class="kpi-green" id="kpi-routes">0</strong>
+      </article>
+      <article class="card span-3 metric">
+        <span>Total Vehicles</span>
+        <strong id="kpi-vehicles">0</strong>
+      </article>
+      <article class="card span-3 metric">
+        <span>Moving Right Now</span>
+        <strong class="kpi-warn" id="kpi-moving">0</strong>
+      </article>
+
+      <article class="card span-4">
+        <h2>Quick Actions</h2>
+        <div class="toolbar">
+          <button
+            class="btn primary"
+            onclick="openPortalPage('workspace.html#stops')"
+          >
+            <i class="fa-solid fa-map-pin"></i> Manage Stops
+          </button>
+          <button
+            class="btn primary"
+            onclick="openPortalPage('workspace.html#routes')"
+          >
+            <i class="fa-solid fa-route"></i> Manage Routes
+          </button>
+          <button
+            class="btn primary"
+            onclick="openPortalPage('workspace.html#vehicles')"
+          >
+            <i class="fa-solid fa-bus"></i> Manage Fleet
+          </button>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--ink-soft)">
+          Use these to jump directly into focused editing tools.
+        </p>
+      </article>
+
+      <article class="card span-8">
+        <h2>Top Routes by Coverage</h2>
+        <table class="table" id="top-routes-table">
+          <thead>
+            <tr>
+              <th>Route</th>
+              <th>Stops</th>
+              <th>Vehicle Count</th>
+              <th>Coverage</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </article>
+
+      <article class="card span-6">
+        <h2>Recent Stops Snapshot</h2>
+        <div class="list" id="stops-list"></div>
+      </article>
+
+      <article class="card span-6">
+        <h2>Fleet Assignment</h2>
+        <table class="table" id="fleet-table">
+          <thead>
+            <tr>
+              <th>Vehicle</th>
+              <th>Route</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </article>
+    </section>
+
+    <script src="common.js"></script>
+    <script>
+      (async function init() {
+        const { stops, routes, vehicles } = await getAllData();
+
+        const moving = vehicles.filter((v) => v.moving).length;
+        document.getElementById("kpi-stops").textContent = stops.length;
+        document.getElementById("kpi-routes").textContent = routes.length;
+        document.getElementById("kpi-vehicles").textContent = vehicles.length;
+        document.getElementById("kpi-moving").textContent = moving;
+
+        const topRoutesBody = document.querySelector("#top-routes-table tbody");
+        const byCoverage = routes
+          .map((route) => {
+            const vCount = vehicles.filter(
+              (v) => v.routeId === route.id,
+            ).length;
+            const stopsCount = route.stopIds?.length || 0;
+            return {
+              route,
+              stopsCount,
+              vCount,
+              score: stopsCount * 8 + vCount * 20,
+            };
+          })
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 6);
+
+        topRoutesBody.innerHTML = byCoverage.length
+          ? byCoverage
+              .map((item) => {
+                const percent = Math.max(
+                  8,
+                  Math.min(100, Math.round((item.score / 120) * 100)),
+                );
+                return `<tr>
+                  <td>${item.route.name}</td>
+                  <td>${item.stopsCount}</td>
+                  <td>${item.vCount}</td>
+                  <td><div class="progress"><span style="width:${percent}%"></span></div></td>
+                </tr>`;
+              })
+              .join("")
+          : '<tr><td colspan="4">No routes yet</td></tr>';
+
+        const stopsList = document.getElementById("stops-list");
+        const stopCards = stops.slice(-6).reverse();
+        stopsList.innerHTML = stopCards.length
+          ? stopCards
+              .map(
+                (stop) => `<div class="list-item">
+                    <strong>${stop.name}</strong>
+                    <p style="font-size:0.82rem;color:var(--ink-soft);margin-top:4px;">${stop.lat.toFixed(5)}, ${stop.lng.toFixed(5)}</p>
+                  </div>`,
+              )
+              .join("")
+          : '<div class="list-item">No stops available.</div>';
+
+        const fleetBody = document.querySelector("#fleet-table tbody");
+        fleetBody.innerHTML = vehicles.length
+          ? vehicles
+              .slice(0, 8)
+              .map((vehicle) => {
+                const status = vehicle.moving ? "Moving" : "Idle";
+                return `<tr>
+                  <td>${vehicle.name}</td>
+                  <td>${routeName(vehicle.routeId, routes)}</td>
+                  <td><span class="badge">${status}</span></td>
+                </tr>`;
+              })
+              .join("")
+          : '<tr><td colspan="3">No vehicles available.</td></tr>';
+      })();
+    </script>
+  </body>
+</html>

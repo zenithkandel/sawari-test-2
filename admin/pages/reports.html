@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reports</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="page.css" />
+  </head>
+  <body>
+    <header class="page-head">
+      <h1>Performance Reports</h1>
+      <p>Actionable analytics for route planning and fleet balancing.</p>
+    </header>
+
+    <section class="grid">
+      <article class="card span-6">
+        <h2>Route Load Matrix</h2>
+        <table class="table" id="load-table">
+          <thead>
+            <tr>
+              <th>Route</th>
+              <th>Stops</th>
+              <th>Vehicles</th>
+              <th>Load Index</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </article>
+
+      <article class="card span-6">
+        <h2>Fleet Speed Distribution</h2>
+        <div id="speed-buckets" class="list"></div>
+      </article>
+
+      <article class="card span-12">
+        <h2>Suggested Optimizations</h2>
+        <div id="suggestions" class="list"></div>
+      </article>
+    </section>
+
+    <script src="common.js"></script>
+    <script>
+      (async function init() {
+        const { routes, vehicles } = await getAllData();
+
+        const loadRows = routes.map((route) => {
+          const stops = route.stopIds?.length || 0;
+          const fleet = vehicles.filter((v) => v.routeId === route.id).length;
+          const loadIndex =
+            fleet === 0 ? stops * 10 : Math.round((stops / fleet) * 10);
+          return { route: route.name, stops, fleet, loadIndex };
+        });
+
+        const loadBody = document.querySelector("#load-table tbody");
+        loadBody.innerHTML = loadRows.length
+          ? loadRows
+              .sort((a, b) => b.loadIndex - a.loadIndex)
+              .map(
+                (row) => `<tr>
+                  <td>${row.route}</td>
+                  <td>${row.stops}</td>
+                  <td>${row.fleet}</td>
+                  <td>${row.loadIndex}</td>
+                </tr>`,
+              )
+              .join("")
+          : '<tr><td colspan="4">No route data available.</td></tr>';
+
+        const speeds = vehicles.map((v) => Number(v.speed) || 0);
+        const buckets = [
+          { label: "0-20 km/h", count: speeds.filter((s) => s <= 20).length },
+          {
+            label: "21-40 km/h",
+            count: speeds.filter((s) => s > 20 && s <= 40).length,
+          },
+          {
+            label: "41-60 km/h",
+            count: speeds.filter((s) => s > 40 && s <= 60).length,
+          },
+          { label: "61+ km/h", count: speeds.filter((s) => s > 60).length },
+        ];
+
+        const speedBuckets = document.getElementById("speed-buckets");
+        speedBuckets.innerHTML = buckets
+          .map(
+            (b) => `<div class="list-item">
+                <div style="display:flex;justify-content:space-between;gap:8px;">
+                  <strong>${b.label}</strong>
+                  <span class="badge">${b.count} vehicles</span>
+                </div>
+              </div>`,
+          )
+          .join("");
+
+        const suggestionNodes = [];
+        const noFleetRoutes = loadRows.filter((r) => r.fleet === 0);
+        const overloaded = loadRows.filter(
+          (r) => r.fleet > 0 && r.stops / r.fleet > 12,
+        );
+
+        if (noFleetRoutes.length) {
+          suggestionNodes.push(
+            `<div class="list-item"><strong>Assign vehicles to uncovered routes</strong><p style="margin-top:6px;color:var(--ink-soft);font-size:0.86rem;">${noFleetRoutes
+              .map((r) => r.route)
+              .join(", ")} currently have no assigned vehicles.</p></div>`,
+          );
+        }
+
+        if (overloaded.length) {
+          suggestionNodes.push(
+            `<div class="list-item"><strong>Rebalance high-load routes</strong><p style="margin-top:6px;color:var(--ink-soft);font-size:0.86rem;">${overloaded
+              .map((r) => r.route)
+              .join(", ")} may benefit from additional vehicles.</p></div>`,
+          );
+        }
+
+        if (!suggestionNodes.length) {
+          suggestionNodes.push(
+            '<div class="list-item"><strong>Network looks balanced</strong><p style="margin-top:6px;color:var(--ink-soft);font-size:0.86rem;">No urgent optimization signal detected from current data.</p></div>',
+          );
+        }
+
+        document.getElementById("suggestions").innerHTML =
+          suggestionNodes.join("");
+      })();
+    </script>
+  </body>
+</html>

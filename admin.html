@@ -6,21 +6,46 @@
     <title>Sawari Admin - Manage Stops, Routes & Vehicles</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="admin.css" />
   </head>
-  <body>
-    <header>
-      <h1><i class="fa-solid fa-gear"></i> Sawari Admin</h1>
-      <p>Manage bus stops, routes, and vehicles</p>
-      <a href="index.html" class="header-link"><i class="fa-solid fa-arrow-left"></i> Back to App</a>
-    </header>
+  <body class="classic-theme admin-theme">
+    <div class="admin-frame">
+      <header class="admin-masthead">
+        <div class="admin-branding">
+          <a href="index.html" class="brand-mark" aria-label="Return to Sawari navigator">
+            <span class="brand-mark-box"><i class="fa-solid fa-bus-simple"></i></span>
+            <span class="brand-mark-text">Sawari</span>
+          </a>
+          <div class="admin-heading">
+            <p class="eyebrow">Transit operations console</p>
+            <h1>Sawari Admin</h1>
+          </div>
+        </div>
+        <p class="admin-summary">Manage bus stops, routes, and vehicles with the live network map alongside every control.</p>
+        <a href="index.html" class="header-link"><i class="fa-solid fa-arrow-left"></i> Back to App</a>
+      </header>
 
-    <div id="toast-container"></div>
+      <div id="toast-container"></div>
 
-    <div class="layout">
-      <div class="map-area" id="admin-map"></div>
+      <div class="layout">
+        <section class="map-column">
+          <div class="map-column-head">
+            <span class="map-column-label">Live preview</span>
+            <strong>Transit network canvas</strong>
+          </div>
+          <div class="map-area" id="admin-map"></div>
+        </section>
 
-      <div class="sidebar">
+        <aside class="sidebar-shell">
+          <div class="sidebar-intro">
+            <p class="sidebar-kicker">Control panels</p>
+            <h2>Edit the network</h2>
+          </div>
+
+          <div class="sidebar">
         <!-- Tab Bar -->
         <div class="tab-bar">
           <button class="tab-btn active" data-tab="stops-tab">
@@ -223,6 +248,8 @@
             </table>
           </div>
         </div>
+          </div>
+        </aside>
       </div>
     </div>
 

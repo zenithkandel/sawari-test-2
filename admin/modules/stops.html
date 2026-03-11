@@ -112,6 +112,9 @@
           <button id="btn-assign-route" class="primary">
             Assign Selected Stops To Route
           </button>
+          <button id="btn-remove-from-route">
+            Remove Selected Stops From Route
+          </button>
           <button id="btn-hide-selected">Hide Selected</button>
           <button id="btn-show-all">Show All</button>
           <button id="btn-delete-selected" class="warn">Delete Selected</button>
@@ -413,6 +416,21 @@
         });
         await api("routes", "PUT", { ...route, stopIds: merged });
         toast("Selected stops assigned to route");
+        await load();
+      });
+
+      byId("btn-remove-from-route").addEventListener("click", async () => {
+        const routeId = Number(byId("bulk-route").value);
+        if (!routeId || !selected.size)
+          return toast("Select route and stops first");
+        const route = routes.find((r) => r.id === routeId);
+        if (!route) return;
+        const selectedIds = new Set([...selected]);
+        const trimmed = (route.stopIds || []).filter(
+          (id) => !selectedIds.has(id),
+        );
+        await api("routes", "PUT", { ...route, stopIds: trimmed });
+        toast("Selected stops removed from route");
         await load();
       });
 

@@ -1,6 +1,6 @@
 <?php
 // ============================================================
-// Sawari - api.php
+// Sawari - backend/handlers/api.php
 // Unified REST API for stops, routes, vehicles, and icons
 // ============================================================
 
@@ -14,6 +14,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+$rootDir = dirname(__DIR__, 2);
+$dataDir = $rootDir . '/data';
+$iconsDir = $rootDir . '/assets/icons';
+
+if (!is_dir($dataDir)) {
+    mkdir($dataDir, 0777, true);
+}
+
 $type = $_GET['type'] ?? '';
 $allowedTypes = ['stops', 'routes', 'vehicles', 'icons'];
 
@@ -25,7 +33,6 @@ if (!in_array($type, $allowedTypes)) {
 
 // Icons: special handler
 if ($type === 'icons' && $_SERVER['REQUEST_METHOD'] === 'GET') {
-    $iconsDir = __DIR__ . '/icons';
     $images = [];
     if (is_dir($iconsDir)) {
         $allowed = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'avif', 'bmp', 'ico', 'tiff'];
@@ -35,7 +42,7 @@ if ($type === 'icons' && $_SERVER['REQUEST_METHOD'] === 'GET') {
                 $images[] = $f;
         }
     }
-    $faFile = __DIR__ . '/icons.json';
+    $faFile = $dataDir . '/icons.json';
     $fa = file_exists($faFile) ? json_decode(file_get_contents($faFile), true) : ['fontawesome' => []];
     echo json_encode([
         'fontawesome' => $fa['fontawesome'] ?? [],
@@ -44,7 +51,7 @@ if ($type === 'icons' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     exit;
 }
 
-$file = __DIR__ . '/' . $type . '.json';
+$file = $dataDir . '/' . $type . '.json';
 if (!file_exists($file)) {
     file_put_contents($file, json_encode([]));
 }

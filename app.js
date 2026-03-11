@@ -3,7 +3,7 @@
 // Main transit navigation application
 // ============================================================
 
-const API = 'api.php';
+const API = 'backend/handlers/api.php';
 const DEFAULT_CENTER = [27.7172, 85.3240];
 const DEFAULT_ZOOM = 13;
 
@@ -145,7 +145,7 @@ function createFAIcon(iconClass, color, size = 30) {
 function createImageIcon(imageSrc, size = 36) {
     return L.divIcon({
         className: 'custom-marker-icon',
-        html: `<div style="width:${size}px;height:${size}px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4);overflow:hidden;"><img src="icons/${imageSrc}" style="width:100%;height:100%;object-fit:cover;" /></div>`,
+        html: `<div style="width:${size}px;height:${size}px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4);overflow:hidden;"><img src="assets/icons/${imageSrc}" style="width:100%;height:100%;object-fit:cover;" /></div>`,
         iconSize: [size, size],
         iconAnchor: [size / 2, size / 2],
         popupAnchor: [0, -size / 2]

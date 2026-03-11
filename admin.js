@@ -16,6 +16,32 @@ let newVehicleLatLng = null, vehicleMarkers = {}, movingIntervals = {};
 let mapMarkers = [], mapPolylines = [];
 let expandedRouteId = null;
 
+async function saveStopPosition(stop, latlng) {
+    const update = {
+        id: stop.id,
+        name: stop.name,
+        icon: stop.icon,
+        color: stop.color,
+        lat: latlng.lat,
+        lng: latlng.lng
+    };
+
+    await api(`${API}?type=stops`, 'PUT', update);
+    stop.lat = latlng.lat;
+    stop.lng = latlng.lng;
+
+    const editingId = +document.getElementById('edit-stop-id').value;
+    if (!document.getElementById('edit-stop-modal').classList.contains('hidden') && editingId === stop.id) {
+        editingStopLatLng = latlng;
+        document.getElementById('edit-stop-pos').innerHTML = `<i class="fa-solid fa-check" style="color:#2ecc71"></i> New: ${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}`;
+    }
+
+    renderMap();
+    renderStopsTable();
+    renderRoutesList();
+    showToast(`${stop.name} repositioned`, 'success', 1500);
+}
+
 // ---- Toast ----
 function showToast(msg, type = 'info', ms = 3000) {
     const c = document.getElementById('toast-container');
@@ -120,10 +146,18 @@ function renderMap() {
 
     allStops.forEach(s => {
         if (hiddenStops.has(s.id)) return;
-        const m = L.marker([s.lat, s.lng], { icon: createStopIcon(s) })
+        const m = L.marker([s.lat, s.lng], { icon: createStopIcon(s), draggable: true })
             .addTo(map)
             .bindPopup(`<b>${s.name}</b><br><small>ID: ${s.id} &middot; ${s.lat.toFixed(5)}, ${s.lng.toFixed(5)}</small>`)
-            .on('click', () => { if (routeBuilding) addStopToRoute(s); });
+            .on('click', () => { if (routeBuilding) addStopToRoute(s); })
+            .on('dragend', async e => {
+                try {
+                    await saveStopPosition(s, e.target.getLatLng());
+                } catch {
+                    showToast(`Failed to move ${s.name}`, 'error');
+                    renderMap();
+                }
+            });
         mapMarkers.push(m);
     });
 
@@ -280,7 +314,7 @@ window.editStop = id => {
     document.getElementById('edit-stop-id').value = s.id;
     document.getElementById('edit-stop-name').value = s.name;
     document.getElementById('edit-stop-color').value = s.color || '#e74c3c';
-    document.getElementById('edit-stop-pos').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${s.lat.toFixed(5)}, ${s.lng.toFixed(5)} — click map to update`;
+    document.getElementById('edit-stop-pos').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${s.lat.toFixed(5)}, ${s.lng.toFixed(5)} — drag marker or click map to update`;
     editingStopLatLng = null;
     const sel = document.getElementById('edit-stop-icon');
     sel.innerHTML = allIcons.fontawesome.map(ic => `<option value="${ic}">${ic}</option>`).join('');
@@ -290,8 +324,10 @@ window.editStop = id => {
 
 document.getElementById('btn-save-edit-stop').addEventListener('click', async () => {
     const id = +document.getElementById('edit-stop-id').value;
-    const update = { id, name: document.getElementById('edit-stop-name').value.trim(),
-        icon: document.getElementById('edit-stop-icon').value, color: document.getElementById('edit-stop-color').value };
+    const update = {
+        id, name: document.getElementById('edit-stop-name').value.trim(),
+        icon: document.getElementById('edit-stop-icon').value, color: document.getElementById('edit-stop-color').value
+    };
     if (editingStopLatLng) { update.lat = editingStopLatLng.lat; update.lng = editingStopLatLng.lng; }
     if (!update.name) { showToast('Name required', 'warning'); return; }
     await api(`${API}?type=stops`, 'PUT', update);

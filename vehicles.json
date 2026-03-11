@@ -15,8 +15,8 @@
     {
         "id": 2,
         "name": "Sajha Standard (Route 2)",
-        "lat": 27.740365327968874,
-        "lng": 85.33819260622937,
+        "lat": 27.733718038191437,
+        "lng": 85.3293053005744,
         "icon": "green-bus.png",
         "iconType": "image",
         "color": "#3498db",

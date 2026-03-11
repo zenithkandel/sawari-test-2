@@ -60,6 +60,42 @@ function showToast(msg, type = 'info', ms = 3000) {
     logActivity(msg, type);
 }
 
+function renderActivity() {
+    const list = document.getElementById('activity-list');
+    if (!list) return;
+    if (!activityFeed.length) {
+        list.innerHTML = '<li class="activity-empty">No activity yet. Actions will appear here.</li>';
+        return;
+    }
+    list.innerHTML = activityFeed.slice(0, 40).map(item => `
+        <li class="activity-item activity-${item.type}">
+            <span class="activity-time">${item.time}</span>
+            <span class="activity-msg">${item.msg}</span>
+        </li>
+    `).join('');
+}
+
+function logActivity(msg, type = 'info') {
+    const entry = {
+        msg,
+        type,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    activityFeed.unshift(entry);
+    activityFeed = activityFeed.slice(0, 120);
+    localStorage.setItem(STORAGE.activity, JSON.stringify(activityFeed));
+    renderActivity();
+}
+
+function restoreActivity() {
+    try {
+        activityFeed = JSON.parse(localStorage.getItem(STORAGE.activity) || '[]');
+    } catch {
+        activityFeed = [];
+    }
+    renderActivity();
+}
+
 // ---- API ----
 async function api(url, method = 'GET', body = null) {
     const opts = { method, headers: { 'Content-Type': 'application/json' } };
@@ -727,6 +763,105 @@ function startRouteMotion(v, coords) {
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden')); editingStopLatLng = null; } });
 document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m) { m.classList.add('hidden'); editingStopLatLng = null; } }));
 
+function applyGlobalQuickSearch(raw) {
+    const q = (raw || '').trim().toLowerCase();
+    if (!q) return;
+
+    if (q.includes('route')) {
+        activateTab('routes-tab');
+        document.getElementById('route-search').value = q.replace('route', '').trim();
+        renderRoutesList();
+        return;
+    }
+    if (q.includes('vehicle') || q.includes('fleet') || q.includes('bus')) {
+        activateTab('vehicles-tab');
+        document.getElementById('vehicle-search').value = q.replace(/vehicle|fleet|bus/g, '').trim();
+        renderVehiclesTable();
+        return;
+    }
+    activateTab('stops-tab');
+    document.getElementById('stop-search').value = q.replace('stop', '').trim();
+    renderStopsTable();
+}
+
+const commandCatalog = [
+    { key: 'open stops', run: () => activateTab('stops-tab') },
+    { key: 'open routes', run: () => activateTab('routes-tab') },
+    { key: 'open vehicles', run: () => activateTab('vehicles-tab') },
+    { key: 'new stop', run: () => document.getElementById('btn-add-stop').click() },
+    { key: 'new route', run: () => document.getElementById('btn-add-route').click() },
+    { key: 'new vehicle', run: () => document.getElementById('btn-show-add-vehicle').click() },
+    { key: 'refresh all', run: () => loadAll() },
+    { key: 'toggle map focus', run: () => document.getElementById('btn-map-focus').click() }
+];
+
+function openCommandPalette() {
+    document.getElementById('command-palette').classList.remove('hidden');
+    const input = document.getElementById('command-input');
+    input.value = '';
+    renderCommandResults('');
+    input.focus();
+}
+
+function closeCommandPalette() {
+    document.getElementById('command-palette').classList.add('hidden');
+}
+
+function renderCommandResults(query) {
+    const q = (query || '').toLowerCase();
+    const list = document.getElementById('command-results');
+    const matches = commandCatalog.filter(cmd => !q || cmd.key.includes(q));
+    list.innerHTML = matches.map(cmd => `<button class="palette-item" data-command="${cmd.key}">${cmd.key}</button>`).join('') || '<p class="palette-empty">No matching commands</p>';
+}
+
+document.getElementById('command-results').addEventListener('click', e => {
+    const btn = e.target.closest('[data-command]');
+    if (!btn) return;
+    const cmd = commandCatalog.find(c => c.key === btn.dataset.command);
+    if (!cmd) return;
+    cmd.run();
+    showToast(`Executed: ${cmd.key}`, 'info', 1400);
+    closeCommandPalette();
+});
+
+document.getElementById('command-input').addEventListener('input', e => renderCommandResults(e.target.value));
+document.getElementById('btn-open-command').addEventListener('click', openCommandPalette);
+document.getElementById('btn-close-command').addEventListener('click', closeCommandPalette);
+document.getElementById('command-palette').addEventListener('click', e => {
+    if (e.target.id === 'command-palette') closeCommandPalette();
+});
+
+document.getElementById('global-quick-search').addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    applyGlobalQuickSearch(e.target.value);
+    showToast('Quick filter applied', 'info', 1200);
+});
+
+document.getElementById('btn-map-focus').addEventListener('click', e => {
+    const focused = document.body.classList.toggle('map-focus-mode');
+    e.currentTarget.innerHTML = focused
+        ? '<i class="fa-solid fa-compress"></i> Exit Focus'
+        : '<i class="fa-solid fa-expand"></i> Focus Map';
+    map.invalidateSize();
+});
+
+document.getElementById('btn-clear-activity').addEventListener('click', () => {
+    activityFeed = [];
+    localStorage.removeItem(STORAGE.activity);
+    renderActivity();
+});
+
+document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        openCommandPalette();
+    }
+    if (e.altKey && e.key === '1') activateTab('stops-tab');
+    if (e.altKey && e.key === '2') activateTab('routes-tab');
+    if (e.altKey && e.key === '3') activateTab('vehicles-tab');
+});
+
 // ---- Init ----
+restoreActivity();
 loadAll();
 activateTabFromHash();

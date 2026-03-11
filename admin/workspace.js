@@ -108,12 +108,36 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:
 L.control.scale({ position: 'bottomleft', imperial: false }).addTo(map);
 
 // ---- Tabs ----
-document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => {
+function activateTab(tabId) {
+    const target = document.getElementById(tabId);
+    if (!target) return false;
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById(btn.dataset.tab).classList.add('active');
+    const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+    if (btn) btn.classList.add('active');
+    target.classList.add('active');
+    return true;
+}
+
+function activateTabFromHash() {
+    const hash = (window.location.hash || '').replace('#', '').trim();
+    if (!hash) return;
+    const map = {
+        stops: 'stops-tab',
+        routes: 'routes-tab',
+        vehicles: 'vehicles-tab',
+        'stops-tab': 'stops-tab',
+        'routes-tab': 'routes-tab',
+        'vehicles-tab': 'vehicles-tab'
+    };
+    activateTab(map[hash] || 'stops-tab');
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => {
+    activateTab(btn.dataset.tab);
 }));
+
+window.addEventListener('hashchange', activateTabFromHash);
 
 // ---- Load Data ----
 async function loadAll() {
@@ -690,3 +714,4 @@ document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e =
 
 // ---- Init ----
 loadAll();
+activateTabFromHash();

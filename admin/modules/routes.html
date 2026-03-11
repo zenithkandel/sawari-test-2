@@ -14,6 +14,10 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
     <link rel="stylesheet" href="modules.css" />
   </head>
   <body>
@@ -40,6 +44,18 @@
       <article class="kpi">
         <span>Total Stops In Routes</span><strong id="kpi-stops">0</strong>
       </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Routes Map (Routes Only)</h2></div>
+      <div class="panel-body">
+        <div class="map-shell">
+          <div id="routes-map" class="map-canvas"></div>
+        </div>
+        <p class="map-note">
+          This map renders route lines only for this section.
+        </p>
+      </div>
     </section>
 
     <section class="panel">
@@ -113,12 +129,61 @@
     </section>
 
     <div id="toast-wrap" class="toast-wrap"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="common.js"></script>
     <script>
       let routes = [];
       let stops = [];
       const selected = new Set();
       const hidden = new Set();
+      let map = null;
+      let mapLayer = null;
+
+      function initMap() {
+        if (map) return;
+        map = L.map("routes-map", { zoomControl: true }).setView(
+          [27.7172, 85.324],
+          12,
+        );
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap",
+          maxZoom: 19,
+        }).addTo(map);
+        mapLayer = L.layerGroup().addTo(map);
+      }
+
+      function renderMap(list) {
+        if (!mapLayer) return;
+        mapLayer.clearLayers();
+        const active = list.filter((r) => !hidden.has(r.id));
+        if (!active.length) return;
+        const bounds = [];
+        active.forEach((r) => {
+          const coords = (r.stopIds || [])
+            .map((id) => stops.find((s) => s.id === id))
+            .filter(Boolean)
+            .map((s) => [s.lat, s.lng]);
+          if (coords.length < 2) return;
+          const poly = L.polyline(coords, {
+            color: r.color || "#e74c3c",
+            weight: Number(r.weight || 4),
+            opacity: 0.9,
+            dashArray:
+              r.style === "dashed"
+                ? "10, 8"
+                : r.style === "dotted"
+                  ? "3, 7"
+                  : null,
+          }).bindPopup(
+            `<b>${escapeHtml(r.name)}</b><br/><small>${coords.length} stops</small>`,
+          );
+          mapLayer.addLayer(poly);
+          coords.forEach((c) => bounds.push(c));
+        });
+        if (!bounds.length) return;
+        if (bounds.length === 1) map.setView(bounds[0], 14);
+        else map.fitBounds(bounds, { padding: [18, 18] });
+      }
 
       function updateKpis() {
         byId("kpi-total").textContent = routes.length;
@@ -150,6 +215,7 @@
         if (!list.length) {
           body.innerHTML =
             '<tr><td colspan="5" class="empty">No routes found</td></tr>';
+          renderMap([]);
           updateKpis();
           return;
         }
@@ -169,6 +235,7 @@
         `,
           )
           .join("");
+        renderMap(list);
         updateKpis();
       }
 
@@ -295,6 +362,7 @@
       byId("search").addEventListener("input", renderRows);
       byId("btn-refresh").addEventListener("click", load);
 
+      initMap();
       load();
     </script>
   </body>

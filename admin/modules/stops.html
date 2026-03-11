@@ -14,6 +14,10 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
     <link rel="stylesheet" href="modules.css" />
   </head>
   <body>
@@ -40,6 +44,16 @@
       <article class="kpi">
         <span>With Routes</span><strong id="kpi-linked">0</strong>
       </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Stops Map (Stops Only)</h2></div>
+      <div class="panel-body">
+        <div class="map-shell">
+          <div id="stops-map" class="map-canvas"></div>
+        </div>
+        <p class="map-note">This map renders stops only for this section.</p>
+      </div>
     </section>
 
     <section class="panel">
@@ -110,6 +124,7 @@
     </section>
 
     <div id="toast-wrap" class="toast-wrap"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="common.js"></script>
     <script>
       let stops = [];
@@ -117,6 +132,44 @@
       let icons = [];
       const selected = new Set();
       const hidden = new Set();
+      let map = null;
+      let mapLayer = null;
+
+      function initMap() {
+        if (map) return;
+        map = L.map("stops-map", { zoomControl: true }).setView(
+          [27.7172, 85.324],
+          12,
+        );
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap",
+          maxZoom: 19,
+        }).addTo(map);
+        mapLayer = L.layerGroup().addTo(map);
+      }
+
+      function renderMap(rows) {
+        if (!mapLayer) return;
+        mapLayer.clearLayers();
+        const visible = rows.filter((s) => !hidden.has(s.id));
+        if (!visible.length) return;
+        const bounds = [];
+        visible.forEach((s) => {
+          const marker = L.circleMarker([s.lat, s.lng], {
+            radius: 7,
+            color: s.color || "#e74c3c",
+            weight: 2,
+            fillColor: s.color || "#e74c3c",
+            fillOpacity: 0.65,
+          }).bindPopup(
+            `<b>${escapeHtml(s.name)}</b><br/><small>${Number(s.lat).toFixed(5)}, ${Number(s.lng).toFixed(5)}</small>`,
+          );
+          mapLayer.addLayer(marker);
+          bounds.push([s.lat, s.lng]);
+        });
+        if (bounds.length === 1) map.setView(bounds[0], 14);
+        else map.fitBounds(bounds, { padding: [18, 18] });
+      }
 
       function routeCount(stopId) {
         return routes.filter((r) => (r.stopIds || []).includes(stopId)).length;
@@ -159,6 +212,7 @@
         if (!rows.length) {
           body.innerHTML =
             '<tr><td colspan="5" class="empty">No stops found</td></tr>';
+          renderMap([]);
           updateKpis();
           return;
         }
@@ -178,6 +232,7 @@
         `,
           )
           .join("");
+        renderMap(rows);
         updateKpis();
       }
 
@@ -299,6 +354,7 @@
       byId("search").addEventListener("input", renderRows);
       byId("btn-refresh").addEventListener("click", load);
 
+      initMap();
       load();
     </script>
   </body>

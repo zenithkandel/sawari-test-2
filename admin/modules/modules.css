@@ -80,6 +80,25 @@ body {
     margin-bottom: 10px;
 }
 
+.map-shell {
+    height: 320px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #e9f0fb;
+}
+
+.map-canvas {
+    width: 100%;
+    height: 100%;
+}
+
+.map-note {
+    margin-top: 8px;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+}
+
 .panel-head {
     min-height: 46px;
     padding: 0 10px;
@@ -224,6 +243,10 @@ td.actions {
 }
 
 @media (max-width: 860px) {
+    .map-shell {
+        height: 280px;
+    }
+
     .grid-2 {
         grid-template-columns: 1fr;
     }

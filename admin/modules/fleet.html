@@ -14,6 +14,10 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
     <link rel="stylesheet" href="modules.css" />
   </head>
   <body>
@@ -40,6 +44,16 @@
       <article class="kpi">
         <span>Hidden</span><strong id="kpi-hidden">0</strong>
       </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Fleet Map (Vehicles Only)</h2></div>
+      <div class="panel-body">
+        <div class="map-shell">
+          <div id="fleet-map" class="map-canvas"></div>
+        </div>
+        <p class="map-note">This map renders vehicles only for this section.</p>
+      </div>
     </section>
 
     <section class="panel">
@@ -115,12 +129,56 @@
     </section>
 
     <div id="toast-wrap" class="toast-wrap"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="common.js"></script>
     <script>
       let vehicles = [];
       let routes = [];
       const selected = new Set();
       const hidden = new Set();
+      let map = null;
+      let mapLayer = null;
+
+      function initMap() {
+        if (map) return;
+        map = L.map("fleet-map", { zoomControl: true }).setView(
+          [27.7172, 85.324],
+          12,
+        );
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap",
+          maxZoom: 19,
+        }).addTo(map);
+        mapLayer = L.layerGroup().addTo(map);
+      }
+
+      function vehicleColor(v) {
+        if (v.moving) return "#0f9d73";
+        return v.color || "#e74c3c";
+      }
+
+      function renderMap(list) {
+        if (!mapLayer) return;
+        mapLayer.clearLayers();
+        const visible = list.filter((v) => !hidden.has(v.id));
+        if (!visible.length) return;
+        const bounds = [];
+        visible.forEach((v) => {
+          const marker = L.circleMarker([v.lat, v.lng], {
+            radius: 7,
+            color: vehicleColor(v),
+            weight: 2,
+            fillColor: vehicleColor(v),
+            fillOpacity: 0.72,
+          }).bindPopup(
+            `<b>${escapeHtml(v.name)}</b><br/><small>${escapeHtml(routeName(v.routeId))}</small>`,
+          );
+          mapLayer.addLayer(marker);
+          bounds.push([v.lat, v.lng]);
+        });
+        if (bounds.length === 1) map.setView(bounds[0], 14);
+        else map.fitBounds(bounds, { padding: [18, 18] });
+      }
 
       function routeName(routeId) {
         return routes.find((r) => r.id === routeId)?.name || "Unassigned";
@@ -156,6 +214,7 @@
         if (!list.length) {
           body.innerHTML =
             '<tr><td colspan="6" class="empty">No vehicles found</td></tr>';
+          renderMap([]);
           updateKpis();
           return;
         }
@@ -177,6 +236,8 @@
         `,
           )
           .join("");
+
+        renderMap(list);
 
         updateKpis();
       }
@@ -323,6 +384,7 @@
       byId("search").addEventListener("input", renderRows);
       byId("btn-refresh").addEventListener("click", load);
 
+      initMap();
       load();
     </script>
   </body>

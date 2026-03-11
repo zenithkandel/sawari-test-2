@@ -6,6 +6,10 @@
 const API = '../backend/handlers/api.php';
 const DEFAULT_CENTER = [27.7172, 85.3240];
 const DEFAULT_ZOOM = 13;
+const STORAGE = {
+    activeTab: 'sawari_admin_active_tab',
+    activity: 'sawari_admin_activity'
+};
 
 let allStops = [], allRoutes = [], allVehicles = [];
 let allIcons = { fontawesome: [] };
@@ -15,6 +19,7 @@ let routeBuilding = false, routeStopIds = [], editRouteStopIds = [];
 let newVehicleLatLng = null, vehicleMarkers = {}, movingIntervals = {};
 let mapMarkers = [], mapPolylines = [];
 let expandedRouteId = null;
+let activityFeed = [];
 
 async function saveStopPosition(stop, latlng) {
     const update = {
@@ -52,6 +57,7 @@ function showToast(msg, type = 'info', ms = 3000) {
     c.appendChild(t);
     requestAnimationFrame(() => t.classList.add('show'));
     setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, ms);
+    logActivity(msg, type);
 }
 
 // ---- API ----
@@ -116,12 +122,17 @@ function activateTab(tabId) {
     const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
     if (btn) btn.classList.add('active');
     target.classList.add('active');
+    localStorage.setItem(STORAGE.activeTab, tabId);
     return true;
 }
 
 function activateTabFromHash() {
     const hash = (window.location.hash || '').replace('#', '').trim();
-    if (!hash) return;
+    if (!hash) {
+        const savedTab = localStorage.getItem(STORAGE.activeTab);
+        if (savedTab) activateTab(savedTab);
+        return;
+    }
     const map = {
         stops: 'stops-tab',
         routes: 'routes-tab',
@@ -160,6 +171,10 @@ function updateCounts() {
     document.getElementById('stops-count').textContent = allStops.length;
     document.getElementById('routes-count').textContent = allRoutes.length;
     document.getElementById('vehicles-count').textContent = allVehicles.length;
+    document.getElementById('stat-total-stops').textContent = allStops.length;
+    document.getElementById('stat-total-routes').textContent = allRoutes.length;
+    document.getElementById('stat-total-vehicles').textContent = allVehicles.length;
+    document.getElementById('stat-moving-vehicles').textContent = allVehicles.filter(v => v.moving).length;
 }
 
 // ---- Map Rendering ----

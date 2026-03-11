@@ -12,189 +12,100 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body class="classic-theme">
-    <div class="app-frame">
-      <header class="site-masthead">
-        <a href="index.html" class="brand-mark" aria-label="Sawari home">
-          <span class="brand-mark-box"
-            ><i class="fa-solid fa-bus-simple"></i
+  <body>
+    <div id="map"></div>
+
+    <div id="search-panel">
+      <div class="panel-header">
+        <div class="panel-heading">
+          <h1>Sawari</h1>
+          <p>Route planner</p>
+        </div>
+        <button class="collapse-btn" id="btn-collapse" title="Collapse panel">
+          <i class="fa-solid fa-chevron-up"></i>
+        </button>
+        <a href="admin.html" class="admin-link"
+          ><i class="fa-solid fa-gear"></i
+        ></a>
+      </div>
+
+      <div class="search-body">
+        <div class="input-group">
+          <span class="input-icon start"
+            ><i class="fa-solid fa-circle-dot"></i
           ></span>
-          <span class="brand-mark-text">Sawari</span>
-        </a>
+          <input
+            type="text"
+            id="input-start"
+            placeholder="Starting location"
+            autocomplete="off"
+          />
+          <button class="pick-btn" id="btn-pick-start" title="Pick on map">
+            <i class="fa-solid fa-location-crosshairs"></i>
+          </button>
+          <div class="suggestions-dropdown hidden" id="suggestions-start"></div>
+        </div>
 
-        <nav class="masthead-nav" aria-label="Primary">
-          <a href="#search-panel">Plan</a>
-          <a href="#journey-results">Results</a>
-          <a href="#live-panel">Live Tools</a>
-          <a href="admin.html" class="masthead-cta">Admin</a>
-        </nav>
-      </header>
+        <div class="input-group">
+          <span class="input-icon end"
+            ><i class="fa-solid fa-flag-checkered"></i
+          ></span>
+          <input
+            type="text"
+            id="input-end"
+            placeholder="Destination"
+            autocomplete="off"
+          />
+          <button class="pick-btn" id="btn-pick-end" title="Pick on map">
+            <i class="fa-solid fa-location-crosshairs"></i>
+          </button>
+          <div class="suggestions-dropdown hidden" id="suggestions-end"></div>
+        </div>
 
-      <main class="hero-layout">
-        <section class="hero-copy">
-          <p class="eyebrow">Classic route planning interface</p>
-          <h1>
-            All your
-            <span>journeys</span>
-            one map.
-          </h1>
-          <p class="hero-text">
-            Connect stops, routes, and live positioning in a single transit
-            canvas. Search naturally, compare legs, and keep the city view
-            present while you plan.
-          </p>
+        <div class="search-actions">
+          <button class="btn" id="btn-swap" title="Swap start and end">
+            <i class="fa-solid fa-arrows-rotate"></i>
+          </button>
+          <button class="btn btn-primary" id="btn-navigate">
+            <i class="fa-solid fa-route"></i> Navigate
+          </button>
+          <button class="btn" id="btn-clear" title="Clear">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
 
-          <div class="hero-actions">
-            <a href="#search-panel" class="hero-btn hero-btn-primary"
-              >Start Planning</a
-            >
-            <a href="admin.html" class="hero-btn">Open Admin</a>
-          </div>
+        <p id="search-status" class="status-msg">
+          Pick your start and destination on the map.
+        </p>
+      </div>
 
-          <div class="hero-footnote">
-            <div>
-              <span class="footnote-label">Search</span>
-              <strong>Stops, start, destination</strong>
-            </div>
-            <div>
-              <span class="footnote-label">Output</span>
-              <strong>Transit legs with live map context</strong>
-            </div>
-          </div>
-        </section>
-
-        <section class="stage-panel" aria-label="Map and planner">
-          <div id="map"></div>
-
-          <div class="stage-stack">
-            <div id="search-panel">
-              <div class="panel-header">
-                <div class="panel-heading">
-                  <p class="panel-kicker">Route planner</p>
-                  <h2>Sawari Navigator</h2>
-                </div>
-                <button
-                  class="collapse-btn"
-                  id="btn-collapse"
-                  title="Collapse panel"
-                >
-                  <i class="fa-solid fa-chevron-up"></i>
-                </button>
-                <a href="admin.html" class="admin-link"
-                  ><i class="fa-solid fa-gear"></i> Admin</a
-                >
-              </div>
-
-              <div class="search-body">
-                <p class="panel-intro">
-                  Enter a start and destination, or pick both directly on the
-                  map.
-                </p>
-
-                <div class="input-group">
-                  <span class="input-icon start"
-                    ><i class="fa-solid fa-circle-dot"></i
-                  ></span>
-                  <input
-                    type="text"
-                    id="input-start"
-                    placeholder="Starting location"
-                    autocomplete="off"
-                  />
-                  <button
-                    class="pick-btn"
-                    id="btn-pick-start"
-                    title="Pick on map"
-                  >
-                    <i class="fa-solid fa-location-crosshairs"></i>
-                  </button>
-                  <div
-                    class="suggestions-dropdown hidden"
-                    id="suggestions-start"
-                  ></div>
-                </div>
-
-                <div class="input-group">
-                  <span class="input-icon end"
-                    ><i class="fa-solid fa-flag-checkered"></i
-                  ></span>
-                  <input
-                    type="text"
-                    id="input-end"
-                    placeholder="Destination"
-                    autocomplete="off"
-                  />
-                  <button
-                    class="pick-btn"
-                    id="btn-pick-end"
-                    title="Pick on map"
-                  >
-                    <i class="fa-solid fa-location-crosshairs"></i>
-                  </button>
-                  <div
-                    class="suggestions-dropdown hidden"
-                    id="suggestions-end"
-                  ></div>
-                </div>
-
-                <div class="search-actions">
-                  <button class="btn" id="btn-swap" title="Swap start and end">
-                    <i class="fa-solid fa-arrows-rotate"></i>
-                  </button>
-                  <button class="btn btn-primary" id="btn-navigate">
-                    <i class="fa-solid fa-route"></i> Navigate
-                  </button>
-                  <button class="btn" id="btn-clear" title="Clear">
-                    <i class="fa-solid fa-xmark"></i>
-                  </button>
-                </div>
-
-                <p id="search-status" class="status-msg">
-                  Pick your start and destination on the map.
-                </p>
-              </div>
-
-              <div id="journey-results" class="hidden"></div>
-            </div>
-
-            <div id="live-panel">
-              <div class="live-panel-copy">
-                <span class="live-label">Live tools</span>
-                <strong>GPS and centering</strong>
-              </div>
-              <button class="btn btn-sm" id="btn-gps">
-                <i class="fa-solid fa-location-arrow"></i> GPS
-              </button>
-              <span class="gps-info" id="gps-status">GPS off</span>
-              <button
-                class="btn btn-sm"
-                id="btn-center-gps"
-                title="Center on my location"
-              >
-                <i class="fa-solid fa-crosshairs"></i>
-              </button>
-              <button
-                class="btn btn-sm btn-success hidden"
-                id="btn-use-gps-start"
-                title="Use GPS as start location"
-              >
-                <i class="fa-solid fa-circle-dot"></i> Use as Start
-              </button>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <div id="toast-container"></div>
+      <div id="journey-results" class="hidden"></div>
     </div>
+
+    <div id="live-panel">
+      <button class="btn btn-sm" id="btn-gps">
+        <i class="fa-solid fa-location-arrow"></i> GPS
+      </button>
+      <span class="gps-info" id="gps-status">GPS off</span>
+      <button
+        class="btn btn-sm"
+        id="btn-center-gps"
+        title="Center on my location"
+      >
+        <i class="fa-solid fa-crosshairs"></i>
+      </button>
+      <button
+        class="btn btn-sm btn-success hidden"
+        id="btn-use-gps-start"
+        title="Use GPS as start location"
+      >
+        <i class="fa-solid fa-circle-dot"></i> Use as Start
+      </button>
+    </div>
+
+    <div id="toast-container"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="routing.js"></script>

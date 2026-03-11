@@ -83,6 +83,7 @@
         />
         <button id="btn-draw-route" class="ghost">Start Drawing</button>
         <button id="btn-clear-draw" class="ghost">Clear Draw</button>
+        <button id="btn-remove-last-draw" class="ghost">Remove Last</button>
         <button class="primary" id="btn-add">Add Route</button>
         <button class="primary" id="btn-save-drawn">Save Drawn Route</button>
       </div>
@@ -145,6 +146,23 @@
       let drawLayer = null;
       let isDrawing = false;
       let drawStopIds = [];
+      let editingRouteId = null;
+
+      function drawModeActive() {
+        return isDrawing || editingRouteId != null;
+      }
+
+      function updateDrawUI() {
+        const editing = editingRouteId != null;
+        byId("btn-draw-route").textContent = editing
+          ? "Map Edit Active"
+          : isDrawing
+            ? "Drawing: Click Stops"
+            : "Start Drawing";
+        byId("btn-save-drawn").textContent = editing
+          ? "Save Route Edit"
+          : "Save Drawn Route";
+      }
 
       function initMap() {
         if (map) return;
@@ -175,7 +193,7 @@
           }).bindTooltip(`${s.name}${helper ? " (helper)" : ""}`);
 
           marker.on("click", () => {
-            if (!isDrawing) return;
+            if (!drawModeActive()) return;
             if (!drawStopIds.includes(s.id)) {
               drawStopIds.push(s.id);
               renderDrawPath();
@@ -291,6 +309,7 @@
             <td>${escapeHtml(r.style || "solid")} / ${Number(r.weight || 4)}</td>
             <td class="actions">
               <button data-focus="${r.id}">Focus</button>
+              <button data-mapedit="${r.id}">Map Edit</button>
               <button data-edit="${r.id}">Edit</button>
               <button data-del="${r.id}" class="warn">Delete</button>
             </td>
@@ -317,6 +336,7 @@
         renderRows();
         renderStopReferences();
         renderDrawPath();
+        updateDrawUI();
       }
 
       async function mutateSelectedRoutes(mutator, okMsg) {
@@ -360,6 +380,25 @@
           else map.fitBounds(coords, { padding: [24, 24] });
           return;
         }
+        const mapEdit = e.target.closest("[data-mapedit]");
+        if (mapEdit) {
+          const id = Number(mapEdit.dataset.mapedit);
+          const route = routes.find((r) => r.id === id);
+          if (!route) return;
+          editingRouteId = id;
+          isDrawing = false;
+          drawStopIds = [...(route.stopIds || [])];
+          byId("new-name").value = route.name || "";
+          byId("new-color").value = route.color || "#e74c3c";
+          byId("new-style").value = route.style || "solid";
+          byId("new-weight").value = Number(route.weight || 4);
+          renderDrawPath();
+          updateDrawUI();
+          const coords = routeCoords(id);
+          if (coords.length >= 2) map.fitBounds(coords, { padding: [24, 24] });
+          toast("Map edit mode enabled: click stops to reshape route");
+          return;
+        }
         const del = e.target.closest("[data-del]");
         if (del) {
           const id = Number(del.dataset.del);
@@ -399,15 +438,26 @@
       });
 
       byId("btn-draw-route").addEventListener("click", () => {
+        if (editingRouteId != null) {
+          toast("Map edit is active. Save or clear to exit edit mode.");
+          return;
+        }
         isDrawing = !isDrawing;
-        byId("btn-draw-route").textContent = isDrawing
-          ? "Drawing: Click Stops"
-          : "Start Drawing";
+        updateDrawUI();
         if (isDrawing) toast("Drawing mode: click stops on map in order");
       });
 
       byId("btn-clear-draw").addEventListener("click", () => {
         drawStopIds = [];
+        editingRouteId = null;
+        isDrawing = false;
+        renderDrawPath();
+        updateDrawUI();
+      });
+
+      byId("btn-remove-last-draw").addEventListener("click", () => {
+        if (!drawStopIds.length) return;
+        drawStopIds.pop();
         renderDrawPath();
       });
 
@@ -416,17 +466,25 @@
         if (!name) return toast("Enter route name first");
         if (drawStopIds.length < 2)
           return toast("Draw route by selecting at least 2 stops");
-        await api("routes", "POST", {
+        const payload = {
           name,
           color: byId("new-color").value,
           style: byId("new-style").value,
           weight: Number(byId("new-weight").value) || 4,
           stopIds: [...drawStopIds],
-        });
+        };
+        if (editingRouteId != null) {
+          await api("routes", "PUT", { ...payload, id: editingRouteId });
+        } else {
+          await api("routes", "POST", payload);
+        }
         drawStopIds = [];
+        editingRouteId = null;
+        isDrawing = false;
         byId("new-name").value = "";
         renderDrawPath();
-        toast("Drawn route saved");
+        updateDrawUI();
+        toast("Route path saved");
         await load();
       });
 

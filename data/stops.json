@@ -349,5 +349,15 @@
         "icon": "fa-school",
         "iconType": "fontawesome",
         "color": "#9b59b6"
+    },
+    {
+        "name": "Dhulikhel",
+        "lat": 27.61751,
+        "lng": 85.55549,
+        "type": "actual",
+        "iconType": "fontawesome",
+        "icon": "fa-user",
+        "color": "#e74c3c",
+        "id": 40
     }
 ]

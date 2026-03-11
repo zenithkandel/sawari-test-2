@@ -9,6 +9,7 @@ const DEFAULT_ZOOM = 13;
 
 // ---- State ----
 let allStops = [];
+let publicStops = [];
 let allRoutes = [];
 let allVehicles = [];
 let startPoint = null;   // { lat, lng }
@@ -201,8 +202,9 @@ async function loadData() {
             api(`${API}?type=routes`),
             api(`${API}?type=vehicles`)
         ]);
+        publicStops = allStops.filter(s => (s.type || 'actual') !== 'road-helper');
         renderContextLayers();
-        showToast(`Loaded ${allStops.length} stops, ${allRoutes.length} routes`, 'info', 2000);
+        showToast(`Loaded ${publicStops.length} stops, ${allRoutes.length} routes`, 'info', 2000);
     } catch (err) {
         showToast('Failed to load data. Is the server running?', 'error', 5000);
     }
@@ -230,7 +232,7 @@ function renderContextLayers() {
     });
 
     // Draw stops as small markers with hover tooltips
-    allStops.forEach(s => {
+    publicStops.forEach(s => {
         const m = L.marker([s.lat, s.lng], { icon: createStopIcon(s, 18), opacity: 0.6 })
             .addTo(map)
             .bindPopup(`<b>${s.name}</b><br><small>ID: ${s.id}</small>`)
@@ -397,8 +399,8 @@ async function navigate() {
 
     try {
         // 1. Find nearest stops
-        const startResult = findNearestStop(startPoint.lat, startPoint.lng, allStops);
-        const endResult = findNearestStop(endPoint.lat, endPoint.lng, allStops);
+        const startResult = findNearestStop(startPoint.lat, startPoint.lng, publicStops);
+        const endResult = findNearestStop(endPoint.lat, endPoint.lng, publicStops);
 
         if (!startResult.stop || !endResult.stop) {
             await showWalkingFallback('No bus stops found in the area.');
@@ -413,7 +415,7 @@ async function navigate() {
             journey = await buildDirectJourney(startResult, endResult, directRoutes[0]);
         } else {
             // Try transfer
-            const transfer = findTransferRoutes(startResult.stop.id, endResult.stop.id, allRoutes, allStops);
+            const transfer = findTransferRoutes(startResult.stop.id, endResult.stop.id, allRoutes, publicStops);
             if (transfer) {
                 journey = await buildTransferJourney(startResult, endResult, transfer);
             } else {
@@ -496,6 +498,7 @@ async function buildDirectJourney(startResult, endResult, routeMatch) {
     const { route, subStopIds } = routeMatch;
 
     const subStops = subStopIds.map(id => allStops.find(s => s.id === id)).filter(Boolean);
+    const visibleSubStops = subStops.filter(s => (s.type || 'actual') !== 'road-helper');
 
     const [walkLeg1, busLeg, walkLeg2] = await Promise.all([
         getOSRMRoute([[startPoint.lat, startPoint.lng], [startResult.stop.lat, startResult.stop.lng]], 'foot'),
@@ -507,7 +510,7 @@ async function buildDirectJourney(startResult, endResult, routeMatch) {
         type: 'direct',
         legs: [
             { type: 'walk', label: 'Walk to bus stop', from: 'Your location', to: startResult.stop.name, route: walkLeg1, distance: walkLeg1?.distance || startResult.distance, duration: walkLeg1?.duration || 0, stop: startResult.stop },
-            { type: 'bus', label: `${route.name}`, from: startResult.stop.name, to: endResult.stop.name, coords: busLeg, stops: subStops, route, distance: 0, duration: 0 },
+            { type: 'bus', label: `${route.name}`, from: startResult.stop.name, to: endResult.stop.name, coords: busLeg, stops: visibleSubStops, route, distance: 0, duration: 0 },
             { type: 'walk', label: 'Walk to destination', from: endResult.stop.name, to: 'Your destination', route: walkLeg2, distance: walkLeg2?.distance || endResult.distance, duration: walkLeg2?.duration || 0, stop: endResult.stop }
         ],
         startStop: startResult.stop,
@@ -520,6 +523,8 @@ async function buildTransferJourney(startResult, endResult, transfer) {
 
     const subStops1 = leg1Match.subStopIds.map(id => allStops.find(s => s.id === id)).filter(Boolean);
     const subStops2 = leg2Match.subStopIds.map(id => allStops.find(s => s.id === id)).filter(Boolean);
+    const visibleSubStops1 = subStops1.filter(s => (s.type || 'actual') !== 'road-helper');
+    const visibleSubStops2 = subStops2.filter(s => (s.type || 'actual') !== 'road-helper');
 
     const [walkLeg1, busLeg1, busLeg2, walkLeg2] = await Promise.all([
         getOSRMRoute([[startPoint.lat, startPoint.lng], [startResult.stop.lat, startResult.stop.lng]], 'foot'),
@@ -532,9 +537,9 @@ async function buildTransferJourney(startResult, endResult, transfer) {
         type: 'transfer',
         legs: [
             { type: 'walk', label: 'Walk to bus stop', from: 'Your location', to: startResult.stop.name, route: walkLeg1, distance: walkLeg1?.distance || startResult.distance, duration: walkLeg1?.duration || 0, stop: startResult.stop },
-            { type: 'bus', label: `${leg1Match.route.name}`, from: startResult.stop.name, to: transferStop.name, coords: busLeg1, stops: subStops1, route: leg1Match.route, distance: 0, duration: 0 },
+            { type: 'bus', label: `${leg1Match.route.name}`, from: startResult.stop.name, to: transferStop.name, coords: busLeg1, stops: visibleSubStops1, route: leg1Match.route, distance: 0, duration: 0 },
             { type: 'walk', label: `Transfer at ${transferStop.name}`, from: transferStop.name, to: transferStop.name, route: null, distance: 0, duration: 60, stop: transferStop, isTransfer: true },
-            { type: 'bus', label: `${leg2Match.route.name}`, from: transferStop.name, to: endResult.stop.name, coords: busLeg2, stops: subStops2, route: leg2Match.route, distance: 0, duration: 0 },
+            { type: 'bus', label: `${leg2Match.route.name}`, from: transferStop.name, to: endResult.stop.name, coords: busLeg2, stops: visibleSubStops2, route: leg2Match.route, distance: 0, duration: 0 },
             { type: 'walk', label: 'Walk to destination', from: endResult.stop.name, to: 'Your destination', route: walkLeg2, distance: walkLeg2?.distance || endResult.distance, duration: walkLeg2?.duration || 0, stop: endResult.stop }
         ],
         startStop: startResult.stop,
@@ -910,7 +915,7 @@ function setupAutocomplete(inputId, suggestionsId, onSelect) {
     let activeIndex = -1;
 
     function showSuggestions(query) {
-        if (!query || query.length === 0 || allStops.length === 0) {
+        if (!query || query.length === 0 || publicStops.length === 0) {
             dropdown.classList.add('hidden');
             dropdown.innerHTML = '';
             activeIndex = -1;
@@ -918,7 +923,7 @@ function setupAutocomplete(inputId, suggestionsId, onSelect) {
         }
 
         const lower = query.toLowerCase();
-        const matches = allStops.filter(s => s.name.toLowerCase().includes(lower));
+        const matches = publicStops.filter(s => s.name.toLowerCase().includes(lower));
 
         if (matches.length === 0) {
             dropdown.classList.add('hidden');
@@ -982,7 +987,7 @@ function setupAutocomplete(inputId, suggestionsId, onSelect) {
             e.preventDefault();
             if (activeIndex >= 0) {
                 const lower = input.value.trim().toLowerCase();
-                const matches = allStops.filter(s => s.name.toLowerCase().includes(lower));
+                const matches = publicStops.filter(s => s.name.toLowerCase().includes(lower));
                 if (matches[activeIndex]) selectStop(matches[activeIndex]);
             }
         } else if (e.key === 'Escape') {

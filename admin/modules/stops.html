@@ -161,25 +161,34 @@
         mapLayer = L.layerGroup().addTo(map);
       }
 
-      function renderMap(rows) {
+      function renderMap(rows, preserveView = false) {
         if (!mapLayer) return;
         mapLayer.clearLayers();
+        stopMarkers.clear();
         const visible = rows.filter((s) => !hidden.has(s.id));
         if (!visible.length) return;
         const bounds = [];
         visible.forEach((s) => {
-          const marker = L.circleMarker([s.lat, s.lng], {
-            radius: 7,
-            color: s.color || "#e74c3c",
-            weight: 2,
-            fillColor: s.color || "#e74c3c",
-            fillOpacity: 0.65,
+          const marker = L.marker([s.lat, s.lng], {
+            icon: createStopIcon(s),
+            draggable: true,
           }).bindPopup(
             `<b>${escapeHtml(s.name)}</b><br/><small>${Number(s.lat).toFixed(5)}, ${Number(s.lng).toFixed(5)}</small>`,
           );
+          marker.on("dragend", async (e) => {
+            const p = e.target.getLatLng();
+            const update = { ...s, lat: p.lat, lng: p.lng };
+            await api("stops", "PUT", update);
+            const idx = stops.findIndex((x) => x.id === s.id);
+            if (idx >= 0) stops[idx] = update;
+            toast(`Moved ${s.name}`);
+            renderRows(true);
+          });
           mapLayer.addLayer(marker);
+          stopMarkers.set(s.id, marker);
           bounds.push([s.lat, s.lng]);
         });
+        if (preserveView) return;
         if (bounds.length === 1) map.setView(bounds[0], 14);
         else map.fitBounds(bounds, { padding: [18, 18] });
       }
@@ -216,29 +225,21 @@
           .join("");
       }
 
-      function renderRows() {
+      function renderRows(preserveMapView = false) {
         const q = byId("search").value.trim().toLowerCase();
         const rows = stops.filter(
-        stopMarkers.clear();
           (s) => !q || s.name.toLowerCase().includes(q),
         );
         const body = byId("rows");
         if (!rows.length) {
-          const marker = L.marker([s.lat, s.lng], {
-            icon: createStopIcon(s),
-            draggable: true,
-          }).bindPopup(`<b>${escapeHtml(s.name)}</b><br/><small>${Number(s.lat).toFixed(5)}, ${Number(s.lng).toFixed(5)}</small>`);
-          marker.on("dragend", async (e) => {
-            const p = e.target.getLatLng();
-            const update = { ...s, lat: p.lat, lng: p.lng };
-            await api("stops", "PUT", update);
-            const idx = stops.findIndex((x) => x.id === s.id);
-            if (idx >= 0) stops[idx] = update;
-            toast(`Moved ${s.name}`);
-            renderRows();
-          });
+          body.innerHTML =
+            '<tr><td colspan="5" class="empty">No stops found</td></tr>';
+          renderMap([], preserveMapView);
+          updateKpis();
+          return;
+        }
+        body.innerHTML = rows
           .map(
-          stopMarkers.set(s.id, marker);
             (s) => `
           <tr style="opacity:${hidden.has(s.id) ? 0.4 : 1}">
             <td><input type="checkbox" data-id="${s.id}" ${selected.has(s.id) ? "checked" : ""} /></td>
@@ -254,7 +255,7 @@
         `,
           )
           .join("");
-        renderMap(rows);
+        renderMap(rows, preserveMapView);
         updateKpis();
       }
 

@@ -55,7 +55,10 @@
         <div class="map-shell">
           <div id="stops-map" class="map-canvas"></div>
         </div>
-        <p class="map-note">This map renders stops only for this section.</p>
+        <p class="map-note">
+          Click a marker to toggle selection, drag to reposition, and use Pick
+          On Map to place new stops quickly.
+        </p>
       </div>
     </section>
 
@@ -167,10 +170,13 @@
           [27.7172, 85.324],
           12,
         );
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "&copy; OpenStreetMap",
-          maxZoom: 19,
-        }).addTo(map);
+        L.tileLayer(
+          "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+          {
+            attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
+            maxZoom: 19,
+          },
+        ).addTo(map);
         mapLayer = L.layerGroup().addTo(map);
         map.on("click", (e) => {
           if (!pickFromMap) return;
@@ -203,6 +209,11 @@
             const idx = stops.findIndex((x) => x.id === s.id);
             if (idx >= 0) stops[idx] = update;
             toast(`Moved ${s.name}`);
+            renderRows(true);
+          });
+          marker.on("click", () => {
+            if (selected.has(s.id)) selected.delete(s.id);
+            else selected.add(s.id);
             renderRows(true);
           });
           mapLayer.addLayer(marker);
@@ -265,7 +276,7 @@
         body.innerHTML = rows
           .map(
             (s) => `
-          <tr style="opacity:${hidden.has(s.id) ? 0.4 : 1}">
+          <tr class="${selected.has(s.id) ? "row-selected" : ""}" style="opacity:${hidden.has(s.id) ? 0.4 : 1}">
             <td><input type="checkbox" data-id="${s.id}" ${selected.has(s.id) ? "checked" : ""} /></td>
             <td><strong>${escapeHtml(s.name)}</strong></td>
             <td>${Number(s.lat).toFixed(5)}, ${Number(s.lng).toFixed(5)}</td>
@@ -329,6 +340,13 @@
         const del = e.target.closest("[data-del]");
         if (del) {
           const id = Number(del.dataset.del);
+          const ok = await confirmModal({
+            title: "Delete Stop",
+            message: "This stop will be removed permanently.",
+            okText: "Delete",
+            tone: "warn",
+          });
+          if (!ok) return;
           await api("stops", "DELETE", null, `&id=${id}`);
           selected.delete(id);
           hidden.delete(id);
@@ -341,9 +359,15 @@
           const id = Number(edit.dataset.edit);
           const stop = stops.find((s) => s.id === id);
           if (!stop) return;
-          const name = prompt("Stop name", stop.name);
+          const name = await textPromptModal({
+            title: "Rename Stop",
+            label: "Stop name",
+            initialValue: stop.name,
+            placeholder: "Stop name",
+            okText: "Save",
+          });
           if (!name) return;
-          await api("stops", "PUT", { ...stop, name: name.trim() });
+          await api("stops", "PUT", { ...stop, name });
           toast("Stop updated");
           await load();
         }
@@ -383,7 +407,13 @@
 
       byId("btn-delete-selected").addEventListener("click", async () => {
         if (!selected.size) return toast("Select stops first");
-        if (!confirm(`Delete ${selected.size} selected stops?`)) return;
+        const ok = await confirmModal({
+          title: "Delete Selected Stops",
+          message: `Delete ${selected.size} selected stops?`,
+          okText: "Delete",
+          tone: "warn",
+        });
+        if (!ok) return;
         await Promise.all(
           [...selected].map((id) => api("stops", "DELETE", null, `&id=${id}`)),
         );

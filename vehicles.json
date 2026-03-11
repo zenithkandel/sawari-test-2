@@ -93,8 +93,8 @@
     {
         "id": 8,
         "name": "Sajha Green (Kalanki)",
-        "lat": 27.6845,
-        "lng": 85.297,
+        "lat": 27.692040232817703,
+        "lng": 85.30291944829483,
         "icon": "green-bus.png",
         "iconType": "image",
         "color": "#2ecc71",

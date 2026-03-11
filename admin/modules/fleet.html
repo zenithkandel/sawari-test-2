@@ -52,7 +52,10 @@
         <div class="map-shell">
           <div id="fleet-map" class="map-canvas"></div>
         </div>
-        <p class="map-note">This map renders vehicles only for this section.</p>
+        <p class="map-note">
+          Click markers to toggle selection, drag markers to reposition vehicles,
+          and use table actions only for deeper edits.
+        </p>
       </div>
     </section>
 
@@ -147,8 +150,9 @@
           [27.7172, 85.324],
           12,
         );
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "&copy; OpenStreetMap",
+        L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+          attribution:
+            '&copy; OpenStreetMap contributors &copy; CARTO',
           maxZoom: 19,
         }).addTo(map);
         mapLayer = L.layerGroup().addTo(map);
@@ -202,6 +206,11 @@
             toast(`Moved ${v.name}`);
             renderRows(true);
           });
+          marker.on("click", () => {
+            if (selected.has(v.id)) selected.delete(v.id);
+            else selected.add(v.id);
+            renderRows(true);
+          });
           mapLayer.addLayer(marker);
           vehicleMarkers.set(v.id, marker);
           bounds.push([v.lat, v.lng]);
@@ -253,7 +262,7 @@
         body.innerHTML = list
           .map(
             (v) => `
-          <tr style="opacity:${hidden.has(v.id) ? 0.4 : 1}">
+          <tr class="${selected.has(v.id) ? "row-selected" : ""}" style="opacity:${hidden.has(v.id) ? 0.4 : 1}">
             <td><input type="checkbox" data-id="${v.id}" ${selected.has(v.id) ? "checked" : ""} /></td>
             <td><strong>${escapeHtml(v.name)}</strong></td>
             <td>${Number(v.speed || 0)} km/h</td>
@@ -329,6 +338,13 @@
         const del = e.target.closest("[data-del]");
         if (del) {
           const id = Number(del.dataset.del);
+          const ok = await confirmModal({
+            title: "Delete Vehicle",
+            message: "This vehicle will be removed permanently.",
+            okText: "Delete",
+            tone: "warn",
+          });
+          if (!ok) return;
           await api("vehicles", "DELETE", null, `&id=${id}`);
           selected.delete(id);
           hidden.delete(id);
@@ -342,9 +358,15 @@
           const id = Number(edit.dataset.edit);
           const vehicle = vehicles.find((v) => v.id === id);
           if (!vehicle) return;
-          const name = prompt("Vehicle name", vehicle.name);
+          const name = await textPromptModal({
+            title: "Rename Vehicle",
+            label: "Vehicle name",
+            initialValue: vehicle.name,
+            placeholder: "Vehicle name",
+            okText: "Save",
+          });
           if (!name) return;
-          await api("vehicles", "PUT", { ...vehicle, name: name.trim() });
+          await api("vehicles", "PUT", { ...vehicle, name });
           toast("Vehicle updated");
           await load();
         }
@@ -412,7 +434,13 @@
 
       byId("btn-delete-selected").addEventListener("click", async () => {
         if (!selected.size) return toast("Select vehicles first");
-        if (!confirm(`Delete ${selected.size} selected vehicles?`)) return;
+        const ok = await confirmModal({
+          title: "Delete Selected Vehicles",
+          message: `Delete ${selected.size} selected vehicles?`,
+          okText: "Delete",
+          tone: "warn",
+        });
+        if (!ok) return;
         await Promise.all(
           [...selected].map((id) =>
             api("vehicles", "DELETE", null, `&id=${id}`),

@@ -53,7 +53,8 @@
           <div id="routes-map" class="map-canvas"></div>
         </div>
         <p class="map-note">
-          This map renders route lines only for this section.
+          Click route lines to toggle selection, and click stop dots in draw mode
+          to shape new or existing routes.
         </p>
       </div>
     </section>
@@ -170,8 +171,9 @@
           [27.7172, 85.324],
           12,
         );
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "&copy; OpenStreetMap",
+        L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+          attribution:
+            '&copy; OpenStreetMap contributors &copy; CARTO',
           maxZoom: 19,
         }).addTo(map);
         mapLayer = L.layerGroup().addTo(map);
@@ -232,7 +234,7 @@
         }
       }
 
-      function renderMap(list) {
+      function renderMap(list, preserveView = false) {
         if (!mapLayer) return;
         mapLayer.clearLayers();
         const active = list.filter((r) => !hidden.has(r.id));
@@ -257,9 +259,15 @@
           }).bindPopup(
             `<b>${escapeHtml(r.name)}</b><br/><small>${coords.length} stops</small>`,
           );
+          poly.on("click", () => {
+            if (selected.has(r.id)) selected.delete(r.id);
+            else selected.add(r.id);
+            renderRows(true);
+          });
           mapLayer.addLayer(poly);
           coords.forEach((c) => bounds.push(c));
         });
+        if (preserveView) return;
         if (!bounds.length) return;
         if (bounds.length === 1) map.setView(bounds[0], 14);
         else map.fitBounds(bounds, { padding: [18, 18] });
@@ -286,7 +294,7 @@
             .join("");
       }
 
-      function renderRows() {
+      function renderRows(preserveMapView = false) {
         const q = byId("search").value.trim().toLowerCase();
         const list = routes.filter(
           (r) => !q || r.name.toLowerCase().includes(q),
@@ -302,7 +310,7 @@
         body.innerHTML = list
           .map(
             (r) => `
-          <tr style="opacity:${hidden.has(r.id) ? 0.4 : 1}">
+          <tr class="${selected.has(r.id) ? "row-selected" : ""}" style="opacity:${hidden.has(r.id) ? 0.4 : 1}">
             <td><input type="checkbox" data-id="${r.id}" ${selected.has(r.id) ? "checked" : ""} /></td>
             <td><strong>${escapeHtml(r.name)}</strong></td>
             <td><span class="badge">${(r.stopIds || []).length} stops</span></td>
@@ -317,7 +325,7 @@
         `,
           )
           .join("");
-        renderMap(list);
+        renderMap(list, preserveMapView);
         updateKpis();
       }
 
@@ -402,6 +410,13 @@
         const del = e.target.closest("[data-del]");
         if (del) {
           const id = Number(del.dataset.del);
+          const ok = await confirmModal({
+            title: "Delete Route",
+            message: "This route will be removed permanently.",
+            okText: "Delete",
+            tone: "warn",
+          });
+          if (!ok) return;
           await api("routes", "DELETE", null, `&id=${id}`);
           selected.delete(id);
           hidden.delete(id);
@@ -414,9 +429,15 @@
           const id = Number(edit.dataset.edit);
           const route = routes.find((r) => r.id === id);
           if (!route) return;
-          const name = prompt("Route name", route.name);
+          const name = await textPromptModal({
+            title: "Rename Route",
+            label: "Route name",
+            initialValue: route.name,
+            placeholder: "Route name",
+            okText: "Save",
+          });
           if (!name) return;
-          await api("routes", "PUT", { ...route, name: name.trim() });
+          await api("routes", "PUT", { ...route, name });
           toast("Route updated");
           await load();
         }
@@ -523,7 +544,13 @@
 
       byId("btn-delete-selected").addEventListener("click", async () => {
         if (!selected.size) return toast("Select routes first");
-        if (!confirm(`Delete ${selected.size} selected routes?`)) return;
+        const ok = await confirmModal({
+          title: "Delete Selected Routes",
+          message: `Delete ${selected.size} selected routes?`,
+          okText: "Delete",
+          tone: "warn",
+        });
+        if (!ok) return;
         await Promise.all(
           [...selected].map((id) => api("routes", "DELETE", null, `&id=${id}`)),
         );

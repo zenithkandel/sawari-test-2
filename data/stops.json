@@ -164,8 +164,8 @@
     {
         "id": 19,
         "name": "Godawari",
-        "lat": 27.595,
-        "lng": 85.381,
+        "lat": 27.594720662531653,
+        "lng": 85.37956371913126,
         "icon": "fa-tree",
         "iconType": "fontawesome",
         "color": "#2ecc71"

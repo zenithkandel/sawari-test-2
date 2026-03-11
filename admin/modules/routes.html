@@ -81,7 +81,10 @@
           value="4"
           placeholder="Weight"
         />
+        <button id="btn-draw-route" class="ghost">Start Drawing</button>
+        <button id="btn-clear-draw" class="ghost">Clear Draw</button>
         <button class="primary" id="btn-add">Add Route</button>
+        <button class="primary" id="btn-save-drawn">Save Drawn Route</button>
       </div>
     </section>
 
@@ -138,6 +141,10 @@
       const hidden = new Set();
       let map = null;
       let mapLayer = null;
+      let stopRefLayer = null;
+      let drawLayer = null;
+      let isDrawing = false;
+      let drawStopIds = [];
 
       function initMap() {
         if (map) return;
@@ -150,6 +157,61 @@
           maxZoom: 19,
         }).addTo(map);
         mapLayer = L.layerGroup().addTo(map);
+        stopRefLayer = L.layerGroup().addTo(map);
+        drawLayer = L.layerGroup().addTo(map);
+      }
+
+      function renderStopReferences() {
+        if (!stopRefLayer) return;
+        stopRefLayer.clearLayers();
+        stops.forEach((s) => {
+          const helper = s.type === "road-helper";
+          const marker = L.circleMarker([s.lat, s.lng], {
+            radius: helper ? 4 : 6,
+            color: helper ? "#7f8c8d" : s.color || "#2f6fe4",
+            fillColor: helper ? "#7f8c8d" : s.color || "#2f6fe4",
+            fillOpacity: helper ? 0.55 : 0.75,
+            weight: 1,
+          }).bindTooltip(`${s.name}${helper ? " (helper)" : ""}`);
+
+          marker.on("click", () => {
+            if (!isDrawing) return;
+            if (!drawStopIds.includes(s.id)) {
+              drawStopIds.push(s.id);
+              renderDrawPath();
+            }
+          });
+
+          stopRefLayer.addLayer(marker);
+        });
+      }
+
+      function renderDrawPath() {
+        if (!drawLayer) return;
+        drawLayer.clearLayers();
+        const coords = drawStopIds
+          .map((id) => stops.find((s) => s.id === id))
+          .filter(Boolean)
+          .map((s) => [s.lat, s.lng]);
+        if (coords.length < 1) return;
+        coords.forEach((c, i) => {
+          L.marker(c, {
+            icon: L.divIcon({
+              className: "",
+              html: `<div style="width:20px;height:20px;border-radius:50%;background:#17395d;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;border:2px solid #fff">${i + 1}</div>`,
+              iconSize: [20, 20],
+              iconAnchor: [10, 10],
+            }),
+          }).addTo(drawLayer);
+        });
+        if (coords.length >= 2) {
+          L.polyline(coords, {
+            color: "#17395d",
+            weight: 4,
+            opacity: 0.9,
+            dashArray: "8, 6",
+          }).addTo(drawLayer);
+        }
       }
 
       function renderMap(list) {
@@ -253,6 +315,8 @@
         [routes, stops] = await Promise.all([api("routes"), api("stops")]);
         renderStopOptions();
         renderRows();
+        renderStopReferences();
+        renderDrawPath();
       }
 
       async function mutateSelectedRoutes(mutator, okMsg) {
@@ -331,6 +395,38 @@
         });
         byId("new-name").value = "";
         toast("Route created");
+        await load();
+      });
+
+      byId("btn-draw-route").addEventListener("click", () => {
+        isDrawing = !isDrawing;
+        byId("btn-draw-route").textContent = isDrawing
+          ? "Drawing: Click Stops"
+          : "Start Drawing";
+        if (isDrawing) toast("Drawing mode: click stops on map in order");
+      });
+
+      byId("btn-clear-draw").addEventListener("click", () => {
+        drawStopIds = [];
+        renderDrawPath();
+      });
+
+      byId("btn-save-drawn").addEventListener("click", async () => {
+        const name = byId("new-name").value.trim();
+        if (!name) return toast("Enter route name first");
+        if (drawStopIds.length < 2)
+          return toast("Draw route by selecting at least 2 stops");
+        await api("routes", "POST", {
+          name,
+          color: byId("new-color").value,
+          style: byId("new-style").value,
+          weight: Number(byId("new-weight").value) || 4,
+          stopIds: [...drawStopIds],
+        });
+        drawStopIds = [];
+        byId("new-name").value = "";
+        renderDrawPath();
+        toast("Drawn route saved");
         await load();
       });
 

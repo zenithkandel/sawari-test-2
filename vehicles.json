@@ -15,8 +15,8 @@
     {
         "id": 2,
         "name": "Sajha Standard (Route 2)",
-        "lat": 27.733718038191437,
-        "lng": 85.3293053005744,
+        "lat": 27.725854952140846,
+        "lng": 85.33072524331008,
         "icon": "green-bus.png",
         "iconType": "image",
         "color": "#3498db",
@@ -41,8 +41,8 @@
     {
         "id": 4,
         "name": "Mahanagar Bus (RR-CCW)",
-        "lat": 27.733,
-        "lng": 85.305,
+        "lat": 27.733376244364454,
+        "lng": 85.30368758420737,
         "icon": "red-bus.png",
         "iconType": "image",
         "color": "#afbbeb",

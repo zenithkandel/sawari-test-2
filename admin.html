@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sawari Admin - Manage Stops, Routes & Vehicles</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body>
+    <header>
+      <h1><i class="fa-solid fa-gear"></i> Sawari Admin</h1>
+      <p>Manage bus stops, routes, and vehicles</p>
+      <a href="index.html" class="header-link"><i class="fa-solid fa-arrow-left"></i> Back to App</a>
+    </header>
+
+    <div id="toast-container"></div>
+
+    <div class="layout">
+      <div class="map-area" id="admin-map"></div>
+
+      <div class="sidebar">
+        <!-- Tab Bar -->
+        <div class="tab-bar">
+          <button class="tab-btn active" data-tab="stops-tab">
+            <i class="fa-solid fa-map-pin"></i> Stops <span class="tab-count" id="stops-count">0</span>
+          </button>
+          <button class="tab-btn" data-tab="routes-tab">
+            <i class="fa-solid fa-route"></i> Routes <span class="tab-count" id="routes-count">0</span>
+          </button>
+          <button class="tab-btn" data-tab="vehicles-tab">
+            <i class="fa-solid fa-bus"></i> Vehicles <span class="tab-count" id="vehicles-count">0</span>
+          </button>
+        </div>
+
+        <!-- ==================== STOPS TAB ==================== -->
+        <div class="tab-content active" id="stops-tab">
+          <!-- Toolbar -->
+          <div class="toolbar">
+            <div class="search-bar">
+              <i class="fa-solid fa-search"></i>
+              <input type="text" id="stop-search" placeholder="Search stops..." />
+              <span class="search-count" id="stop-search-count"></span>
+            </div>
+            <div class="toolbar-row">
+              <select id="stop-sort" class="sort-select" title="Sort by">
+                <option value="name-asc">Name A-Z</option>
+                <option value="name-desc">Name Z-A</option>
+                <option value="id-asc">ID Low-High</option>
+                <option value="id-desc">ID High-Low</option>
+              </select>
+              <div class="toolbar-actions">
+                <button class="btn btn-primary btn-sm" id="btn-add-stop"><i class="fa-solid fa-plus"></i> Add</button>
+                <button class="btn btn-sm" id="btn-toggle-all-stops" title="Toggle all visibility"><i class="fa-solid fa-eye"></i></button>
+                <button class="btn btn-sm" id="btn-refresh-stops"><i class="fa-solid fa-rotate"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add Stop Form (collapsible) -->
+          <div id="stop-form" class="collapsible-form hidden">
+            <div class="form-header">
+              <h3><i class="fa-solid fa-plus-circle"></i> New Bus Stop</h3>
+              <button class="btn-close" id="btn-cancel-stop"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-2"><label>Name</label><input type="text" id="stop-name" placeholder="Stop name" /></div>
+              <div class="form-group flex-1"><label>Color</label><input type="color" id="stop-color" value="#e74c3c" /></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-1"><label>Icon</label><select id="stop-icon"></select></div>
+            </div>
+            <div class="form-row">
+              <p class="hint-inline" id="stop-coords"><i class="fa-solid fa-location-dot"></i> Click map to place</p>
+              <button class="btn btn-primary btn-sm" id="btn-save-stop"><i class="fa-solid fa-check"></i> Save Stop</button>
+            </div>
+          </div>
+
+          <!-- Stops Table -->
+          <div class="data-table-wrap">
+            <table class="data-table" id="stops-table">
+              <thead>
+                <tr>
+                  <th class="col-vis"><i class="fa-solid fa-eye"></i></th>
+                  <th class="col-id">ID</th>
+                  <th class="col-icon"></th>
+                  <th class="col-name">Name</th>
+                  <th class="col-coords">Coordinates</th>
+                  <th class="col-routes">Routes</th>
+                  <th class="col-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="stops-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ==================== ROUTES TAB ==================== -->
+        <div class="tab-content" id="routes-tab">
+          <div class="toolbar">
+            <div class="search-bar">
+              <i class="fa-solid fa-search"></i>
+              <input type="text" id="route-search" placeholder="Search routes..." />
+              <span class="search-count" id="route-search-count"></span>
+            </div>
+            <div class="toolbar-row">
+              <select id="route-sort" class="sort-select">
+                <option value="name-asc">Name A-Z</option>
+                <option value="name-desc">Name Z-A</option>
+                <option value="stops-desc">Most Stops</option>
+                <option value="stops-asc">Fewest Stops</option>
+                <option value="id-asc">ID Low-High</option>
+              </select>
+              <div class="toolbar-actions">
+                <button class="btn btn-primary btn-sm" id="btn-add-route"><i class="fa-solid fa-plus"></i> New Route</button>
+                <button class="btn btn-sm" id="btn-toggle-all-routes" title="Toggle all visibility"><i class="fa-solid fa-eye"></i></button>
+                <button class="btn btn-sm" id="btn-refresh-routes"><i class="fa-solid fa-rotate"></i></button>
+              </div>
+            </div>
+            <div class="toggle-row compact">
+              <label><i class="fa-solid fa-road"></i> Snap to road</label>
+              <label class="toggle-switch"><input type="checkbox" id="snap-toggle" /><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+
+          <!-- Add Route Form -->
+          <div id="route-form" class="collapsible-form hidden">
+            <div class="form-header">
+              <h3 id="route-form-title"><i class="fa-solid fa-plus-circle"></i> Create Route</h3>
+              <button class="btn-close" id="btn-cancel-route"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-2"><label>Name</label><input type="text" id="route-name" placeholder="Route name" /></div>
+              <div class="form-group flex-1"><label>Color</label><input type="color" id="route-color" value="#e74c3c" /></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-1"><label>Style</label>
+                <select id="route-style"><option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option></select>
+              </div>
+              <div class="form-group flex-1"><label>Weight: <span id="route-weight-val">4</span></label>
+                <input type="range" id="route-weight" min="1" max="10" value="4" />
+              </div>
+              <div class="form-group flex-1">
+                <label>Snap</label>
+                <label class="toggle-switch sm"><input type="checkbox" id="route-snap" /><span class="toggle-slider"></span></label>
+              </div>
+            </div>
+            <p class="hint-inline" id="route-stop-info"><i class="fa-solid fa-hand-pointer"></i> Click stops on map to add</p>
+            <div id="route-chips" class="chips-wrap"></div>
+            <div class="form-row">
+              <button class="btn btn-primary btn-sm" id="btn-save-route"><i class="fa-solid fa-check"></i> Save Route</button>
+            </div>
+          </div>
+
+          <!-- Routes List (cards with expandable detail) -->
+          <div id="routes-list"></div>
+        </div>
+
+        <!-- ==================== VEHICLES TAB ==================== -->
+        <div class="tab-content" id="vehicles-tab">
+          <div class="toolbar">
+            <div class="search-bar">
+              <i class="fa-solid fa-search"></i>
+              <input type="text" id="vehicle-search" placeholder="Search vehicles..." />
+            </div>
+            <div class="toolbar-row">
+              <select id="vehicle-sort" class="sort-select">
+                <option value="name-asc">Name A-Z</option>
+                <option value="name-desc">Name Z-A</option>
+                <option value="speed-desc">Fastest</option>
+                <option value="speed-asc">Slowest</option>
+              </select>
+              <div class="toolbar-actions">
+                <button class="btn btn-primary btn-sm" id="btn-show-add-vehicle"><i class="fa-solid fa-plus"></i> Add</button>
+                <button class="btn btn-sm" id="btn-refresh-vehicles"><i class="fa-solid fa-rotate"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add Vehicle Form -->
+          <div id="vehicle-form" class="collapsible-form hidden">
+            <div class="form-header">
+              <h3><i class="fa-solid fa-plus-circle"></i> Add Vehicle</h3>
+              <button class="btn-close" id="btn-cancel-vehicle"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-2"><label>Name</label><input type="text" id="v-name" placeholder="Vehicle name" /></div>
+              <div class="form-group flex-1"><label>Color</label><input type="color" id="v-color" value="#e74c3c" /></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-1"><label>Icon Type</label>
+                <select id="v-icon-type"><option value="fontawesome">FontAwesome</option><option value="image">Image</option></select>
+              </div>
+              <div class="form-group flex-1"><label>Icon</label><select id="v-icon"></select></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-1"><label>Speed (km/h)</label><input type="number" id="v-speed" value="40" min="1" max="200" /></div>
+              <div class="form-group flex-1"><label>Route</label>
+                <select id="v-route"><option value="0">No route</option></select>
+              </div>
+            </div>
+            <div class="form-row">
+              <p class="hint-inline" id="v-pos"><i class="fa-solid fa-location-dot"></i> Click map to set position</p>
+              <button class="btn btn-primary btn-sm" id="btn-add-vehicle"><i class="fa-solid fa-check"></i> Save Vehicle</button>
+            </div>
+          </div>
+
+          <!-- Vehicles Table -->
+          <div class="data-table-wrap">
+            <table class="data-table" id="vehicles-table">
+              <thead>
+                <tr>
+                  <th class="col-icon"></th>
+                  <th class="col-name">Name</th>
+                  <th class="col-speed">Speed</th>
+                  <th class="col-route-name">Route</th>
+                  <th class="col-status">Status</th>
+                  <th class="col-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="vehicles-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Stop Modal -->
+    <div id="edit-stop-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-pen"></i> Edit Stop</h3>
+          <button class="btn-close" id="btn-cancel-edit-stop"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <input type="hidden" id="edit-stop-id" />
+        <div class="form-row">
+          <div class="form-group flex-2"><label>Name</label><input type="text" id="edit-stop-name" /></div>
+          <div class="form-group flex-1"><label>Color</label><input type="color" id="edit-stop-color" /></div>
+        </div>
+        <div class="form-group"><label>Icon</label><select id="edit-stop-icon"></select></div>
+        <p class="hint-inline" id="edit-stop-pos"><i class="fa-solid fa-location-dot"></i> Position: click map to update</p>
+        <div class="modal-actions">
+          <button class="btn btn-primary" id="btn-save-edit-stop"><i class="fa-solid fa-save"></i> Save</button>
+          <button class="btn" onclick="document.getElementById('edit-stop-modal').classList.add('hidden')">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Route Modal -->
+    <div id="edit-route-modal" class="modal hidden">
+      <div class="modal-content modal-lg">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-pen"></i> Edit Route</h3>
+          <button class="btn-close" id="btn-cancel-edit-route"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <input type="hidden" id="edit-route-id" />
+        <div class="form-row">
+          <div class="form-group flex-2"><label>Name</label><input type="text" id="edit-route-name" /></div>
+          <div class="form-group flex-1"><label>Color</label><input type="color" id="edit-route-color" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group flex-1"><label>Style</label>
+            <select id="edit-route-style"><option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option></select>
+          </div>
+          <div class="form-group flex-1"><label>Weight: <span id="edit-route-weight-val">4</span></label>
+            <input type="range" id="edit-route-weight" min="1" max="10" value="4" />
+          </div>
+          <div class="form-group flex-1"><label>Snap</label>
+            <label class="toggle-switch sm"><input type="checkbox" id="edit-route-snap" /><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <label class="label-sm">Stops (click x to remove, drag to reorder):</label>
+        <div id="edit-route-chips" class="chips-wrap"></div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" id="btn-save-edit-route"><i class="fa-solid fa-save"></i> Save</button>
+          <button class="btn" onclick="document.getElementById('edit-route-modal').classList.add('hidden')">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Vehicle Modal -->
+    <div id="edit-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-pen"></i> Edit Vehicle</h3>
+          <button class="btn-close" id="btn-cancel-edit"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <input type="hidden" id="edit-v-id" />
+        <div class="form-row">
+          <div class="form-group flex-2"><label>Name</label><input type="text" id="edit-v-name" /></div>
+          <div class="form-group flex-1"><label>Color</label><input type="color" id="edit-v-color" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group flex-1"><label>Icon Type</label>
+            <select id="edit-v-icon-type"><option value="fontawesome">FontAwesome</option><option value="image">Image</option></select>
+          </div>
+          <div class="form-group flex-1"><label>Icon</label><select id="edit-v-icon"></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group flex-1"><label>Speed (km/h)</label><input type="number" id="edit-v-speed" min="1" max="200" /></div>
+          <div class="form-group flex-1"><label>Route</label>
+            <select id="edit-v-route"><option value="0">No route</option></select>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" id="btn-save-edit"><i class="fa-solid fa-save"></i> Save</button>
+          <button class="btn" onclick="document.getElementById('edit-modal').classList.add('hidden')">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="routing.js"></script>
+    <script src="admin.js"></script>
+  </body>
+</html>

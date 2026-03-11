@@ -236,8 +236,8 @@
     {
         "id": 27,
         "name": "TIA Airport",
-        "lat": 27.6975,
-        "lng": 85.356,
+        "lat": 27.697616612834565,
+        "lng": 85.3552828882059,
         "icon": "fa-plane",
         "iconType": "fontawesome",
         "color": "#9b59b6"

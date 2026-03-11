@@ -134,10 +134,12 @@
     <script>
       let vehicles = [];
       let routes = [];
+      let icons = { fontawesome: [], images: [] };
       const selected = new Set();
       const hidden = new Set();
       let map = null;
       let mapLayer = null;
+      const vehicleMarkers = new Map();
 
       function initMap() {
         if (map) return;
@@ -157,23 +159,51 @@
         return v.color || "#e74c3c";
       }
 
+      function createVehicleIcon(vehicle) {
+        if (vehicle.iconType === "image") {
+          const src = vehicle.icon || icons.images?.[0] || "";
+          return L.divIcon({
+            className: "",
+            html: `<div style="width:32px;height:32px;border-radius:50%;overflow:hidden;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.28)"><img src="../../assets/icons/${escapeHtml(src)}" style="width:100%;height:100%;object-fit:cover"/></div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+            popupAnchor: [0, -16],
+          });
+        }
+        return L.divIcon({
+          className: "",
+          html: `<div style="width:32px;height:32px;border-radius:50%;background:${vehicleColor(vehicle)};display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.28)"><i class="fa-solid ${escapeHtml(vehicle.icon || "fa-bus")}" style="color:#fff;font-size:14px"></i></div>`,
+          iconSize: [32, 32],
+          iconAnchor: [16, 16],
+          popupAnchor: [0, -16],
+        });
+      }
+
       function renderMap(list) {
         if (!mapLayer) return;
         mapLayer.clearLayers();
+        vehicleMarkers.clear();
         const visible = list.filter((v) => !hidden.has(v.id));
         if (!visible.length) return;
         const bounds = [];
         visible.forEach((v) => {
-          const marker = L.circleMarker([v.lat, v.lng], {
-            radius: 7,
-            color: vehicleColor(v),
-            weight: 2,
-            fillColor: vehicleColor(v),
-            fillOpacity: 0.72,
+          const marker = L.marker([v.lat, v.lng], {
+            icon: createVehicleIcon(v),
+            draggable: true,
           }).bindPopup(
             `<b>${escapeHtml(v.name)}</b><br/><small>${escapeHtml(routeName(v.routeId))}</small>`,
           );
+          marker.on("dragend", async (e) => {
+            const p = e.target.getLatLng();
+            const update = { ...v, lat: p.lat, lng: p.lng };
+            await api("vehicles", "PUT", update);
+            const idx = vehicles.findIndex((x) => x.id === v.id);
+            if (idx >= 0) vehicles[idx] = update;
+            toast(`Moved ${v.name}`);
+            renderRows();
+          });
           mapLayer.addLayer(marker);
+          vehicleMarkers.set(v.id, marker);
           bounds.push([v.lat, v.lng]);
         });
         if (bounds.length === 1) map.setView(bounds[0], 14);
@@ -229,6 +259,7 @@
             <td>${escapeHtml(routeName(v.routeId))}</td>
             <td><span class="badge">${v.moving ? "Moving" : "Idle"}</span></td>
             <td class="actions">
+              <button data-focus="${v.id}">Focus</button>
               <button data-edit="${v.id}">Edit</button>
               <button data-del="${v.id}" class="warn">Delete</button>
             </td>
@@ -247,6 +278,7 @@
           api("vehicles"),
           api("routes"),
         ]);
+        icons = await api("icons");
         byId("new-route").innerHTML = routeOptions();
         byId("bulk-route").innerHTML = routeOptions();
         renderRows();
@@ -284,6 +316,15 @@
       });
 
       byId("rows").addEventListener("click", async (e) => {
+        const focus = e.target.closest("[data-focus]");
+        if (focus) {
+          const id = Number(focus.dataset.focus);
+          const marker = vehicleMarkers.get(id);
+          if (!marker) return;
+          map.flyTo(marker.getLatLng(), 16);
+          marker.openPopup();
+          return;
+        }
         const del = e.target.closest("[data-del]");
         if (del) {
           const id = Number(del.dataset.del);

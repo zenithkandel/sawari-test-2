@@ -996,6 +996,13 @@ function onOrientation(e) {
 
 // ---- Keyboard Shortcuts ----
 document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && !e.target.matches('input,textarea')) {
+        e.preventDefault();
+        expandPanelIfCollapsed();
+        document.getElementById('input-global-search').focus();
+        return;
+    }
+
     if (e.key === 'Escape') {
         if (pickingMode) {
             pickingMode = null;
@@ -1010,37 +1017,80 @@ document.addEventListener('keydown', (e) => {
 
 // ---- Station Autocomplete ----
 
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function highlightText(name, query) {
+    const safe = escapeHtml(name);
+    if (!query) return safe;
+    const idx = name.toLowerCase().indexOf(query.toLowerCase());
+    if (idx < 0) return safe;
+    const a = escapeHtml(name.slice(0, idx));
+    const b = escapeHtml(name.slice(idx, idx + query.length));
+    const c = escapeHtml(name.slice(idx + query.length));
+    return `${a}<mark>${b}</mark>${c}`;
+}
+
+function scoreNameMatch(text, query) {
+    const q = query.toLowerCase();
+    const t = text.toLowerCase();
+    const idx = t.indexOf(q);
+    if (idx === -1) return -1;
+    if (idx === 0) return 100 - t.length * 0.05;
+    return 65 - idx * 1.25;
+}
+
+function rankedStopMatches(query, limit = 8) {
+    if (!query || !publicStops.length) return [];
+    const results = publicStops
+        .map(stop => ({
+            stop,
+            score: scoreNameMatch(stop.name, query)
+        }))
+        .filter(item => item.score >= 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, limit)
+        .map(item => item.stop);
+    return results;
+}
+
 function setupAutocomplete(inputId, suggestionsId, onSelect) {
     const input = document.getElementById(inputId);
     const dropdown = document.getElementById(suggestionsId);
     let activeIndex = -1;
+    let currentMatches = [];
+
+    function hideDropdown() {
+        dropdown.classList.add('hidden');
+        dropdown.innerHTML = '';
+        activeIndex = -1;
+        currentMatches = [];
+    }
 
     function showSuggestions(query) {
-        if (!query || query.length === 0 || publicStops.length === 0) {
-            dropdown.classList.add('hidden');
-            dropdown.innerHTML = '';
-            activeIndex = -1;
+        const q = query.trim();
+        if (!q) {
+            hideDropdown();
             return;
         }
 
-        const lower = query.toLowerCase();
-        const matches = publicStops.filter(s => s.name.toLowerCase().includes(lower));
-
-        if (matches.length === 0) {
-            dropdown.classList.add('hidden');
-            dropdown.innerHTML = '';
-            activeIndex = -1;
+        currentMatches = rankedStopMatches(q, 9);
+        if (!currentMatches.length) {
+            hideDropdown();
             return;
         }
 
         activeIndex = -1;
-        dropdown.innerHTML = matches.map((stop, i) => {
-            const name = stop.name;
-            const idx = name.toLowerCase().indexOf(lower);
-            const highlighted = name.substring(0, idx) + '<mark>' + name.substring(idx, idx + query.length) + '</mark>' + name.substring(idx + query.length);
+        dropdown.innerHTML = currentMatches.map((stop, i) => {
             return `<div class="suggestion-item" data-index="${i}">
-                <div class="suggestion-icon" style="background:${stop.color || '#e74c3c'}"><i class="fa-solid ${stop.icon || 'fa-bus'}"></i></div>
-                <span class="suggestion-name">${highlighted}</span>
+                <div class="suggestion-icon" style="background:${stop.color || '#0ea5e9'}"><i class="fa-solid ${stop.icon || 'fa-bus'}"></i></div>
+                <span class="suggestion-name">${highlightText(stop.name, q)}</span>
             </div>`;
         }).join('');
         dropdown.classList.remove('hidden');
@@ -1048,16 +1098,15 @@ function setupAutocomplete(inputId, suggestionsId, onSelect) {
         dropdown.querySelectorAll('.suggestion-item').forEach((item, i) => {
             item.addEventListener('mousedown', (e) => {
                 e.preventDefault();
-                selectStop(matches[i]);
+                selectMatch(currentMatches[i]);
             });
         });
     }
 
-    function selectStop(stop) {
+    function selectMatch(stop) {
+        if (!stop) return;
         input.value = stop.name;
-        dropdown.classList.add('hidden');
-        dropdown.innerHTML = '';
-        activeIndex = -1;
+        hideDropdown();
         onSelect(stop);
     }
 
@@ -1068,9 +1117,7 @@ function setupAutocomplete(inputId, suggestionsId, onSelect) {
         }
     }
 
-    input.addEventListener('input', () => {
-        showSuggestions(input.value.trim());
-    });
+    input.addEventListener('input', () => showSuggestions(input.value));
 
     input.addEventListener('keydown', (e) => {
         const items = dropdown.querySelectorAll('.suggestion-item');
@@ -1086,27 +1133,172 @@ function setupAutocomplete(inputId, suggestionsId, onSelect) {
             updateActive(items);
         } else if (e.key === 'Enter') {
             e.preventDefault();
-            if (activeIndex >= 0) {
-                const lower = input.value.trim().toLowerCase();
-                const matches = publicStops.filter(s => s.name.toLowerCase().includes(lower));
-                if (matches[activeIndex]) selectStop(matches[activeIndex]);
-            }
+            const index = activeIndex >= 0 ? activeIndex : 0;
+            selectMatch(currentMatches[index]);
         } else if (e.key === 'Escape') {
-            dropdown.classList.add('hidden');
-            activeIndex = -1;
+            hideDropdown();
         }
     });
 
-    input.addEventListener('blur', () => {
-        setTimeout(() => {
-            dropdown.classList.add('hidden');
-            activeIndex = -1;
-        }, 150);
-    });
-
+    input.addEventListener('blur', () => setTimeout(hideDropdown, 120));
     input.addEventListener('focus', () => {
-        if (input.value.trim().length > 0) {
-            showSuggestions(input.value.trim());
+        if (input.value.trim().length > 0) showSuggestions(input.value);
+    });
+}
+
+function getRouteStops(route) {
+    return route.stopIds
+        .map(id => allStops.find(s => s.id === id))
+        .filter(Boolean);
+}
+
+function setupGlobalSearch() {
+    const input = document.getElementById('input-global-search');
+    const dropdown = document.getElementById('suggestions-global');
+    let activeIndex = -1;
+    let currentMatches = [];
+
+    function hide() {
+        dropdown.classList.add('hidden');
+        dropdown.innerHTML = '';
+        activeIndex = -1;
+        currentMatches = [];
+    }
+
+    function queryGlobal(q) {
+        const stopResults = rankedStopMatches(q, 5).map(stop => ({
+            kind: 'stop',
+            title: stop.name,
+            meta: 'Stop',
+            icon: stop.icon || 'fa-location-dot',
+            color: stop.color || '#0ea5e9',
+            data: stop,
+            score: scoreNameMatch(stop.name, q) + 12
+        }));
+
+        const routeResults = allRoutes
+            .map(route => {
+                const routeScore = Math.max(
+                    scoreNameMatch(route.name || '', q),
+                    scoreNameMatch((route.code || '').toString(), q)
+                );
+                if (routeScore < 0) return null;
+                return {
+                    kind: 'route',
+                    title: route.name,
+                    meta: `${route.stopIds.length} stops`,
+                    icon: 'fa-route',
+                    color: route.color || '#0f766e',
+                    data: route,
+                    score: routeScore + 4
+                };
+            })
+            .filter(Boolean)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 5);
+
+        return [...stopResults, ...routeResults]
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 8);
+    }
+
+    function render(q) {
+        const query = q.trim();
+        if (!query) {
+            hide();
+            return;
+        }
+
+        currentMatches = queryGlobal(query);
+        if (!currentMatches.length) {
+            hide();
+            return;
+        }
+
+        dropdown.innerHTML = currentMatches.map((item, i) => {
+            return `<div class="suggestion-item" data-index="${i}">
+                <div class="suggestion-icon" style="background:${item.color}"><i class="fa-solid ${item.icon}"></i></div>
+                <div class="suggestion-name">${highlightText(item.title, query)}</div>
+                <div class="suggestion-meta">${item.meta}</div>
+            </div>`;
+        }).join('');
+        dropdown.classList.remove('hidden');
+
+        dropdown.querySelectorAll('.suggestion-item').forEach((item, i) => {
+            item.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                select(currentMatches[i]);
+            });
+        });
+    }
+
+    function select(item) {
+        if (!item) return;
+        expandPanelIfCollapsed();
+        input.value = item.title;
+        hide();
+
+        if (item.kind === 'stop') {
+            const stop = item.data;
+            map.flyTo([stop.lat, stop.lng], Math.max(map.getZoom(), 15));
+            L.popup()
+                .setLatLng([stop.lat, stop.lng])
+                .setContent(`<b>${escapeHtml(stop.name)}</b><br/><small>Stop</small>`)
+                .openOn(map);
+
+            if (!startPoint) {
+                setStartPoint(stop.lat, stop.lng, stop.name);
+                showToast(`Start set to ${stop.name}`, 'success', 1300);
+            } else if (!endPoint) {
+                setEndPoint(stop.lat, stop.lng, stop.name);
+                showToast(`Destination set to ${stop.name}`, 'success', 1300);
+            } else {
+                showToast(`Centered on ${stop.name}`, 'info', 1300);
+            }
+            return;
+        }
+
+        if (item.kind === 'route') {
+            const route = item.data;
+            const stops = getRouteStops(route);
+            if (stops.length >= 2) {
+                const coords = stops.map(s => [s.lat, s.lng]);
+                map.fitBounds(coords, { padding: getFitPadding() });
+            }
+            setStatus(`Viewing route: ${route.name}`, 'success');
+            showToast(`Showing ${route.name}`, 'success', 1400);
+        }
+    }
+
+    input.addEventListener('input', () => render(input.value));
+    input.addEventListener('focus', () => {
+        if (input.value.trim()) render(input.value);
+    });
+    input.addEventListener('blur', () => setTimeout(hide, 120));
+
+    input.addEventListener('keydown', (e) => {
+        const items = dropdown.querySelectorAll('.suggestion-item');
+        if (!items.length) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            activeIndex = Math.min(activeIndex + 1, items.length - 1);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            activeIndex = Math.max(activeIndex - 1, 0);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            const idx = activeIndex >= 0 ? activeIndex : 0;
+            select(currentMatches[idx]);
+            return;
+        } else if (e.key === 'Escape') {
+            hide();
+            return;
+        }
+
+        items.forEach((el, i) => el.classList.toggle('active', i === activeIndex));
+        if (activeIndex >= 0 && items[activeIndex]) {
+            items[activeIndex].scrollIntoView({ block: 'nearest' });
         }
     });
 }
@@ -1120,6 +1312,8 @@ setupAutocomplete('input-end', 'suggestions-end', (stop) => {
     setEndPoint(stop.lat, stop.lng, stop.name);
     showToast(`Destination set to ${stop.name}`, 'success', 1500);
 });
+
+setupGlobalSearch();
 
 // ---- Init ----
 loadData();

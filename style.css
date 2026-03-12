@@ -399,11 +399,11 @@ body {
     transition: transform 0.22s ease;
 }
 
-.toggle-item input:checked + .toggle-slider {
+.toggle-item input:checked+.toggle-slider {
     background: linear-gradient(130deg, var(--teal), var(--sky));
 }
 
-.toggle-item input:checked + .toggle-slider::after {
+.toggle-item input:checked+.toggle-slider::after {
     transform: translateX(16px);
 }
 

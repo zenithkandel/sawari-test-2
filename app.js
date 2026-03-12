@@ -18,11 +18,21 @@ let startMarker = null;
 let endMarker = null;
 let pickingMode = null;   // 'start' | 'end' | null
 let journeyLayers = [];   // polylines + markers for current journey
-let contextLayers = [];   // background stop/route context layers
+let contextRouteLayers = [];
+let contextStopLayers = [];
 let vehicleMarkers = {};
 let vehiclePollTimer = null;
 let currentJourney = null;
 let panelCollapsed = false;
+
+const uiPrefs = {
+    showRoutes: true,
+    showStops: true,
+    showVehicles: true,
+    followGPS: false
+};
+
+let suppressAutoCenter = false;
 
 // GPS state
 let gpsActive = false;
@@ -204,6 +214,7 @@ async function loadData() {
         ]);
         publicStops = allStops.filter(s => (s.type || 'actual') !== 'road-helper');
         renderContextLayers();
+        applyLayerVisibility();
         showToast(`Loaded ${publicStops.length} stops, ${allRoutes.length} routes`, 'info', 2000);
     } catch (err) {
         showToast('Failed to load data. Is the server running?', 'error', 5000);
@@ -211,8 +222,10 @@ async function loadData() {
 }
 
 function renderContextLayers() {
-    contextLayers.forEach(l => map.removeLayer(l));
-    contextLayers = [];
+    contextRouteLayers.forEach(l => map.removeLayer(l));
+    contextStopLayers.forEach(l => map.removeLayer(l));
+    contextRouteLayers = [];
+    contextStopLayers = [];
 
     // Draw routes as thin context lines
     allRoutes.forEach(route => {
@@ -227,7 +240,7 @@ function renderContextLayers() {
                 opacity: 0.25,
                 dashArray: route.style === 'dashed' ? '12, 8' : route.style === 'dotted' ? '3, 8' : null
             }).addTo(map).bindPopup(`<b>${route.name}</b><br><small>${route.stopIds.length} stops</small>`);
-            contextLayers.push(poly);
+            contextRouteLayers.push(poly);
         }
     });
 
@@ -237,15 +250,90 @@ function renderContextLayers() {
             .addTo(map)
             .bindPopup(`<b>${s.name}</b><br><small>ID: ${s.id}</small>`)
             .bindTooltip(s.name, { direction: 'top', className: 'stop-tooltip', offset: [0, -10] });
-        contextLayers.push(m);
+        contextStopLayers.push(m);
     });
+}
+
+function applyLayerVisibility() {
+    contextRouteLayers.forEach(layer => {
+        if (uiPrefs.showRoutes) {
+            if (!map.hasLayer(layer)) layer.addTo(map);
+        } else if (map.hasLayer(layer)) {
+            map.removeLayer(layer);
+        }
+    });
+
+    contextStopLayers.forEach(layer => {
+        if (uiPrefs.showStops) {
+            if (!map.hasLayer(layer)) layer.addTo(map);
+        } else if (map.hasLayer(layer)) {
+            map.removeLayer(layer);
+        }
+    });
+}
+
+function getFitPadding() {
+    if (window.innerWidth <= 640) {
+        return [56, 56];
+    }
+    return [60, 420, 60, 60];
 }
 
 // ---- Panel Collapse ----
 document.getElementById('btn-collapse').addEventListener('click', () => {
     panelCollapsed = !panelCollapsed;
     document.getElementById('search-panel').classList.toggle('collapsed', panelCollapsed);
+    document.getElementById('btn-collapse').setAttribute('aria-expanded', String(!panelCollapsed));
     document.getElementById('btn-collapse').innerHTML = panelCollapsed ? '<i class="fa-solid fa-chevron-down"></i>' : '<i class="fa-solid fa-chevron-up"></i>';
+});
+
+function expandPanelIfCollapsed() {
+    if (!panelCollapsed) return;
+    panelCollapsed = false;
+    document.getElementById('search-panel').classList.remove('collapsed');
+    document.getElementById('btn-collapse').setAttribute('aria-expanded', 'true');
+    document.getElementById('btn-collapse').innerHTML = '<i class="fa-solid fa-chevron-up"></i>';
+}
+
+document.getElementById('toggle-routes').addEventListener('change', (e) => {
+    uiPrefs.showRoutes = e.target.checked;
+    applyLayerVisibility();
+    showToast(uiPrefs.showRoutes ? 'Route overlays enabled' : 'Route overlays hidden', 'info', 1200);
+});
+
+document.getElementById('toggle-stops').addEventListener('change', (e) => {
+    uiPrefs.showStops = e.target.checked;
+    applyLayerVisibility();
+    showToast(uiPrefs.showStops ? 'Stop markers enabled' : 'Stop markers hidden', 'info', 1200);
+});
+
+document.getElementById('toggle-vehicles').addEventListener('change', (e) => {
+    uiPrefs.showVehicles = e.target.checked;
+    if (!uiPrefs.showVehicles) {
+        stopVehiclePolling();
+        showToast('Live vehicles hidden', 'info', 1200);
+        return;
+    }
+    if (currentJourney) startVehiclePolling();
+    else pollVehicles();
+    showToast('Live vehicles enabled', 'success', 1200);
+});
+
+document.getElementById('toggle-follow-gps').addEventListener('change', (e) => {
+    uiPrefs.followGPS = e.target.checked;
+    if (uiPrefs.followGPS && !gpsActive) {
+        showToast('Enable GPS to use follow mode', 'warning', 1500);
+    } else {
+        showToast(uiPrefs.followGPS ? 'GPS follow enabled' : 'GPS follow disabled', 'info', 1200);
+    }
+});
+
+document.getElementById('btn-clear-global').addEventListener('click', () => {
+    const input = document.getElementById('input-global-search');
+    input.value = '';
+    document.getElementById('suggestions-global').classList.add('hidden');
+    document.getElementById('suggestions-global').innerHTML = '';
+    input.focus();
 });
 
 // ---- Pick Mode & Markers ----

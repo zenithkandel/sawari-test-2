@@ -183,50 +183,24 @@ function getVehicleRenderType(vehicle) {
     return 'bus';
 }
 
-function getVehicleTemplateSvg(type, color) {
-    const templateId = type === 'micro' ? 'tpl-vehicle-micro' : 'tpl-vehicle-bus';
-    const templateEl = document.getElementById(templateId);
-    if (!templateEl) return '';
-
-    const svgNode = templateEl.content?.firstElementChild;
-    if (!svgNode) {
-        return (templateEl.innerHTML || '').replace(/__COLOR__/g, color || '#0ea5e9').trim();
-    }
-
-    const cloned = svgNode.cloneNode(true);
-    const serializer = new XMLSerializer();
-    return serializer.serializeToString(cloned).replace(/__COLOR__/g, color || '#0ea5e9').trim();
-}
-
-function getVehicleRotationDegrees(vehicle, type) {
+function getVehicleRotationDegrees(vehicle) {
     const rawBearing = Number(vehicle?.bearing);
     if (!Number.isFinite(rawBearing)) return 0;
-
-    // SVG vehicles are drawn facing east (right), while bearing 0 points north.
-    // Convert compass heading to icon heading by rotating -90 degrees.
-    const baseOffset = type === 'micro' ? -90 : -90;
-    return ((rawBearing + baseOffset) % 360 + 360) % 360;
+    return ((rawBearing % 360) + 360) % 360;
 }
 
-function createVehicleRenderIcon(vehicle, size = 42, isAssigned = false) {
+function createVehicleTileIcon(vehicle, size = 42, isAssigned = false) {
     const type = getVehicleRenderType(vehicle);
     const color = vehicle.color || '#0ea5e9';
-    const bearing = getVehicleRotationDegrees(vehicle, type);
-    const svgMarkup = getVehicleTemplateSvg(type, color);
-
-    if (!svgMarkup) {
-        if (vehicle.iconType === 'image' && vehicle.icon) {
-            return createImageIcon(vehicle.icon, size);
-        }
-        const fallbackIcon = type === 'micro' ? 'fa-shuttle-van' : 'fa-bus';
-        return createFAIcon(fallbackIcon, color, size);
-    }
+    const bearing = getVehicleRotationDegrees(vehicle);
+    const glyph = type === 'micro' ? 'fa-shuttle-van' : 'fa-bus';
 
     return L.divIcon({
-        className: 'custom-marker-icon vehicle-render-marker',
+        className: 'custom-marker-icon vehicle-tile-marker',
         html: `
-            <div class="vehicle-render-wrap ${type} ${isAssigned ? 'assigned' : ''}" style="--vehicle-size:${size}px;--vehicle-rotation:${bearing}deg;">
-                <div class="vehicle-motion">${svgMarkup}</div>
+            <div class="vehicle-tile ${type} ${isAssigned ? 'assigned' : ''}" style="--vehicle-size:${size}px;--vehicle-color:${color};">
+                <span class="vehicle-direction" style="--vehicle-bearing:${bearing}deg;"></span>
+                <i class="fa-solid ${glyph}"></i>
             </div>
         `,
         iconSize: [size, size],
@@ -1012,7 +986,7 @@ async function pollVehicles() {
 
         const key = 'v_' + v.id;
         const isAssigned = assignedVehicleIds.has(v.id);
-        const icon = createVehicleRenderIcon(v, isAssigned ? 50 : 44, isAssigned);
+        const icon = createVehicleTileIcon(v, isAssigned ? 48 : 42, isAssigned);
 
         const assignedLeg = Object.values(assignedVehiclesByLeg).find(item => item.vehicleId === v.id);
         const etaInfo = assignedLeg

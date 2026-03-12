@@ -1,363 +1,47 @@
 [
     {
         "id": 1,
-        "name": "Lagankhel",
-        "lat": 27.6675,
-        "lng": 85.3245,
+        "name": "Kalanki Chowk",
+        "lat": 27.693500,
+        "lng": 85.281400,
         "icon": "fa-bus",
         "iconType": "fontawesome",
-        "color": "#e74c3c"
+        "color": "#1d4ed8"
     },
     {
         "id": 2,
-        "name": "Jawalakhel",
-        "lat": 27.672,
-        "lng": 85.3125,
-        "icon": "fa-bus",
+        "name": "Tripureshwor",
+        "lat": 27.693332,
+        "lng": 85.314245,
+        "icon": "fa-bus-simple",
         "iconType": "fontawesome",
-        "color": "#e74c3c"
+        "color": "#0f766e"
     },
     {
         "id": 3,
-        "name": "Pulchowk",
-        "lat": 27.678,
-        "lng": 85.318,
-        "icon": "fa-bus",
+        "name": "Ratna Park",
+        "lat": 27.705200,
+        "lng": 85.315300,
+        "icon": "fa-location-dot",
         "iconType": "fontawesome",
-        "color": "#e74c3c"
+        "color": "#b91c1c"
     },
     {
         "id": 4,
-        "name": "Kupondole",
-        "lat": 27.685,
-        "lng": 85.318,
+        "name": "New Baneshwor",
+        "lat": 27.688734,
+        "lng": 85.333643,
         "icon": "fa-bus",
         "iconType": "fontawesome",
-        "color": "#e74c3c"
+        "color": "#7c3aed"
     },
     {
         "id": 5,
-        "name": "Tripureshwor",
-        "lat": 27.693332345351603,
-        "lng": 85.31424528601359,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 6,
-        "name": "NAC",
-        "lat": 27.7058,
-        "lng": 85.314,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 7,
-        "name": "Jamal",
-        "lat": 27.7095,
-        "lng": 85.3155,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 8,
-        "name": "Lainchaur",
-        "lat": 27.716,
-        "lng": 85.3165,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 9,
-        "name": "Lazimpat",
-        "lat": 27.721334237251046,
-        "lng": 85.31999642275416,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 10,
-        "name": "Panipokhari",
-        "lat": 27.73,
-        "lng": 85.325,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 11,
-        "name": "Teaching Hospital",
-        "lat": 27.737630521182787,
-        "lng": 85.33480163513009,
-        "icon": "fa-hospital",
-        "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 12,
-        "name": "Narayan Gopal Chowk",
-        "lat": 27.7405,
-        "lng": 85.3365,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 13,
-        "name": "Basundhara",
-        "lat": 27.740631217725234,
-        "lng": 85.32913708100422,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 14,
-        "name": "Samakhusi",
-        "lat": 27.735123558204098,
-        "lng": 85.31808617831565,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 15,
-        "name": "Gongabu Bus Park",
-        "lat": 27.734914674154997,
-        "lng": 85.3128069863326,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#2ecc71"
-    },
-    {
-        "id": 16,
-        "name": "Bansbari",
-        "lat": 27.745644849856024,
-        "lng": 85.3424429307087,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 17,
-        "name": "Budhanilkantha",
-        "lat": 27.777,
-        "lng": 85.362,
-        "icon": "fa-place-of-worship",
-        "iconType": "fontawesome",
-        "color": "#f39c12"
-    },
-    {
-        "id": 18,
-        "name": "Satdobato",
-        "lat": 27.661177687906584,
-        "lng": 85.32153987451844,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#2ecc71"
-    },
-    {
-        "id": 19,
-        "name": "Godawari",
-        "lat": 27.594720662531653,
-        "lng": 85.37956371913126,
-        "icon": "fa-tree",
-        "iconType": "fontawesome",
-        "color": "#2ecc71"
-    },
-    {
-        "id": 20,
-        "name": "Ratna Park",
-        "lat": 27.7052,
-        "lng": 85.3153,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 21,
-        "name": "Kalanki",
-        "lat": 27.6935,
-        "lng": 85.2814,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#2ecc71"
-    },
-    {
-        "id": 22,
-        "name": "Kalimati",
-        "lat": 27.6982,
-        "lng": 85.2994,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#2ecc71"
-    },
-    {
-        "id": 23,
-        "name": "Maitighar",
-        "lat": 27.69468596894317,
-        "lng": 85.32008178054528,
-        "icon": "fa-landmark",
-        "iconType": "fontawesome",
-        "color": "#3498db"
-    },
-    {
-        "id": 24,
-        "name": "New Baneshwor",
-        "lat": 27.68873433492489,
-        "lng": 85.33364282781383,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#3498db"
-    },
-    {
-        "id": 25,
-        "name": "Tinkune",
-        "lat": 27.685751221420446,
-        "lng": 85.34698963165285,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 26,
-        "name": "Sinamangal",
-        "lat": 27.69314234324896,
-        "lng": 85.34428580992949,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 27,
-        "name": "TIA Airport",
-        "lat": 27.697616612834565,
-        "lng": 85.3552828882059,
-        "icon": "fa-plane",
-        "iconType": "fontawesome",
-        "color": "#9b59b6"
-    },
-    {
-        "id": 28,
         "name": "Koteshwor",
-        "lat": 27.677067421028916,
-        "lng": 85.34720446418402,
+        "lat": 27.677067,
+        "lng": 85.347204,
         "icon": "fa-bus",
         "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 29,
-        "name": "Gwarko",
-        "lat": 27.66853497923957,
-        "lng": 85.3353811705691,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 30,
-        "name": "Balkhu",
-        "lat": 27.6845,
-        "lng": 85.297,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#2ecc71"
-    },
-    {
-        "id": 31,
-        "name": "Swayambhu",
-        "lat": 27.712862247372016,
-        "lng": 85.29025553106621,
-        "icon": "fa-place-of-worship",
-        "iconType": "fontawesome",
-        "color": "#f39c12"
-    },
-    {
-        "id": 32,
-        "name": "Balaju",
-        "lat": 27.73276926149616,
-        "lng": 85.30557635639627,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#afbbeb"
-    },
-    {
-        "id": 33,
-        "name": "Chabahil",
-        "lat": 27.717098312277095,
-        "lng": 85.34656067975772,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#3498db"
-    },
-    {
-        "id": 34,
-        "name": "Bouddha",
-        "lat": 27.7215,
-        "lng": 85.362,
-        "icon": "fa-place-of-worship",
-        "iconType": "fontawesome",
-        "color": "#f39c12"
-    },
-    {
-        "id": 35,
-        "name": "Jorpati",
-        "lat": 27.7265,
-        "lng": 85.3735,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 36,
-        "name": "Maharajgunj",
-        "lat": 27.73402201458135,
-        "lng": 85.32999405457649,
-        "icon": "fa-hospital",
-        "iconType": "fontawesome",
-        "color": "#7b96c8"
-    },
-    {
-        "id": 37,
-        "name": "Thapathali",
-        "lat": 27.691812356952987,
-        "lng": 85.31810746544778,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#3498db"
-    },
-    {
-        "id": 38,
-        "name": "Bhotahity",
-        "lat": 27.7075,
-        "lng": 85.3135,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#e74c3c"
-    },
-    {
-        "id": 39,
-        "name": "TU Gate",
-        "lat": 27.6815,
-        "lng": 85.2855,
-        "icon": "fa-school",
-        "iconType": "fontawesome",
-        "color": "#9b59b6"
-    },
-    {
-        "name": "Dhulikhel",
-        "lat": 27.698112493301025,
-        "lng": 85.3802164513996,
-        "type": "actual",
-        "iconType": "fontawesome",
-        "icon": "fa-user",
-        "color": "#e74c3c",
-        "id": 40
+        "color": "#ea580c"
     }
 ]

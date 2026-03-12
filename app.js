@@ -408,14 +408,33 @@ function closeRouteSidebar() {
     document.getElementById('search-panel').classList.remove('hidden');
 }
 
+function updateMapInfoToggleButton() {
+    const btn = document.getElementById('btn-reset-focus');
+    if (!btn) return;
+
+    const allInfoShown = !routeFocusMode;
+    btn.classList.toggle('active', allInfoShown);
+    btn.setAttribute('aria-pressed', String(allInfoShown));
+
+    if (allInfoShown) {
+        btn.title = 'Show only selected route and related vehicles';
+        btn.innerHTML = '<i class="fa-solid fa-route"></i>';
+    } else {
+        btn.title = 'Show all map info';
+        btn.innerHTML = '<i class="fa-solid fa-layer-group"></i>';
+    }
+}
+
 function enableRouteFocusMode() {
     routeFocusMode = true;
     applyLayerVisibility();
+    updateMapInfoToggleButton();
 }
 
 function disableRouteFocusMode() {
     routeFocusMode = false;
     applyLayerVisibility();
+    updateMapInfoToggleButton();
 }
 
 document.getElementById('btn-close-sidebar').addEventListener('click', () => {
@@ -424,8 +443,13 @@ document.getElementById('btn-close-sidebar').addEventListener('click', () => {
 });
 
 document.getElementById('btn-reset-focus').addEventListener('click', () => {
-    disableRouteFocusMode();
-    showToast('Map details restored', 'info', 1400);
+    if (routeFocusMode) {
+        disableRouteFocusMode();
+        showToast('All map information is now visible', 'info', 1400);
+    } else {
+        enableRouteFocusMode();
+        showToast('Focused on selected route', 'success', 1400);
+    }
 });
 
 document.getElementById('btn-recenter-route').addEventListener('click', () => {
@@ -433,6 +457,8 @@ document.getElementById('btn-recenter-route').addEventListener('click', () => {
         map.fitBounds(activeRouteBounds, { padding: getFitPadding() });
     }
 });
+
+updateMapInfoToggleButton();
 
 // ---- Panel Collapse ----
 document.getElementById('btn-collapse').addEventListener('click', () => {

@@ -10,7 +10,8 @@
         "speed":  40,
         "routeId":  1,
         "moving":  false,
-        "bearing":  350
+        "bearing":  350,
+        "vehicle_image":  "assets/icons/green-bus.png"
     },
     {
         "id":  2,
@@ -23,7 +24,8 @@
         "speed":  45,
         "routeId":  2,
         "moving":  false,
-        "bearing":  15
+        "bearing":  15,
+        "vehicle_image":  "assets/icons/green-bus.png"
     },
     {
         "id":  3,
@@ -36,7 +38,8 @@
         "speed":  50,
         "routeId":  4,
         "moving":  false,
-        "bearing":  90
+        "bearing":  90,
+        "vehicle_image":  "assets/icons/micro-van.avif"
     },
     {
         "id":  4,
@@ -49,7 +52,8 @@
         "speed":  40,
         "routeId":  5,
         "moving":  false,
-        "bearing":  210
+        "bearing":  210,
+        "vehicle_image":  "assets/icons/red-bus.png"
     },
     {
         "id":  5,
@@ -62,7 +66,8 @@
         "speed":  40,
         "routeId":  6,
         "moving":  false,
-        "bearing":  330
+        "bearing":  330,
+        "vehicle_image":  "assets/icons/red-bus.png"
     },
     {
         "id":  6,
@@ -75,7 +80,8 @@
         "speed":  35,
         "routeId":  7,
         "moving":  false,
-        "bearing":  45
+        "bearing":  45,
+        "vehicle_image":  "assets/icons/micro-van.avif"
     },
     {
         "id":  7,
@@ -88,7 +94,8 @@
         "speed":  25,
         "routeId":  8,
         "moving":  false,
-        "bearing":  350
+        "bearing":  350,
+        "vehicle_image":  "assets/icons/micro-van.avif"
     },
     {
         "id":  8,
@@ -101,7 +108,8 @@
         "speed":  45,
         "routeId":  9,
         "moving":  false,
-        "bearing":  10
+        "bearing":  10,
+        "vehicle_image":  "assets/icons/green-bus.png"
     },
     {
         "id":  9,
@@ -114,7 +122,8 @@
         "speed":  50,
         "routeId":  10,
         "moving":  false,
-        "bearing":  290
+        "bearing":  290,
+        "vehicle_image":  "assets/icons/micro-van.avif"
     },
     {
         "id":  10,
@@ -127,7 +136,8 @@
         "speed":  30,
         "routeId":  11,
         "moving":  false,
-        "bearing":  85
+        "bearing":  85,
+        "vehicle_image":  "assets/icons/micro-van.avif"
     },
     {
         "id":  11,
@@ -140,7 +150,8 @@
         "speed":  42,
         "routeId":  1,
         "moving":  false,
-        "bearing":  355
+        "bearing":  355,
+        "vehicle_image":  "assets/icons/green-bus.png"
     },
     {
         "id":  12,
@@ -153,7 +164,8 @@
         "speed":  40,
         "routeId":  2,
         "moving":  false,
-        "bearing":  15
+        "bearing":  15,
+        "vehicle_image":  "assets/icons/green-bus.png"
     },
     {
         "id":  13,
@@ -166,7 +178,8 @@
         "speed":  55,
         "routeId":  5,
         "moving":  false,
-        "bearing":  180
+        "bearing":  180,
+        "vehicle_image":  "assets/icons/green-bus.png"
     },
     {
         "id":  14,
@@ -179,7 +192,8 @@
         "speed":  35,
         "routeId":  6,
         "moving":  false,
-        "bearing":  40
+        "bearing":  40,
+        "vehicle_image":  "assets/icons/red-bus.png"
     },
     {
         "id":  15,
@@ -192,6 +206,7 @@
         "speed":  35,
         "routeId":  7,
         "moving":  false,
-        "bearing":  60
+        "bearing":  60,
+        "vehicle_image":  "assets/icons/micro-van.avif"
     }
 ]

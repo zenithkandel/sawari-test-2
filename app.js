@@ -568,6 +568,11 @@ document.getElementById('toggle-follow-gps').addEventListener('change', (e) => {
 document.getElementById('btn-clear-global').addEventListener('click', () => {
     const input = document.getElementById('input-global-search');
     input.value = '';
+    selectedPlaces.global = null;
+    if (globalSearchMarker) {
+        map.removeLayer(globalSearchMarker);
+        globalSearchMarker = null;
+    }
     document.getElementById('suggestions-global').classList.add('hidden');
     document.getElementById('suggestions-global').innerHTML = '';
     input.focus();
@@ -610,12 +615,22 @@ map.on('click', (e) => {
 });
 
 function setStartPoint(lat, lng, name) {
+    selectedPlaces.start = {
+        name: name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+        lat,
+        lon: lng
+    };
     startPoint = { lat, lng };
     if (startMarker) map.removeLayer(startMarker);
     startMarker = L.marker([lat, lng], { icon: startIcon, draggable: true, zIndexOffset: 1000 }).addTo(map);
     startMarker.on('dragend', (e) => {
         const p = e.target.getLatLng();
         startPoint = { lat: p.lat, lng: p.lng };
+        selectedPlaces.start = {
+            name: `${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`,
+            lat: p.lat,
+            lon: p.lng
+        };
         document.getElementById('input-start').value = `${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`;
     });
     document.getElementById('input-start').value = name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
@@ -623,12 +638,22 @@ function setStartPoint(lat, lng, name) {
 }
 
 function setEndPoint(lat, lng, name) {
+    selectedPlaces.end = {
+        name: name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+        lat,
+        lon: lng
+    };
     endPoint = { lat, lng };
     if (endMarker) map.removeLayer(endMarker);
     endMarker = L.marker([lat, lng], { icon: endIcon, draggable: true, zIndexOffset: 1000 }).addTo(map);
     endMarker.on('dragend', (e) => {
         const p = e.target.getLatLng();
         endPoint = { lat: p.lat, lng: p.lng };
+        selectedPlaces.end = {
+            name: `${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`,
+            lat: p.lat,
+            lon: p.lng
+        };
         document.getElementById('input-end').value = `${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`;
     });
     document.getElementById('input-end').value = name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
@@ -677,8 +702,12 @@ document.getElementById('btn-clear').addEventListener('click', clearAll);
 function clearAll() {
     if (startMarker) { map.removeLayer(startMarker); startMarker = null; }
     if (endMarker) { map.removeLayer(endMarker); endMarker = null; }
+    if (globalSearchMarker) { map.removeLayer(globalSearchMarker); globalSearchMarker = null; }
     startPoint = null;
     endPoint = null;
+    selectedPlaces.start = null;
+    selectedPlaces.end = null;
+    selectedPlaces.global = null;
     currentJourney = null;
     activeRouteBounds = null;
     assignedVehiclesByLeg = {};

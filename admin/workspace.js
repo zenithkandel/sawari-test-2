@@ -20,7 +20,6 @@ let newVehicleLatLng = null, vehicleMarkers = {}, movingIntervals = {};
 let mapMarkers = [], mapPolylines = [];
 let expandedRouteId = null;
 let activityFeed = [];
-let simulatorEnabled = false;
 
 async function saveStopPosition(stop, latlng) {
     const update = {
@@ -201,59 +200,8 @@ async function loadAll() {
         populateIconSelects();
         populateRouteSelects();
         updateCounts();
-        if (simulatorEnabled) {
-            startFleetSimulator(true);
-        }
     } catch { showToast('Failed to load data', 'error'); }
 }
-
-function updateSimulatorButton() {
-    const btn = document.getElementById('btn-toggle-simulator');
-    if (!btn) return;
-    btn.classList.toggle('active', simulatorEnabled);
-    btn.setAttribute('aria-pressed', String(simulatorEnabled));
-    btn.title = simulatorEnabled ? 'Stop fleet simulator' : 'Start fleet simulator';
-    btn.innerHTML = simulatorEnabled
-        ? '<i class="fa-solid fa-pause"></i> Simulator On'
-        : '<i class="fa-solid fa-play"></i> Simulator Off';
-}
-
-async function startFleetSimulator(silent = false) {
-    const routeVehicles = allVehicles.filter(v => +v.routeId > 0);
-    if (!routeVehicles.length) {
-        if (!silent) showToast('No route-assigned vehicles to simulate', 'warning');
-        return;
-    }
-
-    for (const v of routeVehicles) {
-        if (!v.moving) {
-            await window.startMotion(v.id, true);
-        }
-    }
-    updateCounts();
-    renderVehiclesTable();
-    if (!silent) showToast(`Simulator started for ${routeVehicles.length} vehicles`, 'success', 1600);
-}
-
-async function stopFleetSimulator(silent = false) {
-    const moving = allVehicles.filter(v => v.moving);
-    for (const v of moving) {
-        await window.stopMotion(v.id, true);
-    }
-    updateCounts();
-    renderVehiclesTable();
-    if (!silent) showToast('Simulator stopped', 'info', 1400);
-}
-
-document.getElementById('btn-toggle-simulator').addEventListener('click', async () => {
-    simulatorEnabled = !simulatorEnabled;
-    updateSimulatorButton();
-    if (simulatorEnabled) {
-        await startFleetSimulator();
-    } else {
-        await stopFleetSimulator();
-    }
-});
 
 function updateCounts() {
     document.getElementById('stops-count').textContent = allStops.length;
@@ -928,4 +876,3 @@ document.addEventListener('keydown', e => {
 restoreActivity();
 loadAll();
 activateTabFromHash();
-updateSimulatorButton();

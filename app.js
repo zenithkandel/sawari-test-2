@@ -198,10 +198,20 @@ function getVehicleTemplateSvg(type, color) {
     return serializer.serializeToString(cloned).replace(/__COLOR__/g, color || '#0ea5e9').trim();
 }
 
+function getVehicleRotationDegrees(vehicle, type) {
+    const rawBearing = Number(vehicle?.bearing);
+    if (!Number.isFinite(rawBearing)) return 0;
+
+    // SVG vehicles are drawn facing east (right), while bearing 0 points north.
+    // Convert compass heading to icon heading by rotating -90 degrees.
+    const baseOffset = type === 'micro' ? -90 : -90;
+    return ((rawBearing + baseOffset) % 360 + 360) % 360;
+}
+
 function createVehicleRenderIcon(vehicle, size = 42, isAssigned = false) {
     const type = getVehicleRenderType(vehicle);
     const color = vehicle.color || '#0ea5e9';
-    const bearing = Number.isFinite(vehicle.bearing) ? vehicle.bearing : 0;
+    const bearing = getVehicleRotationDegrees(vehicle, type);
     const svgMarkup = getVehicleTemplateSvg(type, color);
 
     if (!svgMarkup) {

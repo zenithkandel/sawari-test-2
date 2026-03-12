@@ -893,7 +893,7 @@ body {
     justify-content: center;
     transform: rotate(var(--vehicle-rotation, 0deg));
     transform-origin: 50% 50%;
-    transition: transform 0.32s ease;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
     filter: drop-shadow(0 4px 8px rgba(15, 23, 42, 0.3));
 }
 
@@ -903,11 +903,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: vehicle-bob 1.3s ease-in-out infinite;
+    animation: vehicle-bob 2s ease-in-out infinite;
 }
 
 .vehicle-render-wrap.assigned .vehicle-motion {
-    animation-duration: 0.85s;
+    animation-duration: 1.3s;
 }
 
 .vehicle-motion svg {
@@ -930,7 +930,7 @@ body {
     }
 
     50% {
-        transform: translateY(-1.2px);
+        transform: translateY(-0.7px);
     }
 
     100% {

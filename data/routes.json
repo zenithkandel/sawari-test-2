@@ -251,19 +251,5 @@
         "style": "solid",
         "weight": 5,
         "snapToRoad": true
-    },
-    {
-        "name": "Kathmandu To dhulikhel",
-        "color": "#e74c3c",
-        "style": "solid",
-        "weight": 4,
-        "stopIds": [
-            28,
-            40,
-            19,
-            18,
-            39
-        ],
-        "id": 15
     }
 ]

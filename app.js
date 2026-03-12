@@ -667,6 +667,10 @@ document.getElementById('btn-swap').addEventListener('click', () => {
     startPoint = endPoint;
     endPoint = tmpPt;
 
+    const tmpPlace = selectedPlaces.start;
+    selectedPlaces.start = selectedPlaces.end;
+    selectedPlaces.end = tmpPlace;
+
     const tmpMarker = startMarker;
     startMarker = endMarker;
     endMarker = tmpMarker;
@@ -691,8 +695,8 @@ document.getElementById('btn-swap').addEventListener('click', () => {
         });
     }
 
-    document.getElementById('input-start').value = startPoint ? `${startPoint.lat.toFixed(5)}, ${startPoint.lng.toFixed(5)}` : '';
-    document.getElementById('input-end').value = endPoint ? `${endPoint.lat.toFixed(5)}, ${endPoint.lng.toFixed(5)}` : '';
+    document.getElementById('input-start').value = selectedPlaces.start?.name || (startPoint ? `${startPoint.lat.toFixed(5)}, ${startPoint.lng.toFixed(5)}` : '');
+    document.getElementById('input-end').value = selectedPlaces.end?.name || (endPoint ? `${endPoint.lat.toFixed(5)}, ${endPoint.lng.toFixed(5)}` : '');
     showToast('Locations swapped', 'info', 1500);
 });
 
@@ -716,6 +720,7 @@ function clearAll() {
     clearJourneyLayers();
     document.getElementById('input-start').value = '';
     document.getElementById('input-end').value = '';
+    document.getElementById('input-global-search').value = '';
     document.getElementById('journey-results').classList.add('hidden');
     document.getElementById('journey-results').innerHTML = '';
     setStatus('Pick your start and destination on the map.');
@@ -1378,90 +1383,189 @@ function highlightText(name, query) {
     return `${a}<mark>${b}</mark>${c}`;
 }
 
-function scoreNameMatch(text, query) {
-    const q = query.toLowerCase();
-    const t = text.toLowerCase();
-    const idx = t.indexOf(q);
-    if (idx === -1) return -1;
-    if (idx === 0) return 100 - t.length * 0.05;
-    return 65 - idx * 1.25;
+function normalizePlaceResult(place) {
+    const lat = Number.parseFloat(place.lat);
+    const lon = Number.parseFloat(place.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+
+    return {
+        name: place.display_name || place.name || 'Unnamed place',
+        lat,
+        lon
+    };
 }
 
-function rankedStopMatches(query, limit = 8) {
-    if (!query || !publicStops.length) return [];
-    const results = publicStops
-        .map(stop => ({
-            stop,
-            score: scoreNameMatch(stop.name, query)
-        }))
-        .filter(item => item.score >= 0)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, limit)
-        .map(item => item.stop);
-    return results;
+async function searchPlaces(query) {
+    const trimmedQuery = query.trim();
+    const normalizedQuery = trimmedQuery.toLowerCase();
+
+    if (normalizedQuery.length < PLACE_AUTOCOMPLETE_MIN_QUERY) return [];
+
+    const cached = placeSearchCache.get(normalizedQuery);
+    if (cached) return cached;
+
+    if (placeSearchInFlight.has(normalizedQuery)) {
+        return placeSearchInFlight.get(normalizedQuery);
+    }
+
+    const params = new URLSearchParams({
+        q: trimmedQuery,
+        format: 'json',
+        limit: String(PLACE_AUTOCOMPLETE_LIMIT),
+        viewbox: KATHMANDU_VIEWBOX,
+        bounded: '1',
+        addressdetails: '0'
+    });
+
+    const request = fetch(`${NOMINATIM_BASE_URL}?${params.toString()}`, {
+        headers: { Accept: 'application/json' }
+    })
+        .then(async (response) => {
+            if (!response.ok) {
+                throw new Error(`Place search failed with status ${response.status}`);
+            }
+            return response.json();
+        })
+        .then((results) => results
+            .map(normalizePlaceResult)
+            .filter(Boolean)
+            .slice(0, PLACE_AUTOCOMPLETE_LIMIT))
+        .then((results) => {
+            placeSearchCache.set(normalizedQuery, results);
+            return results;
+        })
+        .finally(() => {
+            placeSearchInFlight.delete(normalizedQuery);
+        });
+
+    placeSearchInFlight.set(normalizedQuery, request);
+    return request;
 }
 
-function setupAutocomplete(inputId, suggestionsId, onSelect) {
-    const input = document.getElementById(inputId);
-    const dropdown = document.getElementById(suggestionsId);
+function renderSuggestions(container, results, options = {}) {
+    const { query = '', activeIndex = -1, onSelect = null } = options;
+
+    if (!results.length) {
+        container.innerHTML = '';
+        container.classList.add('hidden');
+        return;
+    }
+
+    container.innerHTML = results.map((place, index) => `
+        <div class="suggestion-item ${index === activeIndex ? 'active' : ''}" data-index="${index}">
+            <div class="suggestion-icon" style="background:#0ea5e9"><i class="fa-solid fa-location-dot"></i></div>
+            <span class="suggestion-name">${highlightText(place.name, query)}</span>
+        </div>
+    `).join('');
+    container.classList.remove('hidden');
+
+    if (typeof onSelect === 'function') {
+        container.querySelectorAll('.suggestion-item').forEach((item, index) => {
+            item.addEventListener('mousedown', (event) => {
+                event.preventDefault();
+                onSelect(results[index]);
+            });
+        });
+    }
+}
+
+function debounce(fn, delayMs) {
+    let timerId = null;
+
+    return (...args) => {
+        window.clearTimeout(timerId);
+        timerId = window.setTimeout(() => fn(...args), delayMs);
+    };
+}
+
+function attachAutocomplete(inputElement, dropdownElement, onSelect, options = {}) {
     let activeIndex = -1;
     let currentMatches = [];
+    let requestToken = 0;
+
+    const { onEmpty = null } = options;
 
     function hideDropdown() {
-        dropdown.classList.add('hidden');
-        dropdown.innerHTML = '';
+        dropdownElement.classList.add('hidden');
+        dropdownElement.innerHTML = '';
         activeIndex = -1;
         currentMatches = [];
     }
 
-    function showSuggestions(query) {
+    function selectMatch(place) {
+        if (!place) return;
+        inputElement.value = place.name;
+        hideDropdown();
+        onSelect(place);
+    }
+
+    function updateActive(items) {
+        items.forEach((el, index) => el.classList.toggle('active', index === activeIndex));
+        if (activeIndex >= 0 && items[activeIndex]) {
+            items[activeIndex].scrollIntoView({ block: 'nearest' });
+        }
+    }
+
+    async function showSuggestions(query) {
         const q = query.trim();
         if (!q) {
+            hideDropdown();
+            if (typeof onEmpty === 'function') onEmpty();
+            return;
+        }
+
+        if (q.length < PLACE_AUTOCOMPLETE_MIN_QUERY) {
             hideDropdown();
             return;
         }
 
-        currentMatches = rankedStopMatches(q, 9);
+        const currentToken = ++requestToken;
+
+        try {
+            currentMatches = await searchPlaces(q);
+        } catch (error) {
+            if (currentToken !== requestToken) return;
+            console.warn('Place autocomplete error:', error.message);
+            hideDropdown();
+            return;
+        }
+
+        if (currentToken !== requestToken || inputElement.value.trim() !== q) return;
         if (!currentMatches.length) {
             hideDropdown();
             return;
         }
 
         activeIndex = -1;
-        dropdown.innerHTML = currentMatches.map((stop, i) => {
-            return `<div class="suggestion-item" data-index="${i}">
-                <div class="suggestion-icon" style="background:${stop.color || '#0ea5e9'}"><i class="fa-solid ${stop.icon || 'fa-bus'}"></i></div>
-                <span class="suggestion-name">${highlightText(stop.name, q)}</span>
-            </div>`;
-        }).join('');
-        dropdown.classList.remove('hidden');
-
-        dropdown.querySelectorAll('.suggestion-item').forEach((item, i) => {
-            item.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                selectMatch(currentMatches[i]);
-            });
+        renderSuggestions(dropdownElement, currentMatches, {
+            query: q,
+            activeIndex,
+            onSelect: selectMatch
         });
     }
 
-    function selectMatch(stop) {
-        if (!stop) return;
-        input.value = stop.name;
-        hideDropdown();
-        onSelect(stop);
-    }
+    const debouncedShowSuggestions = debounce((value) => {
+        showSuggestions(value);
+    }, 250);
 
-    function updateActive(items) {
-        items.forEach((el, i) => el.classList.toggle('active', i === activeIndex));
-        if (activeIndex >= 0 && items[activeIndex]) {
-            items[activeIndex].scrollIntoView({ block: 'nearest' });
+    inputElement.addEventListener('input', () => {
+        const value = inputElement.value.trim();
+        if (!value) {
+            requestToken += 1;
+            hideDropdown();
+            if (typeof onEmpty === 'function') onEmpty();
+            return;
         }
-    }
+        debouncedShowSuggestions(inputElement.value);
+    });
 
-    input.addEventListener('input', () => showSuggestions(input.value));
+    inputElement.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            hideDropdown();
+            return;
+        }
 
-    input.addEventListener('keydown', (e) => {
-        const items = dropdown.querySelectorAll('.suggestion-item');
+        const items = dropdownElement.querySelectorAll('.suggestion-item');
         if (!items.length) return;
 
         if (e.key === 'ArrowDown') {
@@ -1476,185 +1580,65 @@ function setupAutocomplete(inputId, suggestionsId, onSelect) {
             e.preventDefault();
             const index = activeIndex >= 0 ? activeIndex : 0;
             selectMatch(currentMatches[index]);
-        } else if (e.key === 'Escape') {
+        }
+    });
+
+    inputElement.addEventListener('focus', () => {
+        const value = inputElement.value.trim();
+        if (value.length >= PLACE_AUTOCOMPLETE_MIN_QUERY) {
+            debouncedShowSuggestions(inputElement.value);
+        }
+    });
+
+    inputElement.addEventListener('blur', () => setTimeout(hideDropdown, 120));
+
+    document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (target !== inputElement && !dropdownElement.contains(target)) {
             hideDropdown();
         }
     });
-
-    input.addEventListener('blur', () => setTimeout(hideDropdown, 120));
-    input.addEventListener('focus', () => {
-        if (input.value.trim().length > 0) showSuggestions(input.value);
-    });
 }
 
-function getRouteStops(route) {
-    return route.stopIds
-        .map(id => allStops.find(s => s.id === id))
-        .filter(Boolean);
-}
-
-function setupGlobalSearch() {
-    const input = document.getElementById('input-global-search');
-    const dropdown = document.getElementById('suggestions-global');
-    let activeIndex = -1;
-    let currentMatches = [];
-
-    function hide() {
-        dropdown.classList.add('hidden');
-        dropdown.innerHTML = '';
-        activeIndex = -1;
-        currentMatches = [];
+attachAutocomplete(
+    document.getElementById('input-start'),
+    document.getElementById('suggestions-start'),
+    (place) => {
+        setStartPoint(place.lat, place.lon, place.name);
+        showToast(`Start set to ${place.name}`, 'success', 1500);
     }
+);
 
-    function queryGlobal(q) {
-        const stopResults = rankedStopMatches(q, 5).map(stop => ({
-            kind: 'stop',
-            title: stop.name,
-            meta: 'Stop',
-            icon: stop.icon || 'fa-location-dot',
-            color: stop.color || '#0ea5e9',
-            data: stop,
-            score: scoreNameMatch(stop.name, q) + 12
-        }));
-
-        const routeResults = allRoutes
-            .map(route => {
-                const routeScore = Math.max(
-                    scoreNameMatch(route.name || '', q),
-                    scoreNameMatch((route.code || '').toString(), q)
-                );
-                if (routeScore < 0) return null;
-                return {
-                    kind: 'route',
-                    title: route.name,
-                    meta: `${route.stopIds.length} stops`,
-                    icon: 'fa-route',
-                    color: route.color || '#0f766e',
-                    data: route,
-                    score: routeScore + 4
-                };
-            })
-            .filter(Boolean)
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 5);
-
-        return [...stopResults, ...routeResults]
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 8);
+attachAutocomplete(
+    document.getElementById('input-end'),
+    document.getElementById('suggestions-end'),
+    (place) => {
+        setEndPoint(place.lat, place.lon, place.name);
+        showToast(`Destination set to ${place.name}`, 'success', 1500);
     }
+);
 
-    function render(q) {
-        const query = q.trim();
-        if (!query) {
-            hide();
-            return;
-        }
-
-        currentMatches = queryGlobal(query);
-        if (!currentMatches.length) {
-            hide();
-            return;
-        }
-
-        dropdown.innerHTML = currentMatches.map((item, i) => {
-            return `<div class="suggestion-item" data-index="${i}">
-                <div class="suggestion-icon" style="background:${item.color}"><i class="fa-solid ${item.icon}"></i></div>
-                <div class="suggestion-name">${highlightText(item.title, query)}</div>
-                <div class="suggestion-meta">${item.meta}</div>
-            </div>`;
-        }).join('');
-        dropdown.classList.remove('hidden');
-
-        dropdown.querySelectorAll('.suggestion-item').forEach((item, i) => {
-            item.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                select(currentMatches[i]);
-            });
-        });
-    }
-
-    function select(item) {
-        if (!item) return;
-        expandPanelIfCollapsed();
-        input.value = item.title;
-        hide();
-
-        if (item.kind === 'stop') {
-            const stop = item.data;
-            map.flyTo([stop.lat, stop.lng], Math.max(map.getZoom(), 15));
-            L.popup()
-                .setLatLng([stop.lat, stop.lng])
-                .setContent(`<b>${escapeHtml(stop.name)}</b><br/><small>Stop</small>`)
-                .openOn(map);
-
-            if (!startPoint) {
-                setStartPoint(stop.lat, stop.lng, stop.name);
-                showToast(`Start set to ${stop.name}`, 'success', 1300);
-            } else if (!endPoint) {
-                setEndPoint(stop.lat, stop.lng, stop.name);
-                showToast(`Destination set to ${stop.name}`, 'success', 1300);
-            } else {
-                showToast(`Centered on ${stop.name}`, 'info', 1300);
+attachAutocomplete(
+    document.getElementById('input-global-search'),
+    document.getElementById('suggestions-global'),
+    (place) => {
+        selectedPlaces.global = { ...place };
+        if (globalSearchMarker) map.removeLayer(globalSearchMarker);
+        globalSearchMarker = L.marker([place.lat, place.lon], { zIndexOffset: 900 }).addTo(map);
+        map.flyTo([place.lat, place.lon], Math.max(map.getZoom(), 16));
+        globalSearchMarker.bindPopup(`<b>${escapeHtml(place.name)}</b>`).openPopup();
+        setStatus(`Showing ${place.name}`, 'success');
+    },
+    {
+        onEmpty: () => {
+            selectedPlaces.global = null;
+            if (globalSearchMarker) {
+                map.removeLayer(globalSearchMarker);
+                globalSearchMarker = null;
             }
-            return;
-        }
-
-        if (item.kind === 'route') {
-            const route = item.data;
-            const stops = getRouteStops(route);
-            if (stops.length >= 2) {
-                const coords = stops.map(s => [s.lat, s.lng]);
-                map.fitBounds(coords, { padding: getFitPadding() });
-            }
-            setStatus(`Viewing route: ${route.name}`, 'success');
-            showToast(`Showing ${route.name}`, 'success', 1400);
         }
     }
-
-    input.addEventListener('input', () => render(input.value));
-    input.addEventListener('focus', () => {
-        if (input.value.trim()) render(input.value);
-    });
-    input.addEventListener('blur', () => setTimeout(hide, 120));
-
-    input.addEventListener('keydown', (e) => {
-        const items = dropdown.querySelectorAll('.suggestion-item');
-        if (!items.length) return;
-
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            activeIndex = Math.min(activeIndex + 1, items.length - 1);
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            activeIndex = Math.max(activeIndex - 1, 0);
-        } else if (e.key === 'Enter') {
-            e.preventDefault();
-            const idx = activeIndex >= 0 ? activeIndex : 0;
-            select(currentMatches[idx]);
-            return;
-        } else if (e.key === 'Escape') {
-            hide();
-            return;
-        }
-
-        items.forEach((el, i) => el.classList.toggle('active', i === activeIndex));
-        if (activeIndex >= 0 && items[activeIndex]) {
-            items[activeIndex].scrollIntoView({ block: 'nearest' });
-        }
-    });
-}
-
-setupAutocomplete('input-start', 'suggestions-start', (stop) => {
-    setStartPoint(stop.lat, stop.lng, stop.name);
-    showToast(`Start set to ${stop.name}`, 'success', 1500);
-});
-
-setupAutocomplete('input-end', 'suggestions-end', (stop) => {
-    setEndPoint(stop.lat, stop.lng, stop.name);
-    showToast(`Destination set to ${stop.name}`, 'success', 1500);
-});
-
-setupGlobalSearch();
+);
 
 // ---- Init ----
 loadData();

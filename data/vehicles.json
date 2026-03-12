@@ -1,1 +1,72 @@
-[]
+[
+    {
+        "id": 1,
+        "name": "Sajha Yatayat Electric Bus",
+        "lat": 27.705106737647288,
+        "lng": 85.31517863273622,
+        "icon": "nepal-sajha-yatayat.jpg",
+        "iconType": "image",
+        "color": "#1d4ed8",
+        "speed": 32,
+        "routeId": 1,
+        "moving": false,
+        "bearing": 82,
+        "vehicle_image": "assets\/icons\/nepal-sajha-yatayat.jpg"
+    },
+    {
+        "id": 2,
+        "name": "Nepal Yatayat Tourist Bus",
+        "lat": 27.6893,
+        "lng": 85.3348,
+        "icon": "nepal-tourist-bus.jpg",
+        "iconType": "image",
+        "color": "#0f766e",
+        "speed": 30,
+        "routeId": 2,
+        "moving": false,
+        "bearing": 302,
+        "vehicle_image": "assets\/icons\/nepal-tourist-bus.jpg"
+    },
+    {
+        "id": 3,
+        "name": "Sundar Yatayat Tata Bus",
+        "lat": 27.6969,
+        "lng": 85.2973,
+        "icon": "nepal-tata-bus.jpg",
+        "iconType": "image",
+        "color": "#b45309",
+        "speed": 28,
+        "routeId": 3,
+        "moving": false,
+        "bearing": 96,
+        "vehicle_image": "assets\/icons\/nepal-tata-bus.jpg"
+    },
+    {
+        "id": 4,
+        "name": "Mayur Yatayat Offroad Bus",
+        "lat": 27.6998,
+        "lng": 85.3217,
+        "icon": "nepal-offroad-bus.jpg",
+        "iconType": "image",
+        "color": "#7c3aed",
+        "speed": 26,
+        "routeId": 4,
+        "moving": false,
+        "bearing": 128,
+        "vehicle_image": "assets\/icons\/nepal-offroad-bus.jpg"
+    },
+    {
+        "id": 5,
+        "name": "Safa Tempo Kathmandu",
+        "lat": 27.6937,
+        "lng": 85.3198,
+        "icon": "nepal-safa-tempo.jpg",
+        "iconType": "image",
+        "color": "#dc2626",
+        "speed": 20,
+        "routeId": 5,
+        "moving": false,
+        "bearing": 112,
+        "vehicle_image": "assets\/icons\/nepal-safa-tempo.jpg"
+    }
+]

@@ -810,7 +810,39 @@ function renderJourneyPanel(journey) {
             </div>
         </div>`;
 
-    journey.legs.forEach((leg) => {
+    const assignments = Object.values(assignedVehiclesByLeg).sort((a, b) => a.legIndex - b.legIndex);
+    if (assignments.length) {
+        html += '<div class="assignment-section">';
+        assignments.forEach((item, idx) => {
+            html += `
+                <div class="assignment-card">
+                    <div class="assignment-head">
+                        <span class="assignment-chip">Assigned Bus ${assignments.length > 1 ? idx + 1 : ''}</span>
+                        <strong>${item.vehicleName}</strong>
+                    </div>
+                    <div class="assignment-stats">
+                        <span><i class="fa-solid fa-route"></i> Route ${item.routeId}</span>
+                        <span><i class="fa-solid fa-location-dot"></i> ${item.boardingStop.name}</span>
+                        <span><i class="fa-solid fa-clock"></i> ETA ${formatDuration(item.etaSeconds)}</span>
+                        <span><i class="fa-solid fa-ruler"></i> ${formatDistance(item.distanceToBoarding)}</span>
+                    </div>
+                </div>`;
+        });
+        html += '</div>';
+    } else {
+        html += `
+            <div class="assignment-card assignment-card-empty">
+                <div class="assignment-head">
+                    <span class="assignment-chip">Assigned Bus</span>
+                    <strong>No active bus found on this route yet</strong>
+                </div>
+                <div class="assignment-stats">
+                    <span><i class="fa-solid fa-circle-info"></i> Waiting for a vehicle update on your route.</span>
+                </div>
+            </div>`;
+    }
+
+    journey.legs.forEach((leg, legIndex) => {
         if (leg.isTransfer) {
             html += `
                 <div class="leg-card transfer">
@@ -827,6 +859,7 @@ function renderJourneyPanel(journey) {
 
         const cardClass = leg.type === 'walk' ? 'walk' : 'bus';
         const icon = leg.type === 'walk' ? 'fa-person-walking' : 'fa-bus';
+        const assignedForLeg = leg.type === 'bus' ? getAssignedVehicleForLeg(leg, legIndex) : null;
 
         html += `
             <div class="leg-card ${cardClass}">
@@ -842,6 +875,13 @@ function renderJourneyPanel(journey) {
                 </div>`;
 
         if (leg.type === 'bus' && leg.stops) {
+            if (assignedForLeg) {
+                html += `
+                    <div class="leg-assigned">
+                        <span><i class="fa-solid fa-bus"></i> ${assignedForLeg.vehicleName}</span>
+                        <span><i class="fa-solid fa-clock"></i> ETA to ${assignedForLeg.boardingStop.name}: ${formatDuration(assignedForLeg.etaSeconds)}</span>
+                    </div>`;
+            }
             html += '<div class="leg-stops">';
             leg.stops.forEach((s, j) => {
                 const highlight = j === 0 || j === leg.stops.length - 1;

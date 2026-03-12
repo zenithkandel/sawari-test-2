@@ -177,6 +177,38 @@ function createStopIcon(stop, size = 22) {
     return createFAIcon(stop.icon || 'fa-bus', stop.color || '#e74c3c', size);
 }
 
+function getVehicleRenderType(vehicle) {
+    const meta = `${vehicle.name || ''} ${vehicle.icon || ''}`.toLowerCase();
+    if (/micro|tempo|van|shuttle/.test(meta)) return 'micro';
+    return 'bus';
+}
+
+function getVehicleTemplateSvg(type, color) {
+    const templateId = type === 'micro' ? 'tpl-vehicle-micro' : 'tpl-vehicle-bus';
+    const templateEl = document.getElementById(templateId);
+    if (!templateEl) return '';
+    return templateEl.innerHTML.replace(/__COLOR__/g, color || '#0ea5e9').trim();
+}
+
+function createVehicleRenderIcon(vehicle, size = 42, isAssigned = false) {
+    const type = getVehicleRenderType(vehicle);
+    const color = vehicle.color || '#0ea5e9';
+    const bearing = Number.isFinite(vehicle.bearing) ? vehicle.bearing : 0;
+    const svgMarkup = getVehicleTemplateSvg(type, color);
+
+    return L.divIcon({
+        className: 'custom-marker-icon vehicle-render-marker',
+        html: `
+            <div class="vehicle-render-wrap ${type} ${isAssigned ? 'assigned' : ''}" style="--vehicle-size:${size}px;--vehicle-rotation:${bearing}deg;">
+                <div class="vehicle-motion">${svgMarkup}</div>
+            </div>
+        `,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2],
+        popupAnchor: [0, -size / 2]
+    });
+}
+
 function smoothMoveMarker(marker, targetLatLng, durationMs = 1500) {
     const start = marker.getLatLng();
     const dLat = targetLatLng[0] - start.lat;
@@ -954,9 +986,7 @@ async function pollVehicles() {
 
         const key = 'v_' + v.id;
         const isAssigned = assignedVehicleIds.has(v.id);
-        const icon = v.iconType === 'image'
-            ? createImageIcon(v.icon, isAssigned ? 46 : 40)
-            : createFAIcon(v.icon || 'fa-bus', v.color || '#61dafb', isAssigned ? 46 : 40);
+        const icon = createVehicleRenderIcon(v, isAssigned ? 50 : 44, isAssigned);
 
         const assignedLeg = Object.values(assignedVehiclesByLeg).find(item => item.vehicleId === v.id);
         const etaInfo = assignedLeg

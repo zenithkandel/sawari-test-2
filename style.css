@@ -453,7 +453,8 @@ body {
 .leg-card,
 .no-route-card,
 .fallback-tip,
-.fallback-banner {
+.fallback-banner,
+.assignment-card {
     background: var(--surface);
     border: 1px solid rgba(148, 163, 184, 0.24);
     border-radius: 16px;
@@ -492,6 +493,61 @@ body {
     font-size: 0.77rem;
     color: var(--text-soft);
     line-height: 1.45;
+}
+
+.assignment-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.assignment-card {
+    padding: 12px 14px;
+    border-left: 4px solid var(--teal);
+    background: linear-gradient(180deg, #ffffff, #f0fdfa);
+}
+
+.assignment-card-empty {
+    border-left-color: #94a3b8;
+    background: linear-gradient(180deg, #ffffff, #f8fafc);
+}
+
+.assignment-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+
+.assignment-head strong {
+    font-size: 0.86rem;
+}
+
+.assignment-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(14, 165, 233, 0.12);
+    color: var(--teal-strong);
+    font-size: 0.67rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+}
+
+.assignment-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    font-size: 0.77rem;
+    color: var(--text-soft);
+}
+
+.assignment-stats span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .leg-card {
@@ -544,6 +600,26 @@ body {
     display: flex;
     gap: 14px;
     flex-wrap: wrap;
+}
+
+.leg-assigned {
+    margin-top: 2px;
+    margin-left: 48px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(14, 165, 233, 0.12);
+    color: #0b5d57;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.leg-assigned span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .leg-details span,
@@ -859,8 +935,10 @@ body {
     }
 
     .leg-details,
-    .leg-stops {
+    .leg-stops,
+    .leg-assigned {
         padding-left: 0;
+        margin-left: 0;
     }
 
     #toast-container {

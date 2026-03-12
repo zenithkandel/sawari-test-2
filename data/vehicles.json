@@ -2,8 +2,8 @@
     {
         "id": 1,
         "name": "Sajha Electric (Route 1)",
-        "lat": 27.706383982088752,
-        "lng": 85.31400918960571,
+        "lat": 27.74066918959956,
+        "lng": 85.32925486564638,
         "icon": "green-bus.png",
         "iconType": "image",
         "color": "#e74c3c",
@@ -132,8 +132,8 @@
     {
         "id": 11,
         "name": "Sajha Electric (Route 1)",
-        "lat": 27.6938,
-        "lng": 85.3141,
+        "lat": 27.693104749235015,
+        "lng": 85.31415939331056,
         "icon": "green-bus.png",
         "iconType": "image",
         "color": "#e74c3c",

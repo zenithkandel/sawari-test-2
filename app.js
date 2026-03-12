@@ -183,23 +183,15 @@ function getVehicleRenderType(vehicle) {
     return 'bus';
 }
 
-function getVehicleRotationDegrees(vehicle) {
-    const rawBearing = Number(vehicle?.bearing);
-    if (!Number.isFinite(rawBearing)) return 0;
-    return ((rawBearing % 360) + 360) % 360;
-}
-
 function createVehicleTileIcon(vehicle, size = 42, isAssigned = false) {
     const type = getVehicleRenderType(vehicle);
     const color = vehicle.color || '#0ea5e9';
-    const bearing = getVehicleRotationDegrees(vehicle);
     const glyph = type === 'micro' ? 'fa-shuttle-van' : 'fa-bus';
 
     return L.divIcon({
         className: 'custom-marker-icon vehicle-tile-marker',
         html: `
             <div class="vehicle-tile ${type} ${isAssigned ? 'assigned' : ''}" style="--vehicle-size:${size}px;--vehicle-color:${color};">
-                <span class="vehicle-direction" style="--vehicle-bearing:${bearing}deg;"></span>
                 <i class="fa-solid ${glyph}"></i>
             </div>
         `,
@@ -272,6 +264,7 @@ function assignVehiclesToJourney(journey) {
                     legKey: getLegKey(leg, index),
                     vehicleId: vehicle.id,
                     vehicleName: vehicle.name,
+                    vehicleImage: vehicle.vehicle_image || (vehicle.icon ? `assets/icons/${vehicle.icon}` : ''),
                     routeId: leg.route.id,
                     boardingStop,
                     distanceToBoarding,
@@ -849,6 +842,7 @@ function renderJourneyPanel(journey) {
             html += `
                 <div class="assignment-card">
                     <div class="assignment-head">
+                        ${item.vehicleImage ? `<img class="assignment-vehicle-image" src="${escapeHtml(item.vehicleImage)}" alt="${escapeHtml(item.vehicleName)}" />` : ''}
                         <span class="assignment-chip">Assigned Bus ${assignments.length > 1 ? idx + 1 : ''}</span>
                         <strong>${item.vehicleName}</strong>
                     </div>
@@ -910,6 +904,7 @@ function renderJourneyPanel(journey) {
             if (assignedForLeg) {
                 html += `
                     <div class="leg-assigned">
+                        ${assignedForLeg.vehicleImage ? `<img class="leg-assigned-image" src="${escapeHtml(assignedForLeg.vehicleImage)}" alt="${escapeHtml(assignedForLeg.vehicleName)}" />` : ''}
                         <span><i class="fa-solid fa-bus"></i> ${assignedForLeg.vehicleName}</span>
                         <span><i class="fa-solid fa-clock"></i> ETA to ${assignedForLeg.boardingStop.name}: ${formatDuration(assignedForLeg.etaSeconds)}</span>
                     </div>`;

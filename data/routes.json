@@ -1,255 +1,47 @@
 [
     {
         "id": 1,
-        "name": "Sajha Yatayat - Lagankhel to Gongabu Bus Park",
-        "stopIds": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14,
-            15
-        ],
-        "color": "#e74c3c",
+        "name": "Sajha Yatayat - Kalanki to Ratna Park",
+        "stopIds": [1, 2, 3],
+        "color": "#1d4ed8",
         "style": "solid",
         "weight": 5,
         "snapToRoad": true
     },
     {
         "id": 2,
-        "name": "Sajha Yatayat - Lagankhel to Budhanilkantha",
-        "stopIds": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            16,
-            17
-        ],
-        "color": "#3498db",
+        "name": "Nepal Yatayat - Koteshwor to Ratna Park",
+        "stopIds": [5, 4, 3],
+        "color": "#0f766e",
         "style": "solid",
         "weight": 5,
         "snapToRoad": true
     },
     {
         "id": 3,
-        "name": "Sajha Yatayat - Godawari to Ratna Park",
-        "stopIds": [
-            19,
-            18,
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            20
-        ],
-        "color": "#2ecc71",
+        "name": "Sundar Yatayat - Kalanki to Koteshwor",
+        "stopIds": [1, 2, 4, 5],
+        "color": "#b45309",
         "style": "solid",
         "weight": 5,
         "snapToRoad": true
     },
     {
         "id": 4,
-        "name": "Sajha Yatayat - Kalanki to TIA Airport",
-        "stopIds": [
-            21,
-            22,
-            5,
-            23,
-            24,
-            25,
-            26,
-            27
-        ],
-        "color": "#f39c12",
+        "name": "Mayur Yatayat - Ratna Park to Koteshwor",
+        "stopIds": [3, 4, 5],
+        "color": "#7c3aed",
         "style": "solid",
-        "weight": 5,
+        "weight": 4,
         "snapToRoad": true
     },
     {
         "id": 5,
-        "name": "Mahanagar Yatayat - Ring Road (Counter-Clockwise)",
-        "stopIds": [
-            15,
-            32,
-            31,
-            30,
-            21,
-            18,
-            29,
-            28,
-            25,
-            26,
-            27,
-            33,
-            36,
-            15
-        ],
-        "color": "#afbbeb",
-        "style": "solid",
-        "weight": 5,
-        "snapToRoad": true
-    },
-    {
-        "id": 6,
-        "name": "Mahanagar Yatayat - Ring Road (Clockwise)",
-        "stopIds": [
-            15,
-            36,
-            33,
-            27,
-            26,
-            25,
-            28,
-            29,
-            18,
-            21,
-            30,
-            31,
-            32,
-            15
-        ],
-        "color": "#7b96c8",
-        "style": "solid",
-        "weight": 5,
-        "snapToRoad": true
-    },
-    {
-        "id": 7,
-        "name": "Micro Bus - Ratna Park to Jorpati",
-        "stopIds": [
-            20,
-            7,
-            38,
-            33,
-            34,
-            35
-        ],
-        "color": "#e74c3c",
+        "name": "Safa Tempo - Tripureshwor to Koteshwor",
+        "stopIds": [2, 4, 5],
+        "color": "#dc2626",
         "style": "dashed",
         "weight": 4,
-        "snapToRoad": true
-    },
-    {
-        "id": 8,
-        "name": "Tempo - Patan to Thamel",
-        "stopIds": [
-            1,
-            3,
-            4,
-            37,
-            5,
-            6,
-            7,
-            8
-        ],
-        "color": "#9b59b6",
-        "style": "dotted",
-        "weight": 3,
-        "snapToRoad": true
-    },
-    {
-        "id": 9,
-        "name": "Sajha Yatayat - Kalanki to Maharajgunj",
-        "stopIds": [
-            21,
-            30,
-            31,
-            32,
-            15,
-            36
-        ],
-        "color": "#2ecc71",
-        "style": "solid",
-        "weight": 5,
-        "snapToRoad": true
-    },
-    {
-        "id": 10,
-        "name": "Micro Bus - Koteshwor to Ratna Park",
-        "stopIds": [
-            28,
-            25,
-            24,
-            23,
-            5,
-            6,
-            20
-        ],
-        "color": "#f39c12",
-        "style": "solid",
-        "weight": 4,
-        "snapToRoad": true
-    },
-    {
-        "id": 11,
-        "name": "Micro Bus - Swayambhu to Ratna Park",
-        "stopIds": [
-            31,
-            22,
-            5,
-            6,
-            20
-        ],
-        "color": "#3498db",
-        "style": "solid",
-        "weight": 4,
-        "snapToRoad": true
-    },
-    {
-        "id": 12,
-        "name": "Tempo - Lagankhel to Gwarko",
-        "stopIds": [
-            1,
-            18,
-            29
-        ],
-        "color": "#e67e22",
-        "style": "dashed",
-        "weight": 3,
-        "snapToRoad": true
-    },
-    {
-        "id": 13,
-        "name": "Micro Bus - Balkhu to TU Gate",
-        "stopIds": [
-            30,
-            39
-        ],
-        "color": "#1abc9c",
-        "style": "solid",
-        "weight": 4,
-        "snapToRoad": true
-    },
-    {
-        "id": 14,
-        "name": "Sajha Yatayat - Godawari to Satdobato",
-        "stopIds": [
-            19,
-            18
-        ],
-        "color": "#27ae60",
-        "style": "solid",
-        "weight": 5,
         "snapToRoad": true
     }
 ]

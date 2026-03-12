@@ -16,14 +16,14 @@
     {
         "id": 2,
         "name": "Nepal Yatayat Tourist Bus",
-        "lat": 27.680520418264674,
-        "lng": 85.3431899599651,
+        "lat": 27.71195040732222,
+        "lng": 85.31570434570312,
         "icon": "nepal-tourist-bus.jpg",
         "iconType": "image",
         "color": "#0f766e",
         "speed": 30,
         "routeId": 2,
-        "moving": true,
+        "moving": false,
         "bearing": 302,
         "vehicle_image": "assets\/icons\/nepal-tourist-bus.jpg"
     },
@@ -58,14 +58,14 @@
     {
         "id": 5,
         "name": "Safa Tempo Kathmandu",
-        "lat": 27.69248979086238,
-        "lng": 85.31779810414345,
+        "lat": 27.694396316737205,
+        "lng": 85.32068252563477,
         "icon": "nepal-safa-tempo.jpg",
         "iconType": "image",
         "color": "#dc2626",
         "speed": 20,
         "routeId": 5,
-        "moving": true,
+        "moving": false,
         "bearing": 112,
         "vehicle_image": "assets\/icons\/nepal-safa-tempo.jpg"
     }

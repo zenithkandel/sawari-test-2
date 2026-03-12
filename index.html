@@ -3,7 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f766e" />
     <title>Sawari - Public Transit Navigator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -72,6 +79,49 @@
           <button class="btn" id="btn-clear" title="Clear">
             <i class="fa-solid fa-xmark"></i>
           </button>
+        </div>
+
+        <div class="search-utility">
+          <div class="input-group utility-search-group">
+            <span class="input-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input
+              type="text"
+              id="input-global-search"
+              placeholder="Search stops or routes"
+              autocomplete="off"
+            />
+            <button class="pick-btn" id="btn-clear-global" title="Clear search">
+              <i class="fa-solid fa-eraser"></i>
+            </button>
+            <div class="suggestions-dropdown hidden" id="suggestions-global"></div>
+          </div>
+
+          <div class="toggle-grid">
+            <label class="toggle-item" for="toggle-routes">
+              <span>Routes</span>
+              <input type="checkbox" id="toggle-routes" checked />
+              <span class="toggle-slider"></span>
+            </label>
+            <label class="toggle-item" for="toggle-stops">
+              <span>Stops</span>
+              <input type="checkbox" id="toggle-stops" checked />
+              <span class="toggle-slider"></span>
+            </label>
+            <label class="toggle-item" for="toggle-vehicles">
+              <span>Vehicles</span>
+              <input type="checkbox" id="toggle-vehicles" checked />
+              <span class="toggle-slider"></span>
+            </label>
+            <label class="toggle-item" for="toggle-follow-gps">
+              <span>Follow GPS</span>
+              <input type="checkbox" id="toggle-follow-gps" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <p class="shortcut-hint">
+            Press <strong>Enter</strong> to navigate, <strong>Esc</strong> to cancel map pick, or right-click the map for quick start/end.
+          </p>
         </div>
 
         <p id="search-status" class="status-msg">

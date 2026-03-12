@@ -187,7 +187,15 @@ function getVehicleTemplateSvg(type, color) {
     const templateId = type === 'micro' ? 'tpl-vehicle-micro' : 'tpl-vehicle-bus';
     const templateEl = document.getElementById(templateId);
     if (!templateEl) return '';
-    return templateEl.innerHTML.replace(/__COLOR__/g, color || '#0ea5e9').trim();
+
+    const svgNode = templateEl.content?.firstElementChild;
+    if (!svgNode) {
+        return (templateEl.innerHTML || '').replace(/__COLOR__/g, color || '#0ea5e9').trim();
+    }
+
+    const cloned = svgNode.cloneNode(true);
+    const serializer = new XMLSerializer();
+    return serializer.serializeToString(cloned).replace(/__COLOR__/g, color || '#0ea5e9').trim();
 }
 
 function createVehicleRenderIcon(vehicle, size = 42, isAssigned = false) {
@@ -195,6 +203,14 @@ function createVehicleRenderIcon(vehicle, size = 42, isAssigned = false) {
     const color = vehicle.color || '#0ea5e9';
     const bearing = Number.isFinite(vehicle.bearing) ? vehicle.bearing : 0;
     const svgMarkup = getVehicleTemplateSvg(type, color);
+
+    if (!svgMarkup) {
+        if (vehicle.iconType === 'image' && vehicle.icon) {
+            return createImageIcon(vehicle.icon, size);
+        }
+        const fallbackIcon = type === 'micro' ? 'fa-shuttle-van' : 'fa-bus';
+        return createFAIcon(fallbackIcon, color, size);
+    }
 
     return L.divIcon({
         className: 'custom-marker-icon vehicle-render-marker',

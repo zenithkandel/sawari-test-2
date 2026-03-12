@@ -880,6 +880,64 @@ body {
     justify-content: center;
 }
 
+.vehicle-render-marker {
+    background: transparent !important;
+    border: none !important;
+}
+
+.vehicle-render-wrap {
+    width: var(--vehicle-size, 44px);
+    height: var(--vehicle-size, 44px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(var(--vehicle-rotation, 0deg));
+    transform-origin: 50% 50%;
+    transition: transform 0.32s ease;
+    filter: drop-shadow(0 4px 8px rgba(15, 23, 42, 0.3));
+}
+
+.vehicle-motion {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: vehicle-bob 1.3s ease-in-out infinite;
+}
+
+.vehicle-render-wrap.assigned .vehicle-motion {
+    animation-duration: 0.85s;
+}
+
+.vehicle-motion svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.vehicle-render-wrap.micro .vehicle-motion svg {
+    transform: scale(0.92);
+}
+
+.vehicle-render-wrap.assigned {
+    filter: drop-shadow(0 0 0.3rem rgba(14, 165, 233, 0.7)) drop-shadow(0 8px 12px rgba(15, 23, 42, 0.35));
+}
+
+@keyframes vehicle-bob {
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-1.2px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+
 .hidden {
     display: none !important;
 }

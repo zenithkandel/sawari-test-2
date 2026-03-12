@@ -20,6 +20,7 @@ let newVehicleLatLng = null, vehicleMarkers = {}, movingIntervals = {};
 let mapMarkers = [], mapPolylines = [];
 let expandedRouteId = null;
 let activityFeed = [];
+let simulatorEnabled = false;
 
 async function saveStopPosition(stop, latlng) {
     const update = {
@@ -200,8 +201,59 @@ async function loadAll() {
         populateIconSelects();
         populateRouteSelects();
         updateCounts();
+        if (simulatorEnabled) {
+            startFleetSimulator(true);
+        }
     } catch { showToast('Failed to load data', 'error'); }
 }
+
+function updateSimulatorButton() {
+    const btn = document.getElementById('btn-toggle-simulator');
+    if (!btn) return;
+    btn.classList.toggle('active', simulatorEnabled);
+    btn.setAttribute('aria-pressed', String(simulatorEnabled));
+    btn.title = simulatorEnabled ? 'Stop fleet simulator' : 'Start fleet simulator';
+    btn.innerHTML = simulatorEnabled
+        ? '<i class="fa-solid fa-pause"></i> Simulator On'
+        : '<i class="fa-solid fa-play"></i> Simulator Off';
+}
+
+async function startFleetSimulator(silent = false) {
+    const routeVehicles = allVehicles.filter(v => +v.routeId > 0);
+    if (!routeVehicles.length) {
+        if (!silent) showToast('No route-assigned vehicles to simulate', 'warning');
+        return;
+    }
+
+    for (const v of routeVehicles) {
+        if (!v.moving) {
+            await window.startMotion(v.id, true);
+        }
+    }
+    updateCounts();
+    renderVehiclesTable();
+    if (!silent) showToast(`Simulator started for ${routeVehicles.length} vehicles`, 'success', 1600);
+}
+
+async function stopFleetSimulator(silent = false) {
+    const moving = allVehicles.filter(v => v.moving);
+    for (const v of moving) {
+        await window.stopMotion(v.id, true);
+    }
+    updateCounts();
+    renderVehiclesTable();
+    if (!silent) showToast('Simulator stopped', 'info', 1400);
+}
+
+document.getElementById('btn-toggle-simulator').addEventListener('click', async () => {
+    simulatorEnabled = !simulatorEnabled;
+    updateSimulatorButton();
+    if (simulatorEnabled) {
+        await startFleetSimulator();
+    } else {
+        await stopFleetSimulator();
+    }
+});
 
 function updateCounts() {
     document.getElementById('stops-count').textContent = allStops.length;
@@ -710,22 +762,33 @@ window.deleteVehicle = async id => {
 };
 
 // ---- Vehicle Motion ----
-window.startMotion = async id => {
+window.startMotion = async (id, silent = false) => {
     const v = allVehicles.find(x => x.id === id); if (!v) return;
     await api(`${API}?type=vehicles`, 'PUT', { id, moving: true });
     v.moving = true;
     const route = allRoutes.find(r => r.id === v.routeId);
     if (route) {
         const coords = route.stopIds.map(sid => allStops.find(s => s.id === sid)).filter(Boolean).map(s => [s.lat, s.lng]);
-        if (coords.length >= 2) { startRouteMotion(v, coords); showToast(`${v.name} moving`, 'success', 1500); renderVehiclesTable(); return; }
+        if (coords.length >= 2) {
+            startRouteMotion(v, coords);
+            if (!silent) showToast(`${v.name} moving`, 'success', 1500);
+            updateCounts();
+            renderVehiclesTable();
+            return;
+        }
     }
-    startLinearMotion(v); showToast(`${v.name} moving`, 'success', 1500); renderVehiclesTable();
+    startLinearMotion(v);
+    if (!silent) showToast(`${v.name} moving`, 'success', 1500);
+    updateCounts();
+    renderVehiclesTable();
 };
-window.stopMotion = async id => {
+window.stopMotion = async (id, silent = false) => {
     if (movingIntervals[id]) { cancelAnimationFrame(movingIntervals[id]); delete movingIntervals[id]; }
     await api(`${API}?type=vehicles`, 'PUT', { id, moving: false });
     const v = allVehicles.find(x => x.id === id); if (v) v.moving = false;
-    showToast(`${v?.name} stopped`, 'info', 1500); renderVehiclesTable();
+    if (!silent) showToast(`${v?.name} stopped`, 'info', 1500);
+    updateCounts();
+    renderVehiclesTable();
 };
 
 function startLinearMotion(v) {
@@ -865,3 +928,4 @@ document.addEventListener('keydown', e => {
 restoreActivity();
 loadAll();
 activateTabFromHash();
+updateSimulatorButton();

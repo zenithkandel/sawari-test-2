@@ -24,6 +24,7 @@ let vehicleMarkers = {};
 let vehiclePollTimer = null;
 let currentJourney = null;
 let panelCollapsed = false;
+let assignedVehiclesByLeg = {};
 
 const uiPrefs = {
     showRoutes: true,
@@ -33,6 +34,8 @@ const uiPrefs = {
 };
 
 let suppressAutoCenter = false;
+
+const DEFAULT_BUS_SPEED_KMH = 28;
 
 // GPS state
 let gpsActive = false;
@@ -189,6 +192,77 @@ function smoothMoveMarker(marker, targetLatLng, durationMs = 1500) {
         else marker._smoothAnim = null;
     }
     marker._smoothAnim = requestAnimationFrame(step);
+}
+
+function getDistanceMetersBetween(lat1, lng1, lat2, lng2) {
+    return haversineDistanceMeters([lat1, lng1], [lat2, lng2]);
+}
+
+function computeEtaSeconds(distanceMeters, speedKmh) {
+    const speedMs = Math.max((speedKmh || DEFAULT_BUS_SPEED_KMH) * 1000 / 3600, 1);
+    return Math.max(distanceMeters / speedMs, 0);
+}
+
+function getLegBoardingStop(leg) {
+    if (!leg || leg.type !== 'bus') return null;
+    if (leg.boardingStop) return leg.boardingStop;
+    if (leg.stops && leg.stops.length) return leg.stops[0];
+    return null;
+}
+
+function getLegKey(leg, index) {
+    const routeId = leg?.route?.id || 'route';
+    const boardStopId = getLegBoardingStop(leg)?.id || 'unknown';
+    return `${routeId}_${boardStopId}_${index}`;
+}
+
+function assignVehiclesToJourney(journey) {
+    assignedVehiclesByLeg = {};
+    if (!journey) return;
+
+    journey.legs.forEach((leg, index) => {
+        if (leg.type !== 'bus' || !leg.route) return;
+
+        const boardingStop = getLegBoardingStop(leg);
+        if (!boardingStop) return;
+
+        const candidates = allVehicles.filter(v => v.routeId === leg.route.id);
+        if (!candidates.length) return;
+
+        let best = null;
+        for (const vehicle of candidates) {
+            const distanceToBoarding = getDistanceMetersBetween(vehicle.lat, vehicle.lng, boardingStop.lat, boardingStop.lng);
+            const etaSeconds = computeEtaSeconds(distanceToBoarding, vehicle.speed);
+            const score = etaSeconds + distanceToBoarding * 0.015;
+            if (!best || score < best.score) {
+                best = {
+                    legIndex: index,
+                    legKey: getLegKey(leg, index),
+                    vehicleId: vehicle.id,
+                    vehicleName: vehicle.name,
+                    routeId: leg.route.id,
+                    boardingStop,
+                    distanceToBoarding,
+                    etaSeconds,
+                    speedKmh: vehicle.speed || DEFAULT_BUS_SPEED_KMH,
+                    score
+                };
+            }
+        }
+
+        if (best) {
+            assignedVehiclesByLeg[best.legKey] = best;
+        }
+    });
+}
+
+function getAssignedVehicleForLeg(leg, index) {
+    const key = getLegKey(leg, index);
+    return assignedVehiclesByLeg[key] || null;
+}
+
+function getAssignedVehicleIds() {
+    return new Set(Object.values(assignedVehiclesByLeg).map(item => item.vehicleId));
 }
 
 // ---- Point Marker Icons ----
@@ -449,6 +523,7 @@ function clearAll() {
     startPoint = null;
     endPoint = null;
     currentJourney = null;
+    assignedVehiclesByLeg = {};
     clearJourneyLayers();
     document.getElementById('input-start').value = '';
     document.getElementById('input-end').value = '';
@@ -604,7 +679,7 @@ async function buildDirectJourney(startResult, endResult, routeMatch) {
         type: 'direct',
         legs: [
             { type: 'walk', label: 'Walk to bus stop', from: 'Your location', to: startResult.stop.name, route: walkLeg1, distance: walkLeg1?.distance || startResult.distance, duration: walkLeg1?.duration || 0, stop: startResult.stop },
-            { type: 'bus', label: `${route.name}`, from: startResult.stop.name, to: endResult.stop.name, coords: busLeg, stops: visibleSubStops, route, distance: 0, duration: 0 },
+            { type: 'bus', label: `${route.name}`, from: startResult.stop.name, to: endResult.stop.name, coords: busLeg, stops: visibleSubStops, route, distance: 0, duration: 0, boardingStop: startResult.stop, dropoffStop: endResult.stop },
             { type: 'walk', label: 'Walk to destination', from: endResult.stop.name, to: 'Your destination', route: walkLeg2, distance: walkLeg2?.distance || endResult.distance, duration: walkLeg2?.duration || 0, stop: endResult.stop }
         ],
         startStop: startResult.stop,
@@ -631,9 +706,9 @@ async function buildTransferJourney(startResult, endResult, transfer) {
         type: 'transfer',
         legs: [
             { type: 'walk', label: 'Walk to bus stop', from: 'Your location', to: startResult.stop.name, route: walkLeg1, distance: walkLeg1?.distance || startResult.distance, duration: walkLeg1?.duration || 0, stop: startResult.stop },
-            { type: 'bus', label: `${leg1Match.route.name}`, from: startResult.stop.name, to: transferStop.name, coords: busLeg1, stops: visibleSubStops1, route: leg1Match.route, distance: 0, duration: 0 },
+            { type: 'bus', label: `${leg1Match.route.name}`, from: startResult.stop.name, to: transferStop.name, coords: busLeg1, stops: visibleSubStops1, route: leg1Match.route, distance: 0, duration: 0, boardingStop: startResult.stop, dropoffStop: transferStop },
             { type: 'walk', label: `Transfer at ${transferStop.name}`, from: transferStop.name, to: transferStop.name, route: null, distance: 0, duration: 60, stop: transferStop, isTransfer: true },
-            { type: 'bus', label: `${leg2Match.route.name}`, from: transferStop.name, to: endResult.stop.name, coords: busLeg2, stops: visibleSubStops2, route: leg2Match.route, distance: 0, duration: 0 },
+            { type: 'bus', label: `${leg2Match.route.name}`, from: transferStop.name, to: endResult.stop.name, coords: busLeg2, stops: visibleSubStops2, route: leg2Match.route, distance: 0, duration: 0, boardingStop: transferStop, dropoffStop: endResult.stop },
             { type: 'walk', label: 'Walk to destination', from: endResult.stop.name, to: 'Your destination', route: walkLeg2, distance: walkLeg2?.distance || endResult.distance, duration: walkLeg2?.duration || 0, stop: endResult.stop }
         ],
         startStop: startResult.stop,
@@ -646,6 +721,7 @@ async function buildTransferJourney(startResult, endResult, transfer) {
 
 function displayJourney(journey) {
     clearJourneyLayers();
+    assignVehiclesToJourney(journey);
     const allBounds = [];
 
     journey.legs.forEach(leg => {
@@ -820,6 +896,10 @@ async function pollVehicles() {
         allVehicles = await api(`${API}?type=vehicles`);
     } catch { return; }
 
+    if (currentJourney) {
+        assignVehiclesToJourney(currentJourney);
+    }
+
     const routeIds = new Set();
     if (currentJourney) {
         currentJourney.legs.forEach(leg => {
@@ -827,21 +907,37 @@ async function pollVehicles() {
         });
     }
 
+    const assignedVehicleIds = getAssignedVehicleIds();
+
     allVehicles.forEach(v => {
         if (routeIds.size > 0 && !routeIds.has(v.routeId)) return;
 
         const key = 'v_' + v.id;
+        const isAssigned = assignedVehicleIds.has(v.id);
         const icon = v.iconType === 'image'
-            ? createImageIcon(v.icon, 40)
-            : createFAIcon(v.icon || 'fa-bus', v.color || '#61dafb', 40);
+            ? createImageIcon(v.icon, isAssigned ? 46 : 40)
+            : createFAIcon(v.icon || 'fa-bus', v.color || '#61dafb', isAssigned ? 46 : 40);
+
+        const assignedLeg = Object.values(assignedVehiclesByLeg).find(item => item.vehicleId === v.id);
+        const etaInfo = assignedLeg
+            ? `<br/><small>ETA to ${assignedLeg.boardingStop.name}: ${formatDuration(assignedLeg.etaSeconds)}</small>`
+            : '';
 
         if (vehicleMarkers[key]) {
             smoothMoveMarker(vehicleMarkers[key], [v.lat, v.lng], 2500);
             vehicleMarkers[key].setIcon(icon);
+            if (assignedLeg) {
+                vehicleMarkers[key].setPopupContent(`<b>${v.name}</b>${etaInfo}`);
+                vehicleMarkers[key].setZIndexOffset(1200);
+            } else {
+                vehicleMarkers[key].setPopupContent(`<b>${v.name}</b>`);
+                vehicleMarkers[key].setZIndexOffset(800);
+            }
         } else {
-            const m = L.marker([v.lat, v.lng], { icon, zIndexOffset: 800 }).addTo(map)
-                .bindPopup(`<b>${v.name}</b>`)
-                .bindTooltip(v.name, { permanent: true, direction: 'top', className: 'vehicle-label', offset: [0, -20] });
+            const tooltipText = assignedLeg ? `${v.name} (Assigned)` : v.name;
+            const m = L.marker([v.lat, v.lng], { icon, zIndexOffset: assignedLeg ? 1200 : 800 }).addTo(map)
+                .bindPopup(`<b>${v.name}</b>${etaInfo}`)
+                .bindTooltip(tooltipText, { permanent: true, direction: 'top', className: 'vehicle-label', offset: [0, -20] });
             vehicleMarkers[key] = m;
         }
     });
@@ -852,6 +948,10 @@ async function pollVehicles() {
     Object.keys(vehicleMarkers).forEach(key => {
         if (!activeKeys.has(key)) { map.removeLayer(vehicleMarkers[key]); delete vehicleMarkers[key]; }
     });
+
+    if (currentJourney) {
+        renderJourneyPanel(currentJourney);
+    }
 }
 
 // ---- GPS Tracking ----

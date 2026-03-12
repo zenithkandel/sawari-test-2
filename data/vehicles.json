@@ -54,8 +54,8 @@
     {
         "id": 5,
         "name": "Mahanagar Bus (RR-CW)",
-        "lat": 27.6756,
-        "lng": 85.3465,
+        "lat": 27.657074866646514,
+        "lng": 85.32394467253422,
         "icon": "red-bus.png",
         "iconType": "image",
         "color": "#7b96c8",

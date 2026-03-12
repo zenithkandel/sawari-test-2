@@ -117,6 +117,12 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.
 L.control.zoom({ position: 'topright' }).addTo(map);
 L.control.scale({ position: 'bottomleft', imperial: false, maxWidth: 150 }).addTo(map);
 
+map.on('dragstart zoomstart', () => {
+    if (uiPrefs.followGPS && gpsActive) {
+        suppressAutoCenter = true;
+    }
+});
+
 // ---- Right-click Context Menu ----
 map.on('contextmenu', (e) => {
     L.popup({ className: 'context-popup', closeButton: false })
@@ -546,7 +552,7 @@ async function showWalkingFallback(reason) {
             }).addTo(map);
             journeyLayers.push(poly);
 
-            map.fitBounds(walkRoute.coords, { padding: [60, 420, 60, 60] });
+            map.fitBounds(walkRoute.coords, { padding: getFitPadding() });
 
             const resultsEl = document.getElementById('journey-results');
             resultsEl.innerHTML = `
@@ -679,7 +685,7 @@ function displayJourney(journey) {
     });
 
     if (allBounds.length > 0) {
-        map.fitBounds(allBounds, { padding: [60, 420, 60, 60] });
+        map.fitBounds(allBounds, { padding: getFitPadding() });
     }
 
     renderJourneyPanel(journey);
@@ -796,6 +802,7 @@ function showNoRoute(msg) {
 // ---- Vehicle Tracking ----
 
 function startVehiclePolling() {
+    if (!uiPrefs.showVehicles) return;
     stopVehiclePolling();
     pollVehicles();
     vehiclePollTimer = setInterval(pollVehicles, 3000);
@@ -808,6 +815,7 @@ function stopVehiclePolling() {
 }
 
 async function pollVehicles() {
+    if (!uiPrefs.showVehicles) return;
     try {
         allVehicles = await api(`${API}?type=vehicles`);
     } catch { return; }
@@ -876,6 +884,7 @@ document.getElementById('btn-gps').addEventListener('click', () => {
 
 document.getElementById('btn-center-gps').addEventListener('click', () => {
     if (gpsMarker) map.flyTo(gpsMarker.getLatLng(), 17);
+    suppressAutoCenter = false;
 });
 
 document.getElementById('btn-use-gps-start').addEventListener('click', () => {
@@ -921,6 +930,7 @@ function stopGPS() {
     document.getElementById('gps-status').textContent = 'GPS off';
     document.getElementById('gps-status').className = 'gps-info';
     document.getElementById('btn-use-gps-start').classList.add('hidden');
+    suppressAutoCenter = false;
 }
 
 function onGPSUpdate(position) {
@@ -940,6 +950,9 @@ function onGPSUpdate(position) {
         gpsHeadingMarker.setIcon(createArrowIcon(currentHeading));
         gpsAccuracyCircle.setLatLng([lat, lng]);
         gpsAccuracyCircle.setRadius(accuracy);
+        if (uiPrefs.followGPS && !suppressAutoCenter) {
+            map.flyTo([lat, lng], Math.max(map.getZoom(), 16), { animate: true, duration: 0.5 });
+        }
     }
 }
 

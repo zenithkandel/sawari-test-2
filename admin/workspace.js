@@ -710,33 +710,22 @@ window.deleteVehicle = async id => {
 };
 
 // ---- Vehicle Motion ----
-window.startMotion = async (id, silent = false) => {
+window.startMotion = async id => {
     const v = allVehicles.find(x => x.id === id); if (!v) return;
     await api(`${API}?type=vehicles`, 'PUT', { id, moving: true });
     v.moving = true;
     const route = allRoutes.find(r => r.id === v.routeId);
     if (route) {
         const coords = route.stopIds.map(sid => allStops.find(s => s.id === sid)).filter(Boolean).map(s => [s.lat, s.lng]);
-        if (coords.length >= 2) {
-            startRouteMotion(v, coords);
-            if (!silent) showToast(`${v.name} moving`, 'success', 1500);
-            updateCounts();
-            renderVehiclesTable();
-            return;
-        }
+        if (coords.length >= 2) { startRouteMotion(v, coords); showToast(`${v.name} moving`, 'success', 1500); renderVehiclesTable(); return; }
     }
-    startLinearMotion(v);
-    if (!silent) showToast(`${v.name} moving`, 'success', 1500);
-    updateCounts();
-    renderVehiclesTable();
+    startLinearMotion(v); showToast(`${v.name} moving`, 'success', 1500); renderVehiclesTable();
 };
-window.stopMotion = async (id, silent = false) => {
+window.stopMotion = async id => {
     if (movingIntervals[id]) { cancelAnimationFrame(movingIntervals[id]); delete movingIntervals[id]; }
     await api(`${API}?type=vehicles`, 'PUT', { id, moving: false });
     const v = allVehicles.find(x => x.id === id); if (v) v.moving = false;
-    if (!silent) showToast(`${v?.name} stopped`, 'info', 1500);
-    updateCounts();
-    renderVehiclesTable();
+    showToast(`${v?.name} stopped`, 'info', 1500); renderVehiclesTable();
 };
 
 function startLinearMotion(v) {

@@ -84,6 +84,7 @@
           placeholder="Speed"
         />
         <select id="new-route"></select>
+        <select id="new-image"></select>
         <button class="primary" id="btn-add">Add Vehicle</button>
       </div>
     </section>
@@ -140,12 +141,16 @@
     <script>
       let vehicles = [];
       let routes = [];
+      let stops = [];
       let icons = { fontawesome: [], images: [] };
       const selected = new Set();
       const hidden = new Set();
       let map = null;
       let mapLayer = null;
       const vehicleMarkers = new Map();
+      const simFrames = new Map();
+      const simLastSync = new Map();
+      let simulatorRunning = false;
 
       function initMap() {
         if (map) return;
@@ -168,12 +173,21 @@
         return v.color || "#e74c3c";
       }
 
+      function vehicleImageFilename(v) {
+        const fromVehicleImage = String(v.vehicle_image || "");
+        if (fromVehicleImage.includes("/")) {
+          return fromVehicleImage.split("/").pop();
+        }
+        if (fromVehicleImage) return fromVehicleImage;
+        return String(v.icon || "");
+      }
+
       function createVehicleIcon(vehicle) {
-        if (vehicle.iconType === "image") {
-          const src = vehicle.icon || icons.images?.[0] || "";
+        const imgName = vehicleImageFilename(vehicle);
+        if (imgName) {
           return L.divIcon({
             className: "",
-            html: `<div style="width:32px;height:32px;border-radius:50%;overflow:hidden;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.28)"><img src="../../assets/icons/${escapeHtml(src)}" style="width:100%;height:100%;object-fit:cover"/></div>`,
+            html: `<div style="width:32px;height:32px;border-radius:50%;overflow:hidden;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.28)"><img src="../../assets/icons/${escapeHtml(imgName)}" style="width:100%;height:100%;object-fit:cover"/></div>`,
             iconSize: [32, 32],
             iconAnchor: [16, 16],
             popupAnchor: [0, -16],
@@ -240,6 +254,169 @@
         );
       }
 
+      function imageOptions() {
+        const files = (icons.images || [])
+          .slice()
+          .sort((a, b) => a.localeCompare(b));
+        if (!files.length) {
+          return '<option value="">No images found</option>';
+        }
+        return files
+          .map(
+            (f) => `<option value="${escapeHtml(f)}">${escapeHtml(f)}</option>`,
+          )
+          .join("");
+      }
+
+      function routeCoords(routeId) {
+        const route = routes.find((r) => r.id === routeId);
+        if (!route || !Array.isArray(route.stopIds)) return [];
+        return route.stopIds
+          .map((sid) => stops.find((s) => s.id === sid))
+          .filter(Boolean)
+          .map((s) => [Number(s.lat), Number(s.lng)]);
+      }
+
+      function updateSimulatorButton() {
+        const btn = byId("btn-toggle-simulator");
+        if (!btn) return;
+        btn.classList.toggle("primary", !simulatorRunning);
+        btn.classList.toggle("ghost", simulatorRunning);
+        btn.innerHTML = simulatorRunning
+          ? '<i class="fa-solid fa-pause"></i> Simulator On'
+          : '<i class="fa-solid fa-play"></i> Simulator Off';
+        btn.title = simulatorRunning
+          ? "Stop fleet route simulation"
+          : "Start fleet route simulation";
+      }
+
+      async function syncVehiclePosition(v) {
+        const now = Date.now();
+        const last = simLastSync.get(v.id) || 0;
+        if (now - last < 2500) return;
+        simLastSync.set(v.id, now);
+        await api("vehicles", "PUT", {
+          id: v.id,
+          lat: v.lat,
+          lng: v.lng,
+          moving: true,
+        });
+      }
+
+      function stopVehicleSimulation(id) {
+        const frame = simFrames.get(id);
+        if (frame) {
+          cancelAnimationFrame(frame);
+          simFrames.delete(id);
+        }
+        simLastSync.delete(id);
+      }
+
+      function startVehicleSimulation(v) {
+        stopVehicleSimulation(v.id);
+
+        const coords = routeCoords(v.routeId);
+        if (coords.length < 2) return;
+
+        let segment = 0;
+        let progress = 0;
+        let direction = 1;
+        let lastTs = performance.now();
+
+        const step = async (now) => {
+          if (!simulatorRunning) {
+            stopVehicleSimulation(v.id);
+            return;
+          }
+
+          const dt = (now - lastTs) / 1000;
+          lastTs = now;
+
+          const from = coords[segment];
+          const toIndex = direction > 0 ? segment + 1 : segment - 1;
+          const to = coords[Math.max(0, Math.min(coords.length - 1, toIndex))];
+
+          const dLat = to[0] - from[0];
+          const dLng = to[1] - from[1];
+          const segmentKm = Math.sqrt(dLat * dLat + dLng * dLng) * 111;
+          const speed = Math.max(Number(v.speed) || 20, 5);
+          const segmentSeconds = Math.max((segmentKm / speed) * 3600, 1);
+          progress += dt / segmentSeconds;
+
+          if (progress >= 1) {
+            progress = 0;
+            segment += direction;
+            if (segment >= coords.length - 1) {
+              segment = coords.length - 1;
+              direction = -1;
+            } else if (segment <= 0) {
+              segment = 0;
+              direction = 1;
+            }
+          }
+
+          const cFrom = coords[segment];
+          const cToIndex = direction > 0 ? segment + 1 : segment - 1;
+          const cTo =
+            coords[Math.max(0, Math.min(coords.length - 1, cToIndex))];
+
+          v.lat = cFrom[0] + (cTo[0] - cFrom[0]) * progress;
+          v.lng = cFrom[1] + (cTo[1] - cFrom[1]) * progress;
+          v.moving = true;
+
+          const marker = vehicleMarkers.get(v.id);
+          if (marker) marker.setLatLng([v.lat, v.lng]);
+
+          try {
+            await syncVehiclePosition(v);
+          } catch {
+            // Ignore transient sync failures; next tick retries.
+          }
+
+          simFrames.set(v.id, requestAnimationFrame(step));
+        };
+
+        simFrames.set(v.id, requestAnimationFrame(step));
+      }
+
+      async function startSimulator() {
+        simulatorRunning = true;
+        updateSimulatorButton();
+
+        const eligible = vehicles.filter((v) => Number(v.routeId) > 0);
+        if (!eligible.length) {
+          toast("No route-assigned vehicles available for simulation");
+          simulatorRunning = false;
+          updateSimulatorButton();
+          return;
+        }
+
+        for (const v of eligible) {
+          v.moving = true;
+          startVehicleSimulation(v);
+          await api("vehicles", "PUT", { id: v.id, moving: true });
+        }
+
+        renderRows(true);
+        toast(`Simulator started for ${eligible.length} vehicles`);
+      }
+
+      async function stopSimulator() {
+        simulatorRunning = false;
+        updateSimulatorButton();
+
+        const moving = vehicles.filter((v) => v.moving);
+        moving.forEach((v) => stopVehicleSimulation(v.id));
+
+        for (const v of moving) {
+          v.moving = false;
+          await api("vehicles", "PUT", { id: v.id, moving: false });
+        }
+
+        renderRows(true);
+        toast("Simulator stopped");
+      }
+
       function updateKpis() {
         byId("kpi-total").textContent = vehicles.length;
         byId("kpi-selected").textContent = selected.size;
@@ -289,14 +466,22 @@
       }
 
       async function load() {
-        [vehicles, routes] = await Promise.all([
+        [vehicles, routes, stops] = await Promise.all([
           api("vehicles"),
           api("routes"),
+          api("stops"),
         ]);
         icons = await api("icons");
         byId("new-route").innerHTML = routeOptions();
+        byId("new-image").innerHTML = imageOptions();
         byId("bulk-route").innerHTML = routeOptions();
         renderRows();
+        updateSimulatorButton();
+        if (simulatorRunning) {
+          vehicles
+            .filter((v) => Number(v.routeId) > 0)
+            .forEach((v) => startVehicleSimulation(v));
+        }
       }
 
       async function mutateSelectedVehicles(mutator, okMsg) {
@@ -382,6 +567,7 @@
         const lat = Number(byId("new-lat").value);
         const lng = Number(byId("new-lng").value);
         const speed = Number(byId("new-speed").value) || 40;
+        const imageFile = byId("new-image").value || "";
         if (!name || !Number.isFinite(lat) || !Number.isFinite(lng)) {
           return toast("Enter name, latitude and longitude");
         }
@@ -391,8 +577,9 @@
           lng,
           speed,
           routeId: Number(byId("new-route").value) || 0,
-          iconType: "fontawesome",
-          icon: "fa-bus",
+          iconType: imageFile ? "image" : "fontawesome",
+          icon: imageFile || "fa-bus",
+          vehicle_image: imageFile ? `assets/icons/${imageFile}` : "",
           color: "#e74c3c",
           moving: false,
           bearing: 0,
@@ -417,6 +604,11 @@
           (v) => ({ ...v, moving: true }),
           "Selected vehicles started",
         );
+        if (simulatorRunning) {
+          vehicles
+            .filter((v) => selected.has(v.id) && Number(v.routeId) > 0)
+            .forEach((v) => startVehicleSimulation(v));
+        }
       });
 
       byId("btn-stop-selected").addEventListener("click", async () => {
@@ -446,6 +638,7 @@
           tone: "warn",
         });
         if (!ok) return;
+        [...selected].forEach((id) => stopVehicleSimulation(id));
         await Promise.all(
           [...selected].map((id) =>
             api("vehicles", "DELETE", null, `&id=${id}`),
@@ -458,6 +651,10 @@
 
       byId("search").addEventListener("input", renderRows);
       byId("btn-refresh").addEventListener("click", load);
+      byId("btn-toggle-simulator").addEventListener("click", async () => {
+        if (simulatorRunning) await stopSimulator();
+        else await startSimulator();
+      });
 
       initMap();
       load();

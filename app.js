@@ -185,16 +185,31 @@ function getVehicleRenderType(vehicle) {
     return 'bus';
 }
 
+function getVehicleImagePath(vehicle) {
+    const explicit = String(vehicle?.vehicle_image || '').trim();
+    if (explicit) return explicit;
+
+    if (vehicle?.iconType === 'image' && vehicle?.icon) {
+        return `assets/icons/${vehicle.icon}`;
+    }
+
+    return '';
+}
+
 function createVehicleTileIcon(vehicle, size = 42, isAssigned = false) {
     const type = getVehicleRenderType(vehicle);
     const color = vehicle.color || '#0ea5e9';
     const glyph = type === 'micro' ? 'fa-shuttle-van' : 'fa-bus';
+    const imagePath = getVehicleImagePath(vehicle);
+    const visual = imagePath
+        ? `<img src="${escapeHtml(imagePath)}" alt="${escapeHtml(vehicle.name || 'Vehicle')}" />`
+        : `<i class="fa-solid ${glyph}"></i>`;
 
     return L.divIcon({
         className: 'custom-marker-icon vehicle-tile-marker',
         html: `
-            <div class="vehicle-tile ${type} ${isAssigned ? 'assigned' : ''}" style="--vehicle-size:${size}px;--vehicle-color:${color};">
-                <i class="fa-solid ${glyph}"></i>
+            <div class="vehicle-tile ${type} ${imagePath ? 'image' : ''} ${isAssigned ? 'assigned' : ''}" style="--vehicle-size:${size}px;--vehicle-color:${color};">
+                ${visual}
             </div>
         `,
         iconSize: [size, size],

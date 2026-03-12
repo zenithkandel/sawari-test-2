@@ -27,6 +27,13 @@ let panelCollapsed = false;
 let assignedVehiclesByLeg = {};
 let activeRouteBounds = null;
 let routeFocusMode = false;
+let globalSearchMarker = null;
+
+const selectedPlaces = {
+    start: null,
+    end: null,
+    global: null
+};
 
 const uiPrefs = {
     showRoutes: true,
@@ -38,6 +45,40 @@ const uiPrefs = {
 let suppressAutoCenter = false;
 
 const DEFAULT_BUS_SPEED_KMH = 28;
+const NOMINATIM_BASE_URL = 'https://nominatim.openstreetmap.org/search';
+const KATHMANDU_VIEWBOX = '85.28,27.75,85.36,27.67';
+const PLACE_AUTOCOMPLETE_LIMIT = 5;
+const PLACE_AUTOCOMPLETE_MIN_QUERY = 3;
+const PLACE_CACHE_TTL_MS = 10 * 60 * 1000;
+const PLACE_CACHE_MAX_SIZE = 100;
+
+const placeSearchCache = {
+    _store: new Map(),
+    get(query) {
+        const entry = this._store.get(query);
+        if (!entry) return null;
+        if (Date.now() > entry.expiresAt) {
+            this._store.delete(query);
+            return null;
+        }
+        this._store.delete(query);
+        this._store.set(query, entry);
+        return entry.results.map((place) => ({ ...place }));
+    },
+    set(query, results) {
+        if (this._store.has(query)) this._store.delete(query);
+        this._store.set(query, {
+            results: results.map((place) => ({ ...place })),
+            expiresAt: Date.now() + PLACE_CACHE_TTL_MS
+        });
+        while (this._store.size > PLACE_CACHE_MAX_SIZE) {
+            const oldestKey = this._store.keys().next().value;
+            this._store.delete(oldestKey);
+        }
+    }
+};
+
+const placeSearchInFlight = new Map();
 
 // GPS state
 let gpsActive = false;

@@ -101,28 +101,34 @@
             ></div>
           </div>
 
-          <div class="toggle-grid">
-            <label class="toggle-item" for="toggle-routes">
-              <span>Routes</span>
-              <input type="checkbox" id="toggle-routes" checked />
-              <span class="toggle-slider"></span>
-            </label>
-            <label class="toggle-item" for="toggle-stops">
-              <span>Stops</span>
-              <input type="checkbox" id="toggle-stops" checked />
-              <span class="toggle-slider"></span>
-            </label>
-            <label class="toggle-item" for="toggle-vehicles">
-              <span>Vehicles</span>
-              <input type="checkbox" id="toggle-vehicles" checked />
-              <span class="toggle-slider"></span>
-            </label>
-            <label class="toggle-item" for="toggle-follow-gps">
-              <span>Follow GPS</span>
-              <input type="checkbox" id="toggle-follow-gps" />
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
+          <details class="tools-submenu">
+            <summary>
+              <i class="fa-solid fa-sliders"></i>
+              Map tools
+            </summary>
+            <div class="toggle-grid">
+              <label class="toggle-item" for="toggle-routes">
+                <span>Routes</span>
+                <input type="checkbox" id="toggle-routes" checked />
+                <span class="toggle-slider"></span>
+              </label>
+              <label class="toggle-item" for="toggle-stops">
+                <span>Stops</span>
+                <input type="checkbox" id="toggle-stops" checked />
+                <span class="toggle-slider"></span>
+              </label>
+              <label class="toggle-item" for="toggle-vehicles">
+                <span>Vehicles</span>
+                <input type="checkbox" id="toggle-vehicles" checked />
+                <span class="toggle-slider"></span>
+              </label>
+              <label class="toggle-item" for="toggle-follow-gps">
+                <span>Follow GPS</span>
+                <input type="checkbox" id="toggle-follow-gps" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </details>
 
           <p class="shortcut-hint">
             Press <strong>Enter</strong> to navigate, <strong>Esc</strong> to
@@ -134,9 +140,36 @@
           Pick your start and destination on the map.
         </p>
       </div>
-
-      <div id="journey-results" class="hidden"></div>
     </div>
+
+    <aside id="route-sidebar" class="route-sidebar hidden">
+      <div class="route-sidebar-header">
+        <div>
+          <h2>Route Details</h2>
+          <p id="route-sidebar-subtitle">Live trip guidance</p>
+        </div>
+        <div class="route-sidebar-actions">
+          <button
+            class="btn btn-sm"
+            id="btn-recenter-route"
+            title="Recenter route"
+          >
+            <i class="fa-solid fa-bullseye"></i>
+          </button>
+          <button
+            class="btn btn-sm"
+            id="btn-reset-focus"
+            title="Show all map info"
+          >
+            <i class="fa-solid fa-layer-group"></i>
+          </button>
+          <button class="btn btn-sm" id="btn-close-sidebar" title="Close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+      <div id="journey-results" class="hidden"></div>
+    </aside>
 
     <div id="live-panel">
       <button class="btn btn-sm" id="btn-gps">

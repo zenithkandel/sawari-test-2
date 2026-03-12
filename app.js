@@ -25,6 +25,8 @@ let vehiclePollTimer = null;
 let currentJourney = null;
 let panelCollapsed = false;
 let assignedVehiclesByLeg = {};
+let activeRouteBounds = null;
+let routeFocusMode = false;
 
 const uiPrefs = {
     showRoutes: true,
@@ -360,6 +362,16 @@ function renderContextLayers() {
 }
 
 function applyLayerVisibility() {
+    if (routeFocusMode) {
+        contextRouteLayers.forEach(layer => {
+            if (map.hasLayer(layer)) map.removeLayer(layer);
+        });
+        contextStopLayers.forEach(layer => {
+            if (map.hasLayer(layer)) map.removeLayer(layer);
+        });
+        return;
+    }
+
     contextRouteLayers.forEach(layer => {
         if (uiPrefs.showRoutes) {
             if (!map.hasLayer(layer)) layer.addTo(map);
@@ -383,6 +395,44 @@ function getFitPadding() {
     }
     return [60, 420, 60, 60];
 }
+
+function openRouteSidebar() {
+    const sidebar = document.getElementById('route-sidebar');
+    sidebar.classList.remove('hidden');
+    document.getElementById('search-panel').classList.add('hidden');
+}
+
+function closeRouteSidebar() {
+    const sidebar = document.getElementById('route-sidebar');
+    sidebar.classList.add('hidden');
+    document.getElementById('search-panel').classList.remove('hidden');
+}
+
+function enableRouteFocusMode() {
+    routeFocusMode = true;
+    applyLayerVisibility();
+}
+
+function disableRouteFocusMode() {
+    routeFocusMode = false;
+    applyLayerVisibility();
+}
+
+document.getElementById('btn-close-sidebar').addEventListener('click', () => {
+    disableRouteFocusMode();
+    closeRouteSidebar();
+});
+
+document.getElementById('btn-reset-focus').addEventListener('click', () => {
+    disableRouteFocusMode();
+    showToast('Map details restored', 'info', 1400);
+});
+
+document.getElementById('btn-recenter-route').addEventListener('click', () => {
+    if (activeRouteBounds && activeRouteBounds.length) {
+        map.fitBounds(activeRouteBounds, { padding: getFitPadding() });
+    }
+});
 
 // ---- Panel Collapse ----
 document.getElementById('btn-collapse').addEventListener('click', () => {
@@ -548,7 +598,10 @@ function clearAll() {
     startPoint = null;
     endPoint = null;
     currentJourney = null;
+    activeRouteBounds = null;
     assignedVehiclesByLeg = {};
+    disableRouteFocusMode();
+    closeRouteSidebar();
     clearJourneyLayers();
     document.getElementById('input-start').value = '';
     document.getElementById('input-end').value = '';
@@ -621,6 +674,8 @@ async function navigate() {
 
         currentJourney = journey;
         displayJourney(journey);
+        openRouteSidebar();
+        enableRouteFocusMode();
         startVehiclePolling();
         setStatus('Route found!', 'success');
         showToast('Transit route found!', 'success');
@@ -653,6 +708,9 @@ async function showWalkingFallback(reason) {
             journeyLayers.push(poly);
 
             map.fitBounds(walkRoute.coords, { padding: getFitPadding() });
+            activeRouteBounds = walkRoute.coords;
+            openRouteSidebar();
+            enableRouteFocusMode();
 
             const resultsEl = document.getElementById('journey-results');
             resultsEl.innerHTML = `
@@ -787,6 +845,7 @@ function displayJourney(journey) {
 
     if (allBounds.length > 0) {
         map.fitBounds(allBounds, { padding: getFitPadding() });
+        activeRouteBounds = allBounds;
     }
 
     renderJourneyPanel(journey);
@@ -811,6 +870,11 @@ function addDirectionArrows(coords, color) {
 
 function renderJourneyPanel(journey) {
     const resultsEl = document.getElementById('journey-results');
+    const subtitle = document.getElementById('route-sidebar-subtitle');
+    if (subtitle) {
+        const now = new Date();
+        subtitle.textContent = `Live trip guidance · Updated ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    }
 
     let totalWalkDist = 0, totalWalkTime = 0, busLegs = 0, totalBusDist = 0;
     journey.legs.forEach(leg => {
@@ -939,6 +1003,7 @@ function showNoRoute(msg) {
             <i class="fa-solid fa-triangle-exclamation"></i>
             <p>${msg}</p>
         </div>`;
+    openRouteSidebar();
     setStatus('No route found.', 'error');
 }
 

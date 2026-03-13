@@ -54,7 +54,8 @@
         </div>
         <p class="map-note">
           Click route lines to toggle selection, and click stop dots in draw
-          mode to shape new or existing routes.
+          mode to shape new or existing routes. Use Shift+click on a stop to
+          remove it from the current route path.
         </p>
       </div>
     </section>
@@ -196,8 +197,19 @@
             weight: 1,
           }).bindTooltip(`${s.name}${helper ? " (helper)" : ""}`);
 
-          marker.on("click", () => {
+          marker.on("click", (e) => {
             if (!drawModeActive()) return;
+
+            const shiftPressed = !!e.originalEvent?.shiftKey;
+            if (shiftPressed) {
+              const idx = drawStopIds.lastIndexOf(s.id);
+              if (idx !== -1) {
+                drawStopIds.splice(idx, 1);
+                renderDrawPath();
+              }
+              return;
+            }
+
             if (!drawStopIds.includes(s.id)) {
               drawStopIds.push(s.id);
               renderDrawPath();
@@ -406,7 +418,7 @@
           updateDrawUI();
           const coords = routeCoords(id);
           if (coords.length >= 2) map.fitBounds(coords, { padding: [24, 24] });
-          toast("Map edit mode enabled: click stops to reshape route");
+          toast("Map edit mode: click to add stop, Shift+click to remove stop");
           return;
         }
         const del = e.target.closest("[data-del]");

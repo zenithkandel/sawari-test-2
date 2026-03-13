@@ -1,3 +1,16 @@
+<?php
+$envFile = __DIR__ . '/.env';
+$env = [];
+if (file_exists($envFile)) {
+  foreach (file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+    if (str_starts_with(trim($line), '#')) continue;
+    if (strpos($line, '=') === false) continue;
+    [$key, $value] = explode('=', $line, 2);
+    $env[trim($key)] = trim($value);
+  }
+}
+$groqApiKey = $env['GROQ_API_KEY'] ?? '';
+?>
 <!doctype html>
 <html lang="en" data-theme="dark">
   <head>
@@ -47,6 +60,24 @@
       </div>
 
       <div class="search-body">
+        <div class="ai-prompt-group">
+          <div class="input-group ai-input-group">
+            <span class="input-icon ai"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+            <input
+              type="text"
+              id="input-ai-prompt"
+              placeholder="e.g. take me from bagbazar to basundhara"
+              autocomplete="off"
+            />
+            <button class="pick-btn ai-send-btn" id="btn-ai-extract" title="Extract locations with AI">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </div>
+          <div class="ai-status hidden" id="ai-status"></div>
+        </div>
+
+        <div class="ai-divider"><span>or enter manually</span></div>
+
         <div class="input-group">
           <span class="input-icon start"
             ><i class="fa-solid fa-circle-dot"></i
@@ -310,6 +341,7 @@
     </template>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>const GROQ_API_KEY = <?= json_encode($groqApiKey) ?>;</script>
     <script src="routing.js"></script>
     <script src="app.js"></script>
   </body>

@@ -1,47 +1,47 @@
 [
-  {
-    "id": 1,
-    "name": "Kalanki Chowk",
-    "lat": 27.6935,
-    "lng": 85.2814,
-    "icon": "fa-bus",
-    "iconType": "fontawesome",
-    "color": "#1d4ed8"
-  },
-  {
-    "id": 2,
-    "name": "Tripureshwor",
-    "lat": 27.693332,
-    "lng": 85.314245,
-    "icon": "fa-bus-simple",
-    "iconType": "fontawesome",
-    "color": "#0f766e"
-  },
-  {
-    "id": 3,
-    "name": "Ratna Park",
-    "lat": 27.7052,
-    "lng": 85.3153,
-    "icon": "fa-location-dot",
-    "iconType": "fontawesome",
-    "color": "#b91c1c"
-  },
-  {
-    "id": 4,
-    "name": "New Baneshwor",
-    "lat": 27.688734,
-    "lng": 85.333643,
-    "icon": "fa-bus",
-    "iconType": "fontawesome",
-    "color": "#7c3aed"
-  },
-  {
-    "id": 5,
-    "name": "Koteshwor",
-    "lat": 27.677067,
-    "lng": 85.347204,
-    "icon": "fa-bus",
-    "iconType": "fontawesome",
-    "color": "#ea580c"
-  }
+    {
+        "id": 1,
+        "name": "Kalanki Chowk",
+        "lat": 27.6935,
+        "lng": 85.2814,
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "color": "#1d4ed8"
+    },
+    {
+        "id": 2,
+        "name": "Tripureshwor",
+        "lat": 27.693332,
+        "lng": 85.314245,
+        "icon": "fa-bus-simple",
+        "iconType": "fontawesome",
+        "color": "#0f766e"
+    },
+    {
+        "id": 3,
+        "name": "Ratna Park",
+        "lat": 27.705947378077305,
+        "lng": 85.31484603881837,
+        "icon": "fa-location-dot",
+        "iconType": "fontawesome",
+        "color": "#b91c1c"
+    },
+    {
+        "id": 4,
+        "name": "New Baneshwor",
+        "lat": 27.688734,
+        "lng": 85.333643,
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "color": "#7c3aed"
+    },
+    {
+        "id": 5,
+        "name": "Koteshwor",
+        "lat": 27.677067,
+        "lng": 85.347204,
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "color": "#ea580c"
+    }
 ]

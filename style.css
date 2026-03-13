@@ -301,7 +301,7 @@ body {
     top: calc(100% + 6px);
     left: 0;
     right: 0;
-    max-height: 240px;
+    max-height: 320px;
     overflow-y: auto;
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -361,6 +361,22 @@ body {
     border-radius: 3px;
     flex-shrink: 0;
 }
+
+.suggestion-section {
+    padding: 6px 12px 4px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-muted);
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.suggestion-section i { font-size: 8px; }
 
 /* --- Buttons --- */
 .search-actions { display: flex; gap: 6px; }

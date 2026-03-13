@@ -62,7 +62,21 @@ const AiAssistant = (() => {
     }
 
     function tryExtractJson(text) {
-        // Find JSON object in text by matching balanced braces
+        // Try array first (multiple actions)
+        const arrStart = text.indexOf('[');
+        if (arrStart !== -1) {
+            let depth = 0;
+            for (let i = arrStart; i < text.length; i++) {
+                if (text[i] === '[') depth++;
+                else if (text[i] === ']') depth--;
+                if (depth === 0) {
+                    const candidate = text.substring(arrStart, i + 1);
+                    const result = tryParseJson(candidate);
+                    if (Array.isArray(result) && result.length > 0 && result[0].action) return result;
+                }
+            }
+        }
+        // Fall back to single object
         const start = text.indexOf('{');
         if (start === -1) return null;
         let depth = 0;
@@ -207,7 +221,7 @@ RULES:
                 },
                 body: JSON.stringify({
                     model: 'llama-3.3-70b-versatile',
-                    max_tokens: 800,
+                    max_tokens: 1200,
                     temperature: 0.1,
                     messages: [
                         { role: 'system', content: buildSystemContext() },
@@ -225,22 +239,26 @@ RULES:
             // Strip markdown code fences if present
             const cleaned = reply.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
 
-            // Try to parse as a single JSON action
+            // Try to parse as JSON action(s) — single object or array
             let parsed = tryParseJson(cleaned);
-            if (parsed && parsed.action) {
-                renderAction(parsed);
+            if (parsed && renderActions(parsed)) {
+                // Successfully rendered action(s)
             } else {
                 // Check if reply contains embedded JSON within text
-                const jsonMatch = reply.match(/\{[^}]*"action"\s*:[^]*?\}(?:\s*\})?/);
+                const jsonMatch = reply.match(/[\[{][^}\]]*"action"\s*:/);
                 if (jsonMatch) {
-                    // Try to parse progressively longer substrings to find valid JSON
                     parsed = tryExtractJson(reply);
-                    const textPart = parsed
-                        ? reply.replace(reply.substring(reply.indexOf('{'), reply.lastIndexOf('}') + 1), '').replace(/```(?:json)?|```/gi, '').trim()
-                        : null;
-                    if (textPart) addMessage('assistant', formatReply(textPart));
-                    if (parsed && parsed.action) {
-                        renderAction(parsed);
+                    if (parsed) {
+                        // Extract text around the JSON
+                        const jsonStart = reply.indexOf(Array.isArray(parsed) ? '[' : '{');
+                        const jsonEnd = Array.isArray(parsed)
+                            ? reply.lastIndexOf(']') + 1
+                            : reply.lastIndexOf('}') + 1;
+                        const textBefore = reply.substring(0, jsonStart).replace(/```(?:json)?|```/gi, '').trim();
+                        const textAfter = reply.substring(jsonEnd).replace(/```(?:json)?|```/gi, '').trim();
+                        const textPart = [textBefore, textAfter].filter(Boolean).join('\n');
+                        if (textPart) addMessage('assistant', formatReply(textPart));
+                        renderActions(parsed);
                     } else {
                         addMessage('assistant', formatReply(reply));
                     }
@@ -263,6 +281,20 @@ RULES:
         return esc(text)
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\n/g, '<br>');
+    }
+
+    function renderActions(parsed) {
+        // Handle both single action objects and arrays of actions
+        if (Array.isArray(parsed)) {
+            if (parsed.length === 0 || !parsed[0].action) return false;
+            parsed.forEach(a => renderAction(a));
+            return true;
+        }
+        if (parsed && parsed.action) {
+            renderAction(parsed);
+            return true;
+        }
+        return false;
     }
 
     function renderAction(action) {

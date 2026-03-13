@@ -803,6 +803,8 @@ function clearAll() {
     currentJourney = null;
     activeRouteBounds = null;
     assignedVehiclesByLeg = {};
+    availableVehiclesByLeg = {};
+    selectedVehicleIdsByLeg = {};
     disableRouteFocusMode();
     closeRouteSidebar();
     clearJourneyLayers();

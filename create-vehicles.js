@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
+
 const routes = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'routes.json'), 'utf8'));
 const vehicles = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'vehicles.json'), 'utf8'));
 const stops = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'stops.json'), 'utf8'));

@@ -1,165 +1,134 @@
 <?php
+// ---------------------------
+// PHP BACKEND LOGIC
+// ---------------------------
+header("Content-Type: application/json");
 
-$GEMINI_API_KEY = "YOUR_GEMINI_API_KEY";
+if (isset($_POST['prompt'])) {
+    $prompt = strtolower($_POST['prompt']);
 
-function askGemini($text, $key){
-
-    $prompt = "Extract the start and destination location from this sentence.
-Return ONLY JSON like this:
-
-{
-\"start\": \"...\",
-\"end\": \"...\"
-}
-
-Sentence: \"$text\"";
-
-    $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=".$key;
-
-    $data = [
-        "contents" => [
-            [
-                "parts" => [
-                    ["text" => $prompt]
-                ]
-            ]
-        ]
-    ];
-
-    $ch = curl_init($url);
-
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        "Content-Type: application/json"
-    ]);
-
-    $response = curl_exec($ch);
-    curl_close($ch);
-
-    $response = json_decode($response, true);
-
-    $text = $response["candidates"][0]["content"]["parts"][0]["text"] ?? "";
-
-    $text = trim($text);
-    $text = str_replace(["```json","```"], "", $text);
-
-    return json_decode($text, true);
-}
-
-
-function geocode($place){
-
-    $place = urlencode($place." kathmandu");
-
-    $url = "https://nominatim.openstreetmap.org/search?q=".$place."&format=json&limit=1";
-
-    $opts = [
-        "http" => [
-            "header" => "User-Agent: sawari-test"
-        ]
-    ];
-
-    $context = stream_context_create($opts);
-
-    $result = file_get_contents($url,false,$context);
-
-    $data = json_decode($result,true);
-
-    if(!$data) return null;
-
-    return [
-        "lat"=>$data[0]["lat"],
-        "lon"=>$data[0]["lon"]
-    ];
-}
-
-
-$result = null;
-
-if(isset($_POST["query"])){
-
-    $query = $_POST["query"];
-
-    $places = askGemini($query,$GEMINI_API_KEY);
-
-    if($places){
-
-        $start = geocode($places["start"]);
-        $end = geocode($places["end"]);
-
-        $result = [
-            "places"=>$places,
-            "coordinates"=>[
-                "start"=>$start,
-                "end"=>$end
-            ]
-        ];
+    // Extract locations
+    $from = $to = null;
+    if (preg_match('/from\s+(.*?)\s+to\s+(.*)/', $prompt, $matches)) {
+        $from = trim($matches[1]);
+        $to = trim($matches[2]);
+    } else {
+        echo json_encode([
+            "error" => "Could not detect 'from X to Y'. Please write like 'from Bagbazar to Basundhara'."
+        ]);
+        exit;
     }
-}
 
+    // Geocode function
+    function geocode($place)
+    {
+        $url = "https://nominatim.openstreetmap.org/search?format=json&q=" . urlencode($place);
+        $opts = ["http" => ["header" => "User-Agent: PHP-Geocoder\r\n"]];
+        $context = stream_context_create($opts);
+        $response = file_get_contents($url, false, $context);
+        if (!$response)
+            return null;
+        $data = json_decode($response, true);
+        if (isset($data[0])) {
+            return ["name" => $place, "lat" => $data[0]['lat'], "lon" => $data[0]['lon']];
+        }
+        return null;
+    }
+
+    $start = geocode($from);
+    $end = geocode($to);
+
+    if (!$start || !$end) {
+        echo json_encode(["error" => "One or both locations not found."]);
+        exit;
+    }
+
+    echo json_encode([
+        "prompt" => $prompt,
+        "from" => $start,
+        "to" => $end
+    ]);
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<title>AI Location Parser Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Location Extractor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px;
+        }
 
-<style>
+        h1 {
+            color: #0f766e;
+        }
 
-body{
-font-family:Arial;
-background:#111;
-color:white;
-padding:40px;
-}
+        input[type=text] {
+            width: 300px;
+            padding: 10px;
+            font-size: 16px;
+        }
 
-input{
-width:70%;
-padding:12px;
-font-size:16px;
-}
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #0f766e;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
 
-button{
-padding:12px 20px;
-background:#00aaff;
-border:none;
-color:white;
-cursor:pointer;
-}
+        button:hover {
+            background: #115e52;
+        }
 
-pre{
-background:#222;
-padding:20px;
-margin-top:20px;
-overflow:auto;
-}
-
-</style>
-
+        pre {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            width: 90%;
+            max-width: 600px;
+            overflow-x: auto;
+        }
+    </style>
 </head>
 
 <body>
+    <h1>AI Location Extractor</h1>
+    <p>Write like: <strong>from Bagbazar to Basundhara</strong></p>
+    <input type="text" id="prompt" placeholder="Enter your route..." />
+    <button onclick="getLocation()">Get Coordinates</button>
+    <pre id="output">Results will appear here...</pre>
 
-<h1>AI Route Parser Test</h1>
+    <script>
+        function getLocation() {
+            const prompt = document.getElementById('prompt').value;
+            if (!prompt) { alert("Please enter a route."); return; }
 
-<p>Example: <b>I need to go from bagbazar to basundhara</b></p>
+            const formData = new FormData();
+            formData.append('prompt', prompt);
 
-<form method="POST">
-
-<input name="query" placeholder="Type your travel request..." required>
-
-<button>Test</button>
-
-</form>
-
-<?php if($result): ?>
-
-<h2>Result</h2>
-
-<pre><?php echo json_encode($result,JSON_PRETTY_PRINT); ?></pre>
-
-<?php endif; ?>
-
+            fetch("", { method: "POST", body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(err => {
+                    document.getElementById('output').textContent = "Error: " + err;
+                });
+        }
+    </script>
 </body>
+
 </html>

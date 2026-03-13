@@ -1240,6 +1240,29 @@ function renderJourneyPanel(journey) {
             </div>
         </div>`;
 
+    // Carbon emission savings: compare private car vs public bus
+    if (totalBusDist > 0) {
+        const busDistKm = totalBusDist / 1000;
+        const CO2_CAR_GRAMS_PER_KM = 170;
+        const CO2_BUS_GRAMS_PER_KM = 50;
+        const carEmission = busDistKm * CO2_CAR_GRAMS_PER_KM;
+        const busEmission = busDistKm * CO2_BUS_GRAMS_PER_KM;
+        const savedGrams = carEmission - busEmission;
+        const savedDisplay = savedGrams >= 1000
+            ? `${(savedGrams / 1000).toFixed(2)} kg`
+            : `${Math.round(savedGrams)} g`;
+        html += `
+        <div class="carbon-savings-card">
+            <div class="carbon-icon"><i class="fa-solid fa-leaf"></i></div>
+            <div class="carbon-info">
+                <div class="carbon-title">You're saving <strong>${savedDisplay} CO₂</strong></div>
+                <div class="carbon-detail">
+                    By choosing public transit over a private car for this ${formatDistance(totalBusDist)} ride
+                </div>
+            </div>
+        </div>`;
+    }
+
     const busLegsForAssignments = journey.legs
         .map((leg, legIndex) => ({ leg, legIndex }))
         .filter(({ leg }) => leg.type === 'bus' && leg.route);

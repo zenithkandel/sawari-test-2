@@ -250,6 +250,14 @@ const Inspector = (() => {
             `<option value="${r.id}" ${vehicle.routeId === r.id ? 'selected' : ''}>${esc(r.name)}</option>`
         ).join('');
 
+        const icons = Store.get('icons');
+        const imageOptions = (icons.images || []).map(img => {
+            const currentImg = vehicle.vehicle_image ? vehicle.vehicle_image.replace(/^assets\//, '') : '';
+            return `<option value="${img}" ${currentImg === img ? 'selected' : ''}>${img}</option>`;
+        }).join('');
+        const currentImg = vehicle.vehicle_image ? vehicle.vehicle_image.replace(/^assets\//, '') : '';
+        const hasImage = vehicle.iconType === 'image' && currentImg;
+
         body.innerHTML = `
             <div class="inspector-form">
                 <div class="form-group">
@@ -262,6 +270,20 @@ const Inspector = (() => {
                         <option value="">Unassigned</option>
                         ${routeOptions}
                     </select>
+                </div>
+                <div class="form-group">
+                    <label>Vehicle Image</label>
+                    <select id="insp-vehicle-image">
+                        <option value="">None (use icon)</option>
+                        ${imageOptions}
+                    </select>
+                    <div id="insp-vehicle-image-preview" class="image-preview" ${hasImage ? '' : 'style="display:none;"'}>
+                        ${hasImage ? `<img src="../assets/${esc(currentImg)}" alt="${esc(currentImg)}">` : ''}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Or upload new image</label>
+                    <input type="file" id="insp-vehicle-upload" accept="image/*" class="file-input">
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -310,6 +332,47 @@ const Inspector = (() => {
             </div>
         `;
 
+        // Image preview on select
+        const imageSelect = document.getElementById('insp-vehicle-image');
+        const preview = document.getElementById('insp-vehicle-image-preview');
+        const uploadInput = document.getElementById('insp-vehicle-upload');
+
+        if (imageSelect) {
+            imageSelect.onchange = () => {
+                const v = imageSelect.value;
+                if (v) {
+                    preview.style.display = 'block';
+                    preview.innerHTML = `<img src="../assets/${v}" alt="${v}">`;
+                } else {
+                    preview.style.display = 'none';
+                    preview.innerHTML = '';
+                }
+            };
+        }
+
+        // Upload handler
+        if (uploadInput) {
+            uploadInput.onchange = async () => {
+                const file = uploadInput.files[0];
+                if (!file) return;
+                try {
+                    const result = await ApiClient.uploadImage(file);
+                    const iconsData = await ApiClient.getIcons();
+                    Store.set('icons', iconsData);
+                    const opt = document.createElement('option');
+                    opt.value = result.filename;
+                    opt.textContent = result.filename;
+                    opt.selected = true;
+                    imageSelect.appendChild(opt);
+                    imageSelect.value = result.filename;
+                    imageSelect.dispatchEvent(new Event('change'));
+                    Notifications.toast('Image uploaded', 'success');
+                } catch (e) {
+                    Notifications.toast('Upload failed: ' + e.message, 'error');
+                }
+            };
+        }
+
         // Toggle
         const toggle = document.getElementById('insp-moving');
         let moving = vehicle.moving;
@@ -319,16 +382,22 @@ const Inspector = (() => {
             toggle.nextElementSibling.textContent = moving ? 'Moving' : 'Idle';
         };
 
-        bindSave('insp-save', () => Commands.updateVehicle(vehicle.id, {
-            name: val('insp-name'),
-            routeId: val('insp-route') ? parseInt(val('insp-route')) : null,
-            lat: parseFloat(val('insp-lat')),
-            lng: parseFloat(val('insp-lng')),
-            speed: parseFloat(val('insp-speed')),
-            bearing: parseInt(val('insp-bearing')),
-            moving: moving,
-            color: val('insp-color'),
-        }));
+        bindSave('insp-save', () => {
+            const selectedImage = val('insp-vehicle-image');
+            return Commands.updateVehicle(vehicle.id, {
+                name: val('insp-name'),
+                routeId: val('insp-route') ? parseInt(val('insp-route')) : null,
+                lat: parseFloat(val('insp-lat')),
+                lng: parseFloat(val('insp-lng')),
+                speed: parseFloat(val('insp-speed')),
+                bearing: parseInt(val('insp-bearing')),
+                moving: moving,
+                color: val('insp-color'),
+                icon: selectedImage || 'fa-bus',
+                iconType: selectedImage ? 'image' : 'fontawesome',
+                vehicle_image: selectedImage ? `assets/${selectedImage}` : '',
+            });
+        });
         bindDelete('insp-delete', 'vehicles', vehicle.id);
     }
 

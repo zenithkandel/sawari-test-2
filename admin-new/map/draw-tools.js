@@ -118,6 +118,10 @@ const DrawTools = (() => {
     function createVehiclePopup(latlng) {
         const routes = Store.get('routes');
         const routeOptions = routes.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+        const icons = Store.get('icons');
+        const imageOptions = (icons.images || []).map(img =>
+            `<option value="${img}">${img}</option>`
+        ).join('');
 
         const div = document.createElement('div');
         div.className = 'inline-popup';
@@ -133,6 +137,18 @@ const DrawTools = (() => {
                     <option value="">Unassigned</option>
                     ${routeOptions}
                 </select>
+            </div>
+            <div class="form-group">
+                <label>Vehicle Image</label>
+                <select id="popup-vehicle-image">
+                    <option value="">None (use icon)</option>
+                    ${imageOptions}
+                </select>
+                <div id="popup-vehicle-image-preview" class="image-preview-small" style="display:none;"></div>
+            </div>
+            <div class="form-group">
+                <label>Or upload image</label>
+                <input type="file" id="popup-vehicle-upload" accept="image/*" class="file-input">
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -153,12 +169,56 @@ const DrawTools = (() => {
         setTimeout(() => {
             const saveBtn = document.getElementById('popup-vehicle-save');
             const nameInput = document.getElementById('popup-vehicle-name');
+            const imageSelect = document.getElementById('popup-vehicle-image');
+            const uploadInput = document.getElementById('popup-vehicle-upload');
+            const preview = document.getElementById('popup-vehicle-image-preview');
+
+            // Image preview on select
+            if (imageSelect) {
+                imageSelect.onchange = () => {
+                    const val = imageSelect.value;
+                    if (val) {
+                        preview.style.display = 'block';
+                        preview.innerHTML = `<img src="../assets/${val}" alt="${val}">`;
+                    } else {
+                        preview.style.display = 'none';
+                        preview.innerHTML = '';
+                    }
+                };
+            }
+
+            // Upload handler
+            if (uploadInput) {
+                uploadInput.onchange = async () => {
+                    const file = uploadInput.files[0];
+                    if (!file) return;
+                    try {
+                        const result = await ApiClient.uploadImage(file);
+                        // Refresh icons list
+                        const icons = await ApiClient.getIcons();
+                        Store.set('icons', icons);
+                        // Select the newly uploaded file
+                        const opt = document.createElement('option');
+                        opt.value = result.filename;
+                        opt.textContent = result.filename;
+                        opt.selected = true;
+                        imageSelect.appendChild(opt);
+                        imageSelect.value = result.filename;
+                        imageSelect.dispatchEvent(new Event('change'));
+                        Notifications.toast('Image uploaded', 'success');
+                    } catch (e) {
+                        Notifications.toast('Upload failed: ' + e.message, 'error');
+                    }
+                };
+            }
+
             if (saveBtn) {
                 saveBtn.onclick = async () => {
                     const name = nameInput.value.trim();
                     if (!name) { nameInput.focus(); return; }
                     MapEngine.getMap().closePopup();
                     const routeId = document.getElementById('popup-vehicle-route').value;
+                    const selectedImage = imageSelect.value;
                     await Commands.createVehicle({
                         name,
                         lat: latlng.lat,
@@ -166,8 +226,9 @@ const DrawTools = (() => {
                         routeId: routeId ? parseInt(routeId) : null,
                         speed: parseFloat(document.getElementById('popup-vehicle-speed').value) || 28,
                         color: document.getElementById('popup-vehicle-color').value,
-                        icon: 'fa-bus',
-                        iconType: 'fontawesome',
+                        icon: selectedImage || 'fa-bus',
+                        iconType: selectedImage ? 'image' : 'fontawesome',
+                        vehicle_image: selectedImage ? `assets/${selectedImage}` : '',
                     });
                 };
             }

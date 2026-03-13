@@ -1141,6 +1141,7 @@ async function buildTransferJourney(startResult, endResult, transfer) {
 
 function displayJourney(journey) {
     clearJourneyLayers();
+    window._expandedLegs = new Set();
     assignVehiclesToJourney(journey);
     const allBounds = [];
 
@@ -1344,6 +1345,17 @@ function renderJourneyPanel(journey) {
     });
 
     resultsEl.innerHTML = html;
+
+    // Restore expanded state for leg cards
+    if (window._expandedLegs && window._expandedLegs.size > 0) {
+        resultsEl.querySelectorAll('[data-leg-toggle]').forEach(toggle => {
+            const idx = toggle.getAttribute('data-leg-toggle');
+            if (window._expandedLegs.has(idx)) {
+                const card = toggle.closest('.leg-card');
+                if (card) card.classList.add('expanded');
+            }
+        });
+    }
 }
 
 document.getElementById('journey-results').addEventListener('click', async (event) => {
@@ -1351,7 +1363,17 @@ document.getElementById('journey-results').addEventListener('click', async (even
     const legToggle = event.target.closest('[data-leg-toggle]');
     if (legToggle) {
         const card = legToggle.closest('.leg-card');
-        if (card) card.classList.toggle('expanded');
+        if (card) {
+            card.classList.toggle('expanded');
+            // Track expanded state across re-renders
+            if (!window._expandedLegs) window._expandedLegs = new Set();
+            const idx = legToggle.getAttribute('data-leg-toggle');
+            if (card.classList.contains('expanded')) {
+                window._expandedLegs.add(idx);
+            } else {
+                window._expandedLegs.delete(idx);
+            }
+        }
         return;
     }
 

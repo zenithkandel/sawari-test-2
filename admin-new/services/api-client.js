@@ -34,5 +34,15 @@ const ApiClient = (() => {
 
         // Icons catalog
         getIcons: () => request('icons'),
+
+        // Upload image
+        uploadImage: async (file) => {
+            const form = new FormData();
+            form.append('image', file);
+            const res = await fetch(`${BASE}?type=upload`, { method: 'POST', body: form });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Upload failed');
+            return data;
+        },
     };
 })();

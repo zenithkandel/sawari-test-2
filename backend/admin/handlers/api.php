@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $rootDir = dirname(__DIR__, 3);
 $dataDir = $rootDir . '/data';
-$iconsDir = $rootDir . '/assets/icons';
+$iconsDir = $rootDir . '/assets';
 
 require_once __DIR__ . '/../repositories/json/file-store.php';
 require_once __DIR__ . '/../services/relation-guard.php';
@@ -48,7 +48,7 @@ function errorResponse(string $message, int $status = 400): void
 
 $type = $_GET['type'] ?? '';
 $method = $_SERVER['REQUEST_METHOD'];
-$allowedTypes = ['stops', 'routes', 'vehicles', 'obstructions', 'icons', 'dependencies'];
+$allowedTypes = ['stops', 'routes', 'vehicles', 'obstructions', 'icons', 'dependencies', 'upload'];
 
 if (!in_array($type, $allowedTypes)) {
     errorResponse('Invalid type. Allowed: ' . implode(', ', $allowedTypes));
@@ -63,6 +63,8 @@ if ($type === 'icons') {
     if (is_dir($iconsDir)) {
         $allowed = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'avif'];
         foreach (scandir($iconsDir) as $f) {
+            if ($f === '.' || $f === '..' || is_dir($iconsDir . '/' . $f))
+                continue;
             $ext = strtolower(pathinfo($f, PATHINFO_EXTENSION));
             if (in_array($ext, $allowed))
                 $images[] = $f;
@@ -74,6 +76,43 @@ if ($type === 'icons') {
         'fontawesome' => $fa['fontawesome'] ?? [],
         'images' => $images
     ]);
+}
+
+// Upload image
+if ($type === 'upload') {
+    if ($method !== 'POST')
+        errorResponse('Method not allowed', 405);
+
+    if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK)
+        errorResponse('No file uploaded or upload error');
+
+    $file = $_FILES['image'];
+    $allowed = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'avif'];
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    if (!in_array($ext, $allowed))
+        errorResponse('File type not allowed. Allowed: ' . implode(', ', $allowed));
+
+    if ($file['size'] > 10 * 1024 * 1024)
+        errorResponse('File too large. Max 10MB.');
+
+    if (!is_dir($iconsDir))
+        mkdir($iconsDir, 0755, true);
+
+    $safeName = preg_replace('/[^a-zA-Z0-9_\-.]/', '-', pathinfo($file['name'], PATHINFO_FILENAME));
+    $destName = $safeName . '.' . $ext;
+    $destPath = $iconsDir . '/' . $destName;
+
+    $counter = 1;
+    while (file_exists($destPath)) {
+        $destName = $safeName . '-' . $counter . '.' . $ext;
+        $destPath = $iconsDir . '/' . $destName;
+        $counter++;
+    }
+
+    if (!move_uploaded_file($file['tmp_name'], $destPath))
+        errorResponse('Failed to save file');
+
+    jsonResponse(['filename' => $destName]);
 }
 
 // Dependencies check endpoint

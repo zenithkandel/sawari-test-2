@@ -481,6 +481,7 @@ async function loadData() {
         applyLayerVisibility();
         // Initial vehicle poll since toggle defaults to on
         if (uiPrefs.showVehicles) pollVehicles();
+        updateStatsBar();
         showToast(`Loaded ${publicStops.length} stops, ${allRoutes.length} routes`, 'info', 2000);
     } catch (err) {
         showToast('Failed to load data. Is the server running?', 'error', 5000);
@@ -1469,6 +1470,7 @@ async function pollVehicles() {
         assignVehiclesToJourney(currentJourney);
     }
     renderVisibleJourneyVehicles();
+    if (typeof updateStatsBar === 'function') updateStatsBar();
 
     if (currentJourney) {
         renderJourneyPanel(currentJourney);
@@ -1531,6 +1533,7 @@ function startGPS() {
     document.getElementById('gps-status').textContent = 'Locating...';
     document.getElementById('gps-status').className = 'gps-info active';
     document.getElementById('btn-use-gps-start').classList.remove('hidden');
+    document.getElementById('btn-nearby-stops').classList.remove('hidden');
 
     gpsWatchId = navigator.geolocation.watchPosition(onGPSUpdate, onGPSError, {
         enableHighAccuracy: true, maximumAge: 2000, timeout: 10000
@@ -1551,6 +1554,8 @@ function stopGPS() {
     document.getElementById('gps-status').textContent = 'GPS off';
     document.getElementById('gps-status').className = 'gps-info';
     document.getElementById('btn-use-gps-start').classList.add('hidden');
+    document.getElementById('btn-nearby-stops').classList.add('hidden');
+    document.getElementById('nearby-panel').classList.add('hidden');
     suppressAutoCenter = false;
 }
 
@@ -1981,6 +1986,179 @@ attachAutocomplete(
         localSearch: true
     }
 );
+
+// ---- Nearby Stops ----
+document.getElementById('btn-nearby-stops').addEventListener('click', () => {
+    const panel = document.getElementById('nearby-panel');
+    panel.classList.toggle('hidden');
+    if (!panel.classList.contains('hidden')) renderNearbyStops();
+});
+
+document.getElementById('btn-close-nearby').addEventListener('click', () => {
+    document.getElementById('nearby-panel').classList.add('hidden');
+});
+
+function renderNearbyStops() {
+    const list = document.getElementById('nearby-list');
+    if (!gpsMarker) {
+        list.innerHTML = '<div class="explore-empty"><i class="fa-solid fa-circle-info"></i> GPS not active</div>';
+        return;
+    }
+    const pos = gpsMarker.getLatLng();
+    const withDist = publicStops.map(s => ({
+        ...s,
+        dist: haversineDistanceMeters([pos.lat, pos.lng], [s.lat, s.lng])
+    })).sort((a, b) => a.dist - b.dist).slice(0, 10);
+
+    if (!withDist.length) {
+        list.innerHTML = '<div class="explore-empty"><i class="fa-solid fa-circle-info"></i> No stops found</div>';
+        return;
+    }
+
+    // Find which routes serve each stop
+    const stopRouteMap = {};
+    allRoutes.forEach(r => {
+        (r.stopIds || []).forEach(id => {
+            if (!stopRouteMap[id]) stopRouteMap[id] = [];
+            stopRouteMap[id].push(r.name);
+        });
+    });
+
+    list.innerHTML = withDist.map(s => {
+        const routes = stopRouteMap[s.id] || [];
+        const routeLabel = routes.length ? routes.slice(0, 2).join(', ') + (routes.length > 2 ? ` +${routes.length - 2}` : '') : 'No routes';
+        return `
+            <div class="nearby-item" data-stop-lat="${s.lat}" data-stop-lng="${s.lng}" data-stop-name="${escapeHtml(s.name)}">
+                <div>
+                    <div class="nearby-name">${escapeHtml(s.name)}</div>
+                    <div class="nearby-routes">${escapeHtml(routeLabel)}</div>
+                </div>
+                <span class="nearby-dist">${formatDistance(s.dist)}</span>
+                <div class="nearby-actions">
+                    <button data-nearby-action="start" title="Set as start"><i class="fa-solid fa-play"></i></button>
+                    <button data-nearby-action="end" title="Set as destination"><i class="fa-solid fa-flag"></i></button>
+                </div>
+            </div>`;
+    }).join('');
+}
+
+document.getElementById('nearby-list').addEventListener('click', (e) => {
+    const action = e.target.closest('[data-nearby-action]');
+    const item = e.target.closest('.nearby-item');
+    if (!item) return;
+
+    const lat = parseFloat(item.dataset.stopLat);
+    const lng = parseFloat(item.dataset.stopLng);
+    const name = item.dataset.stopName;
+
+    if (action) {
+        if (action.dataset.nearbyAction === 'start') {
+            setStartPoint(lat, lng, name);
+            showToast(`Start: ${name}`, 'success', 1500);
+        } else {
+            setEndPoint(lat, lng, name);
+            showToast(`Destination: ${name}`, 'success', 1500);
+        }
+    } else {
+        map.flyTo([lat, lng], 17);
+    }
+});
+
+// ---- Stats Bar ----
+function updateStatsBar() {
+    const now = new Date();
+    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('stats-clock').innerHTML = `<i class="fa-regular fa-clock"></i> ${time}`;
+    document.getElementById('stats-stops').innerHTML = `<i class="fa-solid fa-bus"></i> ${publicStops.length} stops`;
+    document.getElementById('stats-routes').innerHTML = `<i class="fa-solid fa-route"></i> ${allRoutes.length} routes`;
+    document.getElementById('stats-vehicles').innerHTML = `<i class="fa-solid fa-van-shuttle"></i> ${allVehicles.length} live`;
+}
+setInterval(updateStatsBar, 1000);
+
+// ---- Keyboard Shortcuts ----
+function toggleShortcutsModal() {
+    document.getElementById('shortcuts-modal').classList.toggle('hidden');
+}
+
+document.getElementById('btn-close-shortcuts').addEventListener('click', toggleShortcutsModal);
+document.querySelector('.shortcuts-backdrop').addEventListener('click', toggleShortcutsModal);
+
+document.addEventListener('keydown', (e) => {
+    // Don't trigger shortcuts when typing in inputs
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+    switch (e.key) {
+        case '?':
+            e.preventDefault();
+            toggleShortcutsModal();
+            break;
+        case 't':
+        case 'T':
+            e.preventDefault();
+            document.getElementById('btn-theme-toggle').click();
+            break;
+        case 'e':
+        case 'E':
+            e.preventDefault();
+            document.getElementById('btn-explore').click();
+            break;
+        case 'g':
+        case 'G':
+            e.preventDefault();
+            document.getElementById('btn-gps').click();
+            break;
+        case 'n':
+        case 'N':
+            if (gpsActive) {
+                e.preventDefault();
+                document.getElementById('btn-nearby-stops').click();
+            }
+            break;
+        case 'Escape':
+            if (!document.getElementById('shortcuts-modal').classList.contains('hidden')) {
+                toggleShortcutsModal();
+            }
+            break;
+    }
+});
+
+// ---- Share Journey ----
+document.getElementById('btn-share-route').addEventListener('click', () => {
+    if (!currentJourney) {
+        showToast('No journey to share', 'warning');
+        return;
+    }
+
+    const legs = currentJourney.legs;
+    let summary = 'Sawari Transit Route\n';
+    summary += '---\n';
+
+    legs.forEach(leg => {
+        if (leg.isTransfer) {
+            summary += `Transfer\n`;
+            return;
+        }
+        if (leg.type === 'walk') {
+            summary += `Walk: ${leg.from} → ${leg.to} (${formatDistance(leg.distance)})\n`;
+        } else {
+            summary += `Bus [${leg.route?.name || 'Unknown'}]: ${leg.from} → ${leg.to}`;
+            if (leg.stops) summary += ` (${leg.stops.length} stops)`;
+            summary += '\n';
+        }
+    });
+
+    summary += '---\nPlanned with Sawari';
+
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(summary).then(() => {
+            showToast('Journey copied to clipboard!', 'success');
+        }).catch(() => {
+            showToast('Could not copy', 'error');
+        });
+    } else {
+        showToast('Clipboard not supported', 'error');
+    }
+});
 
 // ---- Init ----
 loadData();

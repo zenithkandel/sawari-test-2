@@ -126,15 +126,6 @@
         "id": 14
     },
     {
-        "name": "Basundhara",
-        "lat": 27.742169499976967,
-        "lng": 85.33257544040681,
-        "color": "#1d4ed8",
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "id": 15
-    },
-    {
         "name": "Basundhara Chauki",
         "lat": 27.73829998651819,
         "lng": 85.32559633255006,
@@ -288,7 +279,7 @@
         "id": 32
     },
     {
-        "name": "B & B Hospital/KCM Stop",
+        "name": "B & B Hospital\/KCM Stop",
         "lat": 27.664178242570465,
         "lng": 85.33015608664145,
         "color": "#1d4ed8",
@@ -540,7 +531,7 @@
         "id": 60
     },
     {
-        "name": "Chabahil चाबाहील",
+        "name": "Chabahil \u091a\u093e\u092c\u093e\u0939\u0940\u0932",
         "lat": 27.71700808296587,
         "lng": 85.34660870861605,
         "color": "#1d4ed8",
@@ -1629,7 +1620,7 @@
         "id": 181
     },
     {
-        "name": "Sinamangal/Ring Road Stop सिनामंगल",
+        "name": "Sinamangal\/Ring Road Stop \u0938\u093f\u0928\u093e\u092e\u0902\u0917\u0932",
         "lat": 27.695265538642442,
         "lng": 85.35500944030912,
         "color": "#1d4ed8",

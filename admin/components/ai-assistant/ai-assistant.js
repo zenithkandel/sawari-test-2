@@ -134,15 +134,35 @@ ${vehicleList || '  (none)'}
 Obstructions (${obstructions.length}):
 ${obsList || '  (none)'}
 
+ENTITY RELATIONSHIPS (CRITICAL):
+- stops are standalone entities. They must exist BEFORE they can be used in a route.
+- routes reference stops via "stopIds" (an array of stop IDs). ALL stop IDs in a route MUST already exist in the stops list.
+- vehicles reference routes via "routeId". The route MUST already exist before assigning a vehicle to it.
+- obstructions are standalone entities with no dependencies.
+
+Dependency chain: stops → routes → vehicles
+- To add a NEW stop to an EXISTING route: the stop must already exist. If it doesn't, you must create the stop FIRST, then tell the user to confirm the creation before the route can be updated (since the new stop's ID is assigned by the server).
+- To create a vehicle on a route: the route must already exist.
+- You CANNOT reference an entity that doesn't exist yet in the CURRENT DATA above.
+
 You can respond in two ways:
 
 1. ANSWER QUESTIONS: If the user asks a question about the data (queries, statistics, "which routes", "how many", "show me"), answer directly in plain text. Be concise.
 
-2. EXECUTE COMMANDS: If the user wants to create, update, or delete an entity, return a JSON action block. Return ONLY the JSON with no other text. Format:
+2. EXECUTE COMMANDS: If the user wants to create, update, or delete entities, return JSON action(s).
+
+For a SINGLE action, return just the JSON object:
+{"action":"create","entity":"stop","data":{"name":"...","lat":27.7,"lng":85.3}}
+
+For MULTIPLE actions that can all execute independently (all referenced IDs already exist), return a JSON array:
+[{"action":"create","entity":"stop","data":{"name":"Stop A","lat":27.71,"lng":85.32}},{"action":"create","entity":"stop","data":{"name":"Stop B","lat":27.72,"lng":85.33}}]
+
+Action formats:
 {"action":"create","entity":"stop","data":{"name":"...","lat":27.7,"lng":85.3}}
 {"action":"create","entity":"vehicle","data":{"name":"...","lat":27.7,"lng":85.3,"routeId":null,"speed":28}}
 {"action":"create","entity":"obstruction","data":{"name":"...","lat":27.7,"lng":85.3,"radiusMeters":40,"severity":"medium"}}
 {"action":"update","entity":"stop","id":5,"data":{"name":"New Name"}}
+{"action":"update","entity":"route","id":2,"data":{"stopIds":[1,3,5,7]}}
 {"action":"update","entity":"vehicle","id":3,"data":{"routeId":2,"moving":true}}
 {"action":"delete","entity":"stop","id":5}
 {"action":"select","entity":"stops","id":5}
@@ -156,7 +176,10 @@ RULES:
 - For deletes: confirm the entity name in your response before the JSON.
 - Do NOT create routes via JSON (routes require a multi-step builder). Instead, instruct the user to use the Route Builder.
 - If unsure about coordinates for a well-known Kathmandu location, make your best estimate.
-- Keep responses concise.`;
+- Keep responses concise.
+- IMPORTANT: When a user asks to do something that requires a dependency that doesn't exist yet (e.g., "add stop X to route Y" but stop X doesn't exist), you MUST break it into steps. First create the dependency (the stop), explain that the user needs to confirm it first, and then you'll update the route with the new stop's ID in a follow-up message.
+- When updating a route's stopIds, always include ALL existing stopIds plus the new ones. Never replace the entire list unless the user explicitly asks to.
+- When a user says "add stop X to route Y", check if stop X already exists in the CURRENT DATA. If it does, use its existing ID. If not, create it first.`;
     }
 
     async function send() {

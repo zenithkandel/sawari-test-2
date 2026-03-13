@@ -52,13 +52,20 @@ const LayerManager = (() => {
 
         stops.forEach(stop => {
             const isSel = selected?.type === 'stops' && selected?.id === stop.id;
+            const isRouteBuilding = Store.get('routeBuilder')?.active;
             const marker = L.marker([stop.lat, stop.lng], {
                 icon: createStopIcon(stop, isSel),
-                draggable: true,
+                draggable: !isRouteBuilding,
             });
 
             marker.on('click', (e) => {
                 L.DomEvent.stopPropagation(e);
+                // If route builder is active, add this stop to the route
+                const rb = Store.get('routeBuilder');
+                if (rb && rb.active) {
+                    RoutesFeature.addStopToRoute(stop.id);
+                    return;
+                }
                 Store.select('stops', stop.id);
             });
 

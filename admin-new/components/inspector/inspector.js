@@ -9,10 +9,19 @@ const Inspector = (() => {
 
     function init() {
         closeBtn.addEventListener('click', () => {
+            const rb = Store.get('routeBuilder');
+            if (rb && rb.active) {
+                RoutesFeature.cancelRouteBuilder();
+                Store.setMode('select');
+            }
             Store.deselect();
         });
 
         Store.on('selection', ({ current }) => {
+            // Don't override route builder UI when it's active
+            const rb = Store.get('routeBuilder');
+            if (rb && rb.active) return;
+
             if (current) {
                 showInspector(current.type, current.id);
             } else {

@@ -120,6 +120,10 @@
                 <i class="fa-solid fa-bus"></i> Vehicles
                 <span class="tab-count" id="vehicles-count">0</span>
               </button>
+              <button class="tab-btn" data-tab="obstructions-tab">
+                <i class="fa-solid fa-triangle-exclamation"></i> Road Issues
+                <span class="tab-count" id="obstructions-count">0</span>
+              </button>
             </div>
 
             <!-- ==================== STOPS TAB ==================== -->
@@ -441,6 +445,109 @@
                     </tr>
                   </thead>
                   <tbody id="vehicles-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- ==================== ROAD ISSUES TAB ==================== -->
+            <div class="tab-content" id="obstructions-tab">
+              <div class="toolbar">
+                <div class="search-bar">
+                  <i class="fa-solid fa-search"></i>
+                  <input
+                    type="text"
+                    id="obstruction-search"
+                    placeholder="Search road issues..."
+                  />
+                </div>
+                <div class="toolbar-row">
+                  <select id="obstruction-sort" class="sort-select">
+                    <option value="name-asc">Name A-Z</option>
+                    <option value="name-desc">Name Z-A</option>
+                    <option value="id-asc">ID Low-High</option>
+                    <option value="id-desc">ID High-Low</option>
+                  </select>
+                  <div class="toolbar-actions">
+                    <button class="btn btn-primary btn-sm" id="btn-add-obstruction">
+                      <i class="fa-solid fa-plus"></i> Add
+                    </button>
+                    <button class="btn btn-sm" id="btn-refresh-obstructions">
+                      <i class="fa-solid fa-rotate"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="obstruction-form" class="collapsible-form hidden">
+                <div class="form-header">
+                  <h3>
+                    <i class="fa-solid fa-triangle-exclamation"></i> New Road Issue
+                  </h3>
+                  <button class="btn-close" id="btn-cancel-obstruction">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+                <div class="form-row">
+                  <div class="form-group flex-2">
+                    <label>Name</label>
+                    <input
+                      type="text"
+                      id="obstruction-name"
+                      placeholder="E.g. landslide, road blocked"
+                    />
+                  </div>
+                  <div class="form-group flex-1">
+                    <label>Severity</label>
+                    <select id="obstruction-severity">
+                      <option value="low">Low</option>
+                      <option value="medium" selected>Medium</option>
+                      <option value="high">High</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group flex-1">
+                    <label>Radius (m)</label>
+                    <input
+                      type="number"
+                      id="obstruction-radius"
+                      min="10"
+                      max="500"
+                      value="60"
+                    />
+                  </div>
+                  <div class="form-group flex-1">
+                    <label>Active</label>
+                    <label class="toggle-switch sm"
+                      ><input type="checkbox" id="obstruction-active" checked /><span
+                        class="toggle-slider"
+                      ></span
+                    ></label>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <p class="hint-inline" id="obstruction-coords">
+                    <i class="fa-solid fa-location-dot"></i> Click map to place road issue
+                  </p>
+                  <button class="btn btn-primary btn-sm" id="btn-save-obstruction">
+                    <i class="fa-solid fa-check"></i> Save Issue
+                  </button>
+                </div>
+              </div>
+
+              <div class="data-table-wrap">
+                <table class="data-table" id="obstructions-table">
+                  <thead>
+                    <tr>
+                      <th class="col-id">ID</th>
+                      <th class="col-name">Issue</th>
+                      <th class="col-coords">Coordinates</th>
+                      <th class="col-speed">Radius</th>
+                      <th class="col-status">Status</th>
+                      <th class="col-actions">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="obstructions-tbody"></tbody>
                 </table>
               </div>
             </div>

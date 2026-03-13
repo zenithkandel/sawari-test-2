@@ -44,6 +44,9 @@
       <article class="kpi">
         <span>Total Stops In Routes</span><strong id="kpi-stops">0</strong>
       </article>
+      <article class="kpi">
+        <span>Avg Rating</span><strong id="kpi-rating">0.0</strong>
+      </article>
     </section>
 
     <section class="panel">
@@ -125,6 +128,7 @@
               <th><input type="checkbox" id="check-all" /></th>
               <th>Name</th>
               <th>Stops</th>
+              <th>Rating</th>
               <th>Style</th>
               <th>Actions</th>
             </tr>
@@ -295,6 +299,12 @@
           (n, r) => n + (r.stopIds?.length || 0),
           0,
         );
+        const rated = routes.filter((r) => Number(r.ratingCount) > 0);
+        const avg = rated.length
+          ? rated.reduce((sum, r) => sum + (Number(r.ratingAverage) || 0), 0) /
+            rated.length
+          : 0;
+        byId("kpi-rating").textContent = avg.toFixed(1);
         byId("selected-text").textContent = `${selected.size} selected`;
       }
 
@@ -328,6 +338,7 @@
             <td><input type="checkbox" data-id="${r.id}" ${selected.has(r.id) ? "checked" : ""} /></td>
             <td><strong>${escapeHtml(r.name)}</strong></td>
             <td><span class="badge">${(r.stopIds || []).length} stops</span></td>
+            <td><span class="badge">${Number(r.ratingCount) ? `${Number(r.ratingAverage || 0).toFixed(1)} (${Number(r.ratingCount)})` : "No ratings"}</span></td>
             <td>${escapeHtml(r.style || "solid")} / ${Number(r.weight || 4)}</td>
             <td class="actions">
               <button data-focus="${r.id}">Focus</button>
@@ -465,6 +476,8 @@
           color: byId("new-color").value,
           style: byId("new-style").value,
           weight: Number(byId("new-weight").value) || 4,
+          ratingAverage: 0,
+          ratingCount: 0,
           stopIds: [],
         });
         byId("new-name").value = "";

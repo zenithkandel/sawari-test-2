@@ -8,6 +8,8 @@
             3
         ],
         "color": "#1d4ed8",
+        "ratingAverage": 0,
+        "ratingCount": 0,
         "style": "solid",
         "weight": 5,
         "snapToRoad": true
@@ -21,6 +23,8 @@
             3
         ],
         "color": "#0f766e",
+        "ratingAverage": 0,
+        "ratingCount": 0,
         "style": "solid",
         "weight": 5,
         "snapToRoad": true
@@ -35,6 +39,8 @@
             5
         ],
         "color": "#b45309",
+        "ratingAverage": 0,
+        "ratingCount": 0,
         "style": "solid",
         "weight": 5,
         "snapToRoad": true
@@ -48,6 +54,8 @@
             5
         ],
         "color": "#7c3aed",
+        "ratingAverage": 0,
+        "ratingCount": 0,
         "style": "solid",
         "weight": 4,
         "snapToRoad": true
@@ -61,6 +69,8 @@
             5
         ],
         "color": "#dc2626",
+        "ratingAverage": 0,
+        "ratingCount": 0,
         "style": "dashed",
         "weight": 4,
         "snapToRoad": true
@@ -68,6 +78,8 @@
     {
         "name": "Sajha Yatayat - Kalanki to Ratna Park",
         "color": "#1d4ed8",
+        "ratingAverage": 0,
+        "ratingCount": 0,
         "style": "solid",
         "weight": 5,
         "stopIds": [

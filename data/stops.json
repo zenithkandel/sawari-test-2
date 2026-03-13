@@ -151,5 +151,86 @@
         "icon": "fa-bus",
         "iconType": "fontawesome",
         "id": 17
+    },
+    {
+        "name": "Gangalal Hospital",
+        "lat": 27.745981904582997,
+        "lng": 85.34266591072083,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 18
+    },
+    {
+        "name": "Neuro Hospital Bansbari",
+        "lat": 27.748669023671095,
+        "lng": 85.34540712833406,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 19
+    },
+    {
+        "name": "Golfutar",
+        "lat": 27.750829115503702,
+        "lng": 85.34558951854706,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 20
+    },
+    {
+        "name": "Telecom Chowk Hattigauda",
+        "lat": 27.75553369469828,
+        "lng": 85.34862041473389,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 21
+    },
+    {
+        "name": "Hattigauda",
+        "lat": 27.7569056275423,
+        "lng": 85.34940361976625,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 22
+    },
+    {
+        "name": "Ghumti",
+        "lat": 27.766390005185553,
+        "lng": 85.35375952720642,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 23
+    },
+    {
+        "name": "Chapali",
+        "lat": 27.76757668095013,
+        "lng": 85.35571217536928,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 24
+    },
+    {
+        "name": "Deuba Chowk",
+        "lat": 27.771582802742206,
+        "lng": 85.35880208015443,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 25
+    },
+    {
+        "name": "Rudreshwor",
+        "lat": 27.77680383012511,
+        "lng": 85.36201000213624,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 26
     }
 ]

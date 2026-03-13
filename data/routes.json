@@ -21,5 +21,34 @@
         "ratingAverage": 0,
         "ratingCount": 0,
         "id": 1
+    },
+    {
+        "name": "Budhanilkantha-Ratnapark",
+        "stopIds": [
+            26,
+            25,
+            24,
+            23,
+            22,
+            21,
+            20,
+            19,
+            18,
+            14,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+        ],
+        "color": "#2f8e3f",
+        "style": "solid",
+        "weight": 2,
+        "snapToRoad": true,
+        "ratingAverage": 0,
+        "ratingCount": 0,
+        "id": 2
     }
 ]

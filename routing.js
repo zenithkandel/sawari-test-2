@@ -35,6 +35,15 @@ const OSRM_SERVERS = {
 };
 const OSRM_FALLBACK = 'https://router.project-osrm.org';
 
+function getAppRootPath() {
+    const match = window.location.pathname.match(/^(.*\/sawari)\//i);
+    return match ? match[1] : '';
+}
+
+const ROUTE_PLAN_API = getAppRootPath()
+    ? `${getAppRootPath()}/backend/handlers/api.php?type=route-plan`
+    : 'backend/handlers/api.php?type=route-plan';
+
 function getOSRMBaseUrl(profile) {
     return OSRM_SERVERS[profile] || OSRM_FALLBACK;
 }
@@ -62,10 +71,39 @@ async function fetchWithTimeout(url, timeoutMs = 8000) {
     }
 }
 
-async function getOSRMRoute(waypoints, profile = 'driving') {
+async function getOSRMRoute(waypoints, profile = 'driving', options = {}) {
     if (waypoints.length < 2) return null;
-    const cached = routeCache.get(waypoints, profile, 'route');
+    const avoidObstructions = options.avoidObstructions !== false;
+    const routeType = avoidObstructions ? 'route-safe' : 'route';
+    const cached = routeCache.get(waypoints, profile, routeType);
     if (cached) return cached;
+
+    if (avoidObstructions) {
+        try {
+            const response = await fetch(ROUTE_PLAN_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ waypoints, profile, avoidObstructions: true })
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (Array.isArray(data.coords) && data.coords.length >= 2) {
+                    const result = {
+                        coords: data.coords,
+                        distance: data.distance,
+                        duration: data.duration,
+                        obstructed: !!data.obstructed,
+                        obstructionHits: data.obstructionHits || [],
+                        selectedBy: data.selectedBy || 'fastest'
+                    };
+                    routeCache.set(waypoints, profile, routeType, result);
+                    return result;
+                }
+            }
+        } catch (err) {
+            console.warn('Backend route-plan failed, falling back to OSRM:', err.message);
+        }
+    }
 
     const coordsStr = waypoints.map(wp => `${wp[1]},${wp[0]}`).join(';');
     const urls = [
@@ -84,7 +122,7 @@ async function getOSRMRoute(waypoints, profile = 'driving') {
                 distance: route.distance,
                 duration: route.duration
             };
-            routeCache.set(waypoints, profile, 'route', result);
+            routeCache.set(waypoints, profile, routeType, result);
             return result;
         } catch (err) {
             console.warn('OSRM fetch error:', err.message);

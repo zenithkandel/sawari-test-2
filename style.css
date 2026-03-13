@@ -1190,6 +1190,12 @@ body {
 .skeleton-line:last-child { margin-bottom: 0; }
 .skeleton-line.short { width: 60%; }
 .skeleton-line.medium { width: 80%; }
+.skeleton-line.w40 { width: 40%; }
+.skeleton-line.w50 { width: 50%; }
+.skeleton-line.w60 { width: 60%; }
+.skeleton-line.w70 { width: 70%; }
+.skeleton-line.w80 { width: 80%; }
+.skeleton-line.w90 { width: 90%; }
 
 .skeleton-card {
     padding: 14px;
@@ -1307,6 +1313,18 @@ body {
 .explore-route-item:hover {
     background: var(--bg-hover);
     border-color: var(--border);
+}
+
+.explore-route-item.active {
+    background: var(--accent-bg);
+    border-color: var(--accent);
+}
+
+.explore-empty {
+    padding: 24px 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
 }
 
 .explore-route-swatch {

@@ -182,8 +182,8 @@ Action formats:
 {"action":"select","entity":"stops","id":5}
 
 RULES:
-- For creating stops: always require a name. If no coordinates given, use a central Kathmandu default (27.7172, 85.3240). The "entity" value for API is singular: stop, route, vehicle, obstruction.
-- For creating vehicles: require name, default speed 28, default lat/lng to Kathmandu center.
+- For creating stops: name, lat, and lng are REQUIRED. If no coordinates given, default to Kathmandu center (27.7172, 85.3240). The "entity" value for API is singular: stop, route, vehicle, obstruction.
+- For creating vehicles: name, lat, and lng are REQUIRED. Default speed 28, default lat/lng to Kathmandu center (27.7172, 85.3240). Always include lat and lng in the data.
 - For select actions: use plural entity type (stops, routes, vehicles, obstructions).
 - When the user says "show me" or "find" a specific entity, use the select action.
 - For updates: only include fields that need to change in "data".
@@ -381,6 +381,11 @@ RULES:
                 const cmdMap = { stop: 'createStop', vehicle: 'createVehicle', obstruction: 'createObstruction' };
                 const fn = cmdMap[entity];
                 if (!fn) throw new Error(`Cannot create ${entity} via AI. Use the UI.`);
+                // Ensure required defaults for vehicle/stop/obstruction
+                if (entity === 'vehicle' || entity === 'stop' || entity === 'obstruction') {
+                    if (payload.lat == null) payload.lat = 27.7172;
+                    if (payload.lng == null) payload.lng = 85.3240;
+                }
                 await Commands[fn](payload);
                 card.classList.add('done');
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> Created';

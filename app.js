@@ -2234,6 +2234,171 @@ document.getElementById('btn-share-route').addEventListener('click', () => {
     }
 });
 
+// ---- AI Location Extraction ----
+
+function showAiStatus(message, type) {
+    const el = document.getElementById('ai-status');
+    el.textContent = '';
+    el.className = 'ai-status ' + type;
+
+    if (type === 'extracting') {
+        const spinner = document.createElement('div');
+        spinner.className = 'loading-spinner small';
+        spinner.style.display = 'inline-block';
+        el.appendChild(spinner);
+    }
+
+    const span = document.createElement('span');
+    span.textContent = message;
+    el.appendChild(span);
+    el.classList.remove('hidden');
+}
+
+function hideAiStatus() {
+    const el = document.getElementById('ai-status');
+    el.classList.add('hidden');
+}
+
+async function geocodeLocation(name) {
+    const params = new URLSearchParams({
+        q: name,
+        format: 'json',
+        limit: '1',
+        viewbox: KATHMANDU_VIEWBOX,
+        bounded: '1',
+        addressdetails: '0'
+    });
+
+    const response = await fetch(`${NOMINATIM_BASE_URL}?${params.toString()}`, {
+        headers: { Accept: 'application/json' }
+    });
+
+    if (!response.ok) return null;
+    const results = await response.json();
+    if (!results.length) return null;
+
+    return {
+        name: results[0].display_name || name,
+        lat: parseFloat(results[0].lat),
+        lon: parseFloat(results[0].lon)
+    };
+}
+
+function findStopByName(name) {
+    const q = name.toLowerCase().trim();
+    const exact = publicStops.find(s => s.name.toLowerCase() === q);
+    if (exact) return exact;
+    const partial = publicStops.find(s => s.name.toLowerCase().includes(q) || q.includes(s.name.toLowerCase()));
+    return partial || null;
+}
+
+async function resolveLocation(name) {
+    // Try matching against known stops first
+    const stop = findStopByName(name);
+    if (stop) {
+        return { name: stop.name, lat: stop.lat, lon: stop.lng };
+    }
+
+    // Fall back to Nominatim geocoding
+    const geo = await geocodeLocation(name);
+    return geo;
+}
+
+async function extractWithAI() {
+    const input = document.getElementById('input-ai-prompt');
+    const btn = document.getElementById('btn-ai-extract');
+    const prompt = input.value.trim();
+
+    if (!prompt) {
+        showToast('Type where you want to go', 'warning');
+        input.focus();
+        return;
+    }
+
+    if (!GROQ_API_KEY || GROQ_API_KEY === 'YOUR_GROQ_API_KEY_HERE') {
+        showToast('Groq API key not configured in .env', 'error', 4000);
+        return;
+    }
+
+    // Loading state
+    btn.classList.add('loading');
+    btn.innerHTML = '<div class="loading-spinner small" style="display:inline-block;"></div>';
+    showAiStatus('Extracting locations...', 'extracting');
+
+    try {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${GROQ_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: 'llama-3.3-70b-versatile',
+                max_tokens: 200,
+                temperature: 0,
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are a location extractor for a transit app in Kathmandu, Nepal. Given a natural language direction prompt, extract the starting point and destination.\nReturn ONLY a raw JSON object with no markdown, no backticks, no explanation. Format:\n{"from": "starting location name", "to": "destination location name"}\nIf you cannot identify both locations, return: {"error": "reason"}'
+                    },
+                    { role: 'user', content: prompt }
+                ]
+            })
+        });
+
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message || 'Groq API error');
+
+        const text = data.choices?.[0]?.message?.content || '';
+        let parsed;
+        try {
+            parsed = JSON.parse(text.trim());
+        } catch {
+            throw new Error('Could not parse AI response');
+        }
+
+        if (parsed.error) throw new Error(parsed.error);
+        if (!parsed.from || !parsed.to) throw new Error('Could not identify both locations');
+
+        showAiStatus(`Found: ${parsed.from} → ${parsed.to}. Locating...`, 'extracting');
+
+        // Resolve both locations (stops first, then geocode)
+        const [fromResult, toResult] = await Promise.all([
+            resolveLocation(parsed.from),
+            resolveLocation(parsed.to)
+        ]);
+
+        if (!fromResult) throw new Error(`Could not locate "${parsed.from}"`);
+        if (!toResult) throw new Error(`Could not locate "${parsed.to}"`);
+
+        // Set start and end points
+        setStartPoint(fromResult.lat, fromResult.lon, fromResult.name);
+        setEndPoint(toResult.lat, toResult.lon, toResult.name);
+
+        showAiStatus(`${parsed.from} → ${parsed.to}`, 'ai-success');
+        showToast('Locations set! Navigating...', 'success');
+
+        // Auto-navigate
+        await navigate();
+
+    } catch (err) {
+        showAiStatus(err.message || 'Something went wrong', 'ai-error');
+        showToast(err.message || 'AI extraction failed', 'error', 3000);
+    } finally {
+        btn.classList.remove('loading');
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+    }
+}
+
+document.getElementById('btn-ai-extract').addEventListener('click', extractWithAI);
+
+document.getElementById('input-ai-prompt').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        extractWithAI();
+    }
+});
+
 // ---- Init ----
 loadData();
 // Auto-start GPS on page load

@@ -39,11 +39,12 @@ const LayerManager = (() => {
     function createStopIcon(stop, selected) {
         const isRouteBuilding = Store.get('routeBuilder')?.active;
         const cls = `stop-marker${selected ? ' selected' : ''}${isRouteBuilding ? ' route-pick' : ''}`;
+        const name = stop.name || '';
         return L.divIcon({
-            className: '',
-            html: `<div class="${cls}" style="background:${stop.color}" data-id="${stop.id}"><i class="fa-solid ${stop.icon || 'fa-bus'}"></i></div>`,
-            iconSize: [28, 28],
-            iconAnchor: [14, 14],
+            className: 'stop-marker-wrapper',
+            html: `<span class="stop-label">${name}</span><div class="${cls}" style="background:${stop.color}" data-id="${stop.id}"><i class="fa-solid ${stop.icon || 'fa-bus'}"></i></div>`,
+            iconSize: [80, 46],
+            iconAnchor: [40, 46],
         });
     }
 

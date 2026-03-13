@@ -1,1 +1,25 @@
-[]
+[
+    {
+        "name": "Basundhara-RNAC",
+        "stopIds": [
+            15,
+            14,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            9,
+            10,
+            8
+        ],
+        "color": "#1d4ed8",
+        "style": "solid",
+        "weight": 5,
+        "snapToRoad": true,
+        "ratingAverage": 0,
+        "ratingCount": 0,
+        "id": 1
+    }
+]

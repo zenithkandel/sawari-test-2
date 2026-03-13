@@ -3,174 +3,319 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sawari Admin Portal</title>
+    <title>Sawari Admin — Map Workspace</title>
+
+    <!-- Leaflet -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Font Awesome -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="portal.css" />
+
+    <!-- App Styles -->
+    <link rel="stylesheet" href="styles/main.css" />
+
+    <!-- Prevent theme flash -->
+    <script>
+      const t = localStorage.getItem('sawari-admin-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    </script>
   </head>
   <body>
-    <div class="portal-shell">
-      <aside class="sidebar" id="sidebar">
-        <div class="brand-row">
-          <a href="../index.html" class="brand-link" aria-label="Back to app">
-            <span class="brand-icon"
-              ><i class="fa-solid fa-bus-simple"></i
-            ></span>
-            <span class="brand-text">Sawari Admin</span>
-          </a>
+    <!-- ===== COMMAND BAR (Top) ===== -->
+    <header id="command-bar">
+      <div class="cb-left">
+        <button
+          id="btn-sidebar-toggle"
+          class="cb-icon-btn"
+          title="Toggle sidebar (Ctrl+B)"
+        >
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="../admin/" class="cb-logo" title="Back to Admin Portal">
+          <i class="fa-solid fa-route"></i>
+          <span>Sawari</span>
+        </a>
+        <div class="cb-divider"></div>
+        <div id="tool-mode-group" class="cb-btn-group">
           <button
-            class="icon-btn mobile-only"
-            id="btn-close-sidebar"
-            title="Close menu"
+            class="cb-tool-btn active"
+            data-mode="select"
+            title="Select mode (V)"
+          >
+            <i class="fa-solid fa-arrow-pointer"></i>
+            <span>Select</span>
+          </button>
+          <button class="cb-tool-btn" data-mode="add" title="Add mode (A)">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add</span>
+          </button>
+        </div>
+      </div>
+      <div class="cb-center">
+        <div id="add-entity-group" class="cb-btn-group" style="display: none">
+          <button class="cb-entity-btn" data-entity="stop" title="Add Stop (S)">
+            <i class="fa-solid fa-location-dot"></i>
+            <span>Stop</span>
+          </button>
+          <button
+            class="cb-entity-btn"
+            data-entity="route"
+            title="Add Route (R)"
+          >
+            <i class="fa-solid fa-route"></i>
+            <span>Route</span>
+          </button>
+          <button
+            class="cb-entity-btn"
+            data-entity="vehicle"
+            title="Add Vehicle (W)"
+          >
+            <i class="fa-solid fa-bus"></i>
+            <span>Vehicle</span>
+          </button>
+          <button
+            class="cb-entity-btn"
+            data-entity="obstruction"
+            title="Add Obstruction (O)"
+          >
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>Obstruction</span>
+          </button>
+        </div>
+        <button id="btn-search" class="cb-search-btn" title="Search (Ctrl+K)">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span>Search entities...</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+      <div class="cb-right">
+        <button
+          id="btn-theme-toggle"
+          class="cb-icon-btn"
+          title="Toggle light/dark theme"
+        >
+          <i class="fa-solid fa-sun"></i>
+        </button>
+        <div class="cb-divider"></div>
+        <button
+          id="btn-undo"
+          class="cb-icon-btn"
+          title="Undo (Ctrl+Z)"
+          disabled
+        >
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+        <button
+          id="btn-redo"
+          class="cb-icon-btn"
+          title="Redo (Ctrl+Y)"
+          disabled
+        >
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
+        <div class="cb-divider"></div>
+        <button
+          id="btn-delete"
+          class="cb-icon-btn danger"
+          title="Delete selected (Del)"
+          disabled
+        >
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- ===== MAIN WORKSPACE ===== -->
+    <div id="workspace">
+      <!-- Left rail: Layer panel -->
+      <aside id="layer-panel" class="panel">
+        <div class="panel-header">
+          <h3>Layers</h3>
+        </div>
+        <div class="panel-body">
+          <div class="layer-group">
+            <label class="layer-toggle">
+              <input type="checkbox" data-layer="stops" checked />
+              <span class="layer-swatch" style="background: #1d4ed8"></span>
+              <span class="layer-name">Stops</span>
+              <span class="layer-count" data-count="stops">0</span>
+            </label>
+            <label class="layer-toggle">
+              <input type="checkbox" data-layer="routes" checked />
+              <span class="layer-swatch" style="background: #0f766e"></span>
+              <span class="layer-name">Routes</span>
+              <span class="layer-count" data-count="routes">0</span>
+            </label>
+            <label class="layer-toggle">
+              <input type="checkbox" data-layer="vehicles" checked />
+              <span class="layer-swatch" style="background: #b45309"></span>
+              <span class="layer-name">Vehicles</span>
+              <span class="layer-count" data-count="vehicles">0</span>
+            </label>
+            <label class="layer-toggle">
+              <input type="checkbox" data-layer="obstructions" checked />
+              <span class="layer-swatch" style="background: #dc2626"></span>
+              <span class="layer-name">Obstructions</span>
+              <span class="layer-count" data-count="obstructions">0</span>
+            </label>
+          </div>
+
+          <div class="panel-section">
+            <h4>Quick Filters</h4>
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="active">Active Only</button>
+            <button class="filter-btn" data-filter="moving">
+              Moving Vehicles
+            </button>
+          </div>
+
+          <div class="panel-section">
+            <h4>Stats</h4>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <span class="stat-value" id="stat-stops">0</span>
+                <span class="stat-label">Stops</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value" id="stat-routes">0</span>
+                <span class="stat-label">Routes</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value" id="stat-vehicles">0</span>
+                <span class="stat-label">Vehicles</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value" id="stat-obstructions">0</span>
+                <span class="stat-label">Issues</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Center: Map canvas -->
+      <main id="map-container">
+        <div id="map"></div>
+        <div id="map-crosshair" style="display: none">
+          <i class="fa-solid fa-crosshairs"></i>
+        </div>
+        <div id="map-mode-hint" style="display: none"></div>
+      </main>
+
+      <!-- Right: Inspector panel -->
+      <aside id="inspector-panel" class="panel">
+        <div class="panel-header">
+          <h3 id="inspector-title">Inspector</h3>
+          <button
+            id="btn-close-inspector"
+            class="cb-icon-btn"
+            title="Close (Esc)"
           >
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
-
-        <div class="sidebar-search">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" id="nav-search" placeholder="Search tools" />
-        </div>
-
-        <nav class="nav-list" id="nav-list">
-          <button
-            class="nav-item active"
-            data-src="pages/overview.html"
-            data-title="Overview"
-            data-keywords="overview dashboard summary"
-          >
-            <i class="fa-solid fa-chart-line"></i><span>Overview</span>
-          </button>
-          <a
-            class="nav-item"
-            href="../admin-new/"
-            data-title="Map Workspace"
-            data-keywords="new workspace beta map first visual editor"
-            style="text-decoration: none"
-          >
-            <i class="fa-solid fa-compass-drafting"></i
-            ><span>Map Workspace</span>
-          </a>
-          <button
-            class="nav-item"
-            data-src="modules/stops.html"
-            data-title="Stops Manager"
-            data-keywords="stops station map"
-          >
-            <i class="fa-solid fa-map-pin"></i><span>Stops Manager</span>
-          </button>
-          <button
-            class="nav-item"
-            data-src="modules/routes.html"
-            data-title="Routes Planner"
-            data-keywords="route lines planner"
-          >
-            <i class="fa-solid fa-route"></i><span>Routes Planner</span>
-          </button>
-          <button
-            class="nav-item"
-            data-src="modules/issues.html"
-            data-title="Road Issues"
-            data-keywords="obstructions road issues damage block reroute"
-          >
-            <i class="fa-solid fa-triangle-exclamation"></i
-            ><span>Road Issues</span>
-          </button>
-          <button
-            class="nav-item"
-            data-src="modules/fleet.html"
-            data-title="Fleet Control"
-            data-keywords="vehicles fleet buses"
-          >
-            <i class="fa-solid fa-bus"></i><span>Fleet Control</span>
-          </button>
-          <button
-            class="nav-item"
-            data-src="pages/reports.html"
-            data-title="Reports"
-            data-keywords="reports analytics insights"
-          >
-            <i class="fa-solid fa-file-chart-column"></i><span>Reports</span>
-          </button>
-          <button
-            class="nav-item"
-            data-src="pages/help.html"
-            data-title="Help & Productivity"
-            data-keywords="help shortcuts guide"
-          >
-            <i class="fa-solid fa-circle-question"></i
-            ><span>Help & Productivity</span>
-          </button>
-        </nav>
-
-        <div class="sidebar-foot">
-          <p>Transit operations portal</p>
-          <a href="../index.html">Open Public App</a>
+        <div id="inspector-body" class="panel-body">
+          <div class="inspector-empty">
+            <i class="fa-solid fa-arrow-pointer"></i>
+            <p>
+              Select an object on the map to inspect and edit its properties.
+            </p>
+          </div>
         </div>
       </aside>
-
-      <main class="workspace">
-        <header class="topbar">
-          <div class="topbar-left">
-            <button class="icon-btn" id="btn-open-sidebar" title="Open menu">
-              <i class="fa-solid fa-bars"></i>
-            </button>
-            <div class="title-stack">
-              <p class="title-kicker">Operations Console</p>
-              <h1 id="page-title">Overview</h1>
-            </div>
-          </div>
-
-          <div class="topbar-actions">
-            <button
-              class="chip-btn"
-              id="btn-refresh-frame"
-              title="Reload current page"
-            >
-              <i class="fa-solid fa-rotate-right"></i> Refresh
-            </button>
-            <button
-              class="chip-btn"
-              id="btn-open-new-tab"
-              title="Open current page in new tab"
-            >
-              <i class="fa-solid fa-up-right-from-square"></i> New Tab
-            </button>
-            <button
-              class="chip-btn"
-              id="btn-fullscreen"
-              title="Focus content area"
-            >
-              <i class="fa-solid fa-expand"></i> Focus
-            </button>
-            <div class="clock" id="clock"></div>
-          </div>
-        </header>
-
-        <section class="frame-card" id="frame-card">
-          <div class="frame-loader" id="frame-loader">
-            <span class="loader-dot"></span>
-            <span>Loading workspace...</span>
-          </div>
-          <iframe
-            id="content-frame"
-            title="Admin content"
-            loading="eager"
-            src="pages/overview.html"
-          ></iframe>
-        </section>
-      </main>
     </div>
 
-    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
-    <script src="portal.js"></script>
+    <!-- ===== STATUS STRIP (Bottom) ===== -->
+    <footer id="status-strip">
+      <div class="status-left">
+        <span id="status-mode"
+          ><i class="fa-solid fa-arrow-pointer"></i> Select Mode</span
+        >
+        <span class="status-divider">|</span>
+        <span id="status-coords">--</span>
+      </div>
+      <div class="status-center" id="status-actions"></div>
+      <div class="status-right">
+        <span id="status-sync" class="status-sync synced">
+          <i class="fa-solid fa-circle"></i> Synced
+        </span>
+      </div>
+    </footer>
+
+    <!-- ===== SEARCH MODAL ===== -->
+    <div id="search-modal" class="modal-backdrop" style="display: none">
+      <div class="search-dialog">
+        <div class="search-input-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search stops, routes, vehicles..."
+            autocomplete="off"
+          />
+          <kbd>Esc</kbd>
+        </div>
+        <div id="search-results" class="search-results"></div>
+      </div>
+    </div>
+
+    <!-- ===== CONTEXT MENU ===== -->
+    <div id="context-menu" class="context-menu" style="display: none"></div>
+
+    <!-- ===== CONFIRM DIALOG ===== -->
+    <div id="confirm-backdrop" class="modal-backdrop" style="display: none">
+      <div class="confirm-dialog">
+        <div class="confirm-icon">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h3 id="confirm-title">Confirm</h3>
+        <p id="confirm-message"></p>
+        <div id="confirm-deps"></div>
+        <div class="confirm-actions">
+          <button id="confirm-cancel" class="btn btn-ghost">Cancel</button>
+          <button id="confirm-ok" class="btn btn-danger">Delete</button>
+          <button id="confirm-force" class="btn btn-warn" style="display: none">
+            Force Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div id="toast-container"></div>
+
+    <!-- ===== APPLICATION SCRIPTS ===== -->
+    <script src="services/api-client.js"></script>
+    <script src="state/store.js"></script>
+    <script src="state/history.js"></script>
+    <script src="state/commands.js"></script>
+    <script src="map/map-engine.js"></script>
+    <script src="map/layer-manager.js"></script>
+    <script src="map/draw-tools.js"></script>
+    <script src="map/selection-tools.js"></script>
+    <script src="features/stops/stops.js"></script>
+    <script src="features/routes/routes.js"></script>
+    <script src="features/vehicles/vehicles.js"></script>
+    <script src="features/obstructions/obstructions.js"></script>
+    <script src="components/command-bar/command-bar.js"></script>
+    <script src="components/layer-panel/layer-panel.js"></script>
+    <script src="components/inspector/inspector.js"></script>
+    <script src="components/notifications/notifications.js"></script>
+    <script src="app.js"></script>
   </body>
 </html>

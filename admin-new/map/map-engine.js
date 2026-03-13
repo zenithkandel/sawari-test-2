@@ -3,8 +3,14 @@
 // ============================================================
 const MapEngine = (() => {
     let map = null;
+    let tileLayer = null;
     const DEFAULT_CENTER = [27.7172, 85.3240];
     const DEFAULT_ZOOM = 13;
+
+    const TILE_URLS = {
+        dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    };
 
     function init() {
         map = L.map('map', {
@@ -13,7 +19,8 @@ const MapEngine = (() => {
             zoomControl: false,
         });
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+        tileLayer = L.tileLayer(TILE_URLS[theme] || TILE_URLS.dark, {
             attribution: '&copy; OpenStreetMap &copy; CARTO',
             maxZoom: 19,
         }).addTo(map);
@@ -56,5 +63,10 @@ const MapEngine = (() => {
         if (map) setTimeout(() => map.invalidateSize(), 100);
     }
 
-    return { init, getMap, panTo, fitBounds, invalidateSize };
+    function setThemeTiles(theme) {
+        if (!tileLayer) return;
+        tileLayer.setUrl(TILE_URLS[theme] || TILE_URLS.dark);
+    }
+
+    return { init, getMap, panTo, fitBounds, invalidateSize, setThemeTiles };
 })();

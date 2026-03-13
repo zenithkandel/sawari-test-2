@@ -28,6 +28,12 @@
 
     <!-- App Styles -->
     <link rel="stylesheet" href="styles/main.css" />
+
+    <!-- Prevent theme flash -->
+    <script>
+      const t = localStorage.getItem('sawari-admin-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    </script>
   </head>
   <body>
     <!-- ===== COMMAND BAR (Top) ===== -->
@@ -98,6 +104,14 @@
         </button>
       </div>
       <div class="cb-right">
+        <button
+          id="btn-theme-toggle"
+          class="cb-icon-btn"
+          title="Toggle light/dark theme"
+        >
+          <i class="fa-solid fa-sun"></i>
+        </button>
+        <div class="cb-divider"></div>
         <button
           id="btn-undo"
           class="cb-icon-btn"

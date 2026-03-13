@@ -39,6 +39,16 @@ const CommandBar = (() => {
             panel.classList.toggle('open');
         });
 
+        // Theme toggle
+        const themeBtn = document.getElementById('btn-theme-toggle');
+        applyTheme(localStorage.getItem('sawari-admin-theme') || 'dark');
+        themeBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = current === 'dark' ? 'light' : 'dark';
+            applyTheme(next);
+            localStorage.setItem('sawari-admin-theme', next);
+        });
+
         // React to mode changes
         Store.on('mode', ({ mode, addEntity }) => {
             document.querySelectorAll('#tool-mode-group .cb-tool-btn').forEach(btn => {
@@ -187,6 +197,13 @@ const CommandBar = (() => {
 
     function escapeHtml(str) {
         return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        MapEngine.setThemeTiles(theme);
+        const icon = document.querySelector('#btn-theme-toggle i');
+        if (icon) icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
     }
 
     return { init, openSearch };

@@ -568,9 +568,12 @@ a:hover {
 }
 
 @keyframes route-pick-pulse {
-    0%, 100% {
+
+    0%,
+    100% {
         box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4), 0 2px 6px rgba(0, 0, 0, 0.4);
     }
+
     50% {
         box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.15), 0 2px 6px rgba(0, 0, 0, 0.4);
     }
@@ -1391,6 +1394,35 @@ a:hover {
 
 .toggle.on::after {
     transform: translateX(16px);
+}
+
+/* --- Light Theme --- */
+[data-theme="light"] {
+    --bg: #f0f2f5;
+    --bg-surface: #ffffff;
+    --bg-elevated: #f8f9fa;
+    --bg-hover: #e9ecef;
+    --bg-active: #dee2e6;
+    --border: #d1d5db;
+    --border-light: #e5e7eb;
+    --text: #1f2937;
+    --text-secondary: #4b5563;
+    --text-muted: #9ca3af;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-bg: rgba(37, 99, 235, 0.1);
+    --success: #16a34a;
+    --success-bg: rgba(22, 163, 74, 0.1);
+    --warn: #d97706;
+    --warn-bg: rgba(217, 119, 6, 0.1);
+    --danger: #dc2626;
+    --danger-bg: rgba(220, 38, 38, 0.1);
+    --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .stop-marker {
+    border-color: #374151;
 }
 
 /* --- Responsive --- */

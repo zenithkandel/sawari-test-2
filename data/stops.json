@@ -1,47 +1,155 @@
 [
     {
-        "id": 1,
-        "name": "Kalanki Chowk",
-        "lat": 27.6935,
-        "lng": 85.2814,
-        "icon": "fa-bus",
-        "iconType": "fontawesome",
-        "color": "#1d4ed8"
-    },
-    {
-        "id": 2,
-        "name": "Tripureshwor",
-        "lat": 27.694472314556965,
-        "lng": 85.31364440917969,
+        "name": "Teaching Hospital",
+        "lat": 27.7362630953893,
+        "lng": 85.3327524662018,
+        "color": "#3da329",
         "icon": "fa-bus-simple",
         "iconType": "fontawesome",
-        "color": "#0f766e"
+        "id": 1
     },
     {
-        "id": 3,
-        "name": "Ratna Park",
-        "lat": 27.705947378077305,
-        "lng": 85.31484603881837,
-        "icon": "fa-location-dot",
-        "iconType": "fontawesome",
-        "color": "#b91c1c"
-    },
-    {
-        "id": 4,
-        "name": "New Baneshwor",
-        "lat": 27.688734,
-        "lng": 85.333643,
+        "name": "Panipokhari",
+        "lat": 27.729710599956533,
+        "lng": 85.32484531402588,
+        "color": "#1d4ed8",
         "icon": "fa-bus",
         "iconType": "fontawesome",
-        "color": "#7c3aed"
+        "id": 2
     },
     {
-        "id": 5,
-        "name": "Koteshwor",
-        "lat": 27.677067,
-        "lng": 85.347204,
+        "name": "Lazimpat",
+        "lat": 27.725204343694273,
+        "lng": 85.32258152961732,
+        "color": "#1d4ed8",
         "icon": "fa-bus",
         "iconType": "fontawesome",
-        "color": "#ea580c"
+        "id": 3
+    },
+    {
+        "name": "Lainchaur",
+        "lat": 27.717886622430626,
+        "lng": 85.3167235851288,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 4
+    },
+    {
+        "name": "Jamal",
+        "lat": 27.708920438595676,
+        "lng": 85.3156077861786,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 5
+    },
+    {
+        "name": "Ghantaghar",
+        "lat": 27.707690380251986,
+        "lng": 85.31670212745668,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 6
+    },
+    {
+        "name": "Ratnapark",
+        "lat": 27.70659328948767,
+        "lng": 85.31536102294922,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 7
+    },
+    {
+        "name": "RNAC",
+        "lat": 27.701962590039766,
+        "lng": 85.31354784965517,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 8
+    },
+    {
+        "name": "Bhadrakali",
+        "lat": 27.7028887456512,
+        "lng": 85.316401720047,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 9
+    },
+    {
+        "name": "Sahid Gate",
+        "lat": 27.699587796144364,
+        "lng": 85.314958691597,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 10
+    },
+    {
+        "name": "Bagbazar",
+        "lat": 27.70567903875681,
+        "lng": 85.32032042741777,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 11
+    },
+    {
+        "name": "Putalisadak Star Mall",
+        "lat": 27.7066764028106,
+        "lng": 85.32281488180162,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 12
+    },
+    {
+        "name": "Hattisar",
+        "lat": 27.708219924443725,
+        "lng": 85.32184123992921,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 13
+    },
+    {
+        "name": "Chakrapath",
+        "lat": 27.739909530896256,
+        "lng": 85.33699035644531,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 14
+    },
+    {
+        "name": "Basundhara",
+        "lat": 27.742169499976967,
+        "lng": 85.33257544040681,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 15
+    },
+    {
+        "name": "Basundhara Chauki",
+        "lat": 27.73829998651819,
+        "lng": 85.32559633255006,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 16
+    },
+    {
+        "name": "Samakhusi",
+        "lat": 27.736168134500968,
+        "lng": 85.32200217247009,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 17
     }
 ]

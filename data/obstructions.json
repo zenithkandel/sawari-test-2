@@ -1,11 +1,1 @@
-[
-    {
-        "name": "road blockage",
-        "lat": 27.69772,
-        "lng": 85.31341,
-        "radiusMeters": 40,
-        "severity": "high",
-        "active": true,
-        "id": 1
-    }
-]
+[]

@@ -681,12 +681,12 @@ function renderExploreRoutes() {
         const stopCount = (r.stopIds || []).length;
         return `
             <button class="explore-route-item" data-route-id="${r.id}">
-                <span class="explore-route-color" style="background:${r.color || '#555'}"></span>
+                <span class="explore-route-swatch" style="background:${r.color || '#555'}"></span>
                 <div class="explore-route-info">
-                    <strong>${escapeHtml(r.name)}</strong>
-                    <small>${stopCount} stop${stopCount !== 1 ? 's' : ''}</small>
+                    <span class="explore-route-name">${escapeHtml(r.name)}</span>
+                    <span class="explore-route-meta">${stopCount} stop${stopCount !== 1 ? 's' : ''}</span>
                 </div>
-                <i class="fa-solid fa-chevron-right"></i>
+                <i class="fa-solid fa-chevron-right" style="color:var(--text-muted);font-size:11px;"></i>
             </button>`;
     }).join('');
 }
@@ -1305,11 +1305,13 @@ function renderJourneyPanel(journey) {
 
         html += `
             <div class="leg-card ${cardClass}">
-                <div class="leg-header">
+                <div class="leg-header" data-leg-toggle="${legIndex}">
                     <div class="leg-icon"><i class="fa-solid ${icon}"></i></div>
                     <span class="leg-title">${leg.label}</span>
                     ${leg.type === 'bus' ? `<span class="leg-badge" style="background:${leg.route.color}">${leg.stops.length} stops</span>` : ''}
+                    <span class="leg-chevron"><i class="fa-solid fa-chevron-down"></i></span>
                 </div>
+                <div class="leg-body">
                 <div class="leg-details">
                     ${leg.distance > 0 ? `<span><i class="fa-solid fa-ruler"></i> ${formatDistance(leg.distance)}</span>` : ''}
                     ${leg.duration > 0 ? `<span><i class="fa-solid fa-clock"></i> ${formatDuration(leg.duration)}</span>` : ''}
@@ -1335,13 +1337,21 @@ function renderJourneyPanel(journey) {
             html += '</div>';
         }
 
-        html += '</div>';
+        html += '</div></div>';
     });
 
     resultsEl.innerHTML = html;
 }
 
 document.getElementById('journey-results').addEventListener('click', async (event) => {
+    // Collapsible leg toggle
+    const legToggle = event.target.closest('[data-leg-toggle]');
+    if (legToggle) {
+        const card = legToggle.closest('.leg-card');
+        if (card) card.classList.toggle('expanded');
+        return;
+    }
+
     const selectVehicleButton = event.target.closest('[data-select-vehicle-id]');
     if (selectVehicleButton && currentJourney) {
         const legIndex = Number(selectVehicleButton.dataset.selectLegIndex);

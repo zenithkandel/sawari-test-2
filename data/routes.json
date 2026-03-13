@@ -88,21 +88,5 @@
             3
         ],
         "id": 6
-    },
-    {
-        "name": "test route",
-        "stopIds": [
-            3,
-            5,
-            2,
-            1
-        ],
-        "color": "#ffffff",
-        "style": "dashed",
-        "weight": 10,
-        "snapToRoad": true,
-        "ratingAverage": 0,
-        "ratingCount": 0,
-        "id": 7
     }
 ]

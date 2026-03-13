@@ -937,6 +937,9 @@ function clearAll() {
     document.getElementById('input-start').value = '';
     document.getElementById('input-end').value = '';
     document.getElementById('input-global-search').value = '';
+    document.getElementById('input-ai-prompt').value = '';
+    const aiStatus = document.getElementById('ai-status');
+    if (aiStatus) aiStatus.classList.add('hidden');
     document.getElementById('journey-results').classList.add('hidden');
     document.getElementById('journey-results').innerHTML = '';
     setStatus('Pick your start and destination on the map.');

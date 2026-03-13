@@ -238,14 +238,7 @@ Single workspace layout:
 Recommended target structure:
 
 ```text
-admin/
-  new/
-    index.html
-    new-admin.css
-    new-admin.js
-
-frontend/
-  admin-app/
+  admin-new/
     index.html
     app.js
     styles/
@@ -274,25 +267,26 @@ frontend/
     utils/
 
 backend/
-  handlers/
-    api.php
-    entities/
-      stops.php
-      routes.php
-      vehicles.php
-      obstructions.php
-  validators/
-    stop-validator.php
-    route-validator.php
-    vehicle-validator.php
-    obstruction-validator.php
-  repositories/
-    json/
-      file-store.php
-      locks.php
-  services/
-    relation-guard.php
-    route-planner.php
+  admin/
+    handlers/
+      api.php
+      entities/
+        stops.php
+        routes.php
+        vehicles.php
+        obstructions.php
+    validators/
+      stop-validator.php
+      route-validator.php
+      vehicle-validator.php
+      obstruction-validator.php
+    repositories/
+      json/
+        file-store.php
+        locks.php
+    services/
+      relation-guard.php
+      route-planner.php
 ```
 
 ## 10. Map Editing Workflows

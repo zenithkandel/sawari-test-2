@@ -1103,23 +1103,40 @@ function renderJourneyPanel(journey) {
             </div>
         </div>`;
 
-    const assignments = Object.values(assignedVehiclesByLeg).sort((a, b) => a.legIndex - b.legIndex);
-    if (assignments.length) {
+    const busLegsForAssignments = journey.legs
+        .map((leg, legIndex) => ({ leg, legIndex }))
+        .filter(({ leg }) => leg.type === 'bus' && leg.route);
+    if (busLegsForAssignments.length) {
         html += '<div class="assignment-section">';
-        assignments.forEach((item, idx) => {
+        busLegsForAssignments.forEach(({ leg, legIndex }, idx) => {
+            const selectedVehicle = getAssignedVehicleForLeg(leg, legIndex);
+            const vehiclesOnLeg = getAvailableVehiclesForLeg(leg, legIndex);
             html += `
                 <div class="assignment-card">
                     <div class="assignment-head">
-                        ${item.vehicleImage ? `<img class="assignment-vehicle-image" src="${escapeHtml(item.vehicleImage)}" alt="${escapeHtml(item.vehicleName)}" />` : ''}
-                        <span class="assignment-chip">Assigned Bus ${assignments.length > 1 ? idx + 1 : ''}</span>
-                        <strong>${item.vehicleName}</strong>
+                        ${selectedVehicle?.vehicleImage ? `<img class="assignment-vehicle-image" src="${escapeHtml(selectedVehicle.vehicleImage)}" alt="${escapeHtml(selectedVehicle.vehicleName)}" />` : ''}
+                        <span class="assignment-chip">Route Vehicles ${busLegsForAssignments.length > 1 ? idx + 1 : ''}</span>
+                        <strong>${leg.route.name}</strong>
                     </div>
                     <div class="assignment-stats">
-                        <span><i class="fa-solid fa-route"></i> Route ${item.routeId}</span>
-                        <span><i class="fa-solid fa-location-dot"></i> ${item.boardingStop.name}</span>
-                        <span><i class="fa-solid fa-clock"></i> ETA ${formatDuration(item.etaSeconds)}</span>
-                        <span><i class="fa-solid fa-ruler"></i> ${formatDistance(item.distanceToBoarding)}</span>
+                        <span><i class="fa-solid fa-route"></i> ${leg.from} to ${leg.to}</span>
+                        <span><i class="fa-solid fa-location-dot"></i> Board at ${leg.boardingStop?.name || leg.from}</span>
+                        <span><i class="fa-solid fa-bus"></i> ${vehiclesOnLeg.length} live vehicle${vehiclesOnLeg.length === 1 ? '' : 's'}</span>
                     </div>
+                    ${buildRatingControl('route', leg.route.id, leg.route, 'Rate this route recommendation')}
+                    <div class="assignment-vehicle-list">
+                        ${vehiclesOnLeg.length ? vehiclesOnLeg.map((item) => `
+                            <button class="assignment-vehicle-option ${selectedVehicle?.vehicleId === item.vehicleId ? 'selected' : ''}" data-select-leg-key="${item.legKey}" data-select-leg-index="${item.legIndex}" data-select-vehicle-id="${item.vehicleId}">
+                                ${item.vehicleImage ? `<img class="assignment-vehicle-thumb" src="${escapeHtml(item.vehicleImage)}" alt="${escapeHtml(item.vehicleName)}" />` : '<span class="assignment-vehicle-thumb placeholder"><i class="fa-solid fa-bus"></i></span>'}
+                                <span class="assignment-vehicle-meta">
+                                    <strong>${item.vehicleName}</strong>
+                                    <span>ETA ${formatDuration(item.etaSeconds)} · ${formatDistance(item.distanceToBoarding)}</span>
+                                    <span class="rating-inline">${renderStars(item.ratingAverage)}<em>${item.ratingCount ? `${item.ratingAverage.toFixed(1)} (${item.ratingCount})` : 'No ratings'}</em></span>
+                                </span>
+                            </button>
+                        `).join('') : '<div class="assignment-card assignment-card-empty compact"><div class="assignment-stats"><span><i class="fa-solid fa-circle-info"></i> No live vehicles currently reported on this route.</span></div></div>'}
+                    </div>
+                    ${selectedVehicle ? buildRatingControl('vehicle', selectedVehicle.vehicleId, selectedVehicle, `Rate ${selectedVehicle.vehicleName}`) : ''}
                 </div>`;
         });
         html += '</div>';
@@ -1154,6 +1171,7 @@ function renderJourneyPanel(journey) {
         const cardClass = leg.type === 'walk' ? 'walk' : 'bus';
         const icon = leg.type === 'walk' ? 'fa-person-walking' : 'fa-bus';
         const assignedForLeg = leg.type === 'bus' ? getAssignedVehicleForLeg(leg, legIndex) : null;
+        const vehiclesOnLeg = leg.type === 'bus' ? getAvailableVehiclesForLeg(leg, legIndex) : [];
 
         html += `
             <div class="leg-card ${cardClass}">
@@ -1175,8 +1193,10 @@ function renderJourneyPanel(journey) {
                         ${assignedForLeg.vehicleImage ? `<img class="leg-assigned-image" src="${escapeHtml(assignedForLeg.vehicleImage)}" alt="${escapeHtml(assignedForLeg.vehicleName)}" />` : ''}
                         <span><i class="fa-solid fa-bus"></i> ${assignedForLeg.vehicleName}</span>
                         <span><i class="fa-solid fa-clock"></i> ETA to ${assignedForLeg.boardingStop.name}: ${formatDuration(assignedForLeg.etaSeconds)}</span>
+                        <span><i class="fa-solid fa-star"></i> ${formatRatingSummary(assignedForLeg)}</span>
                     </div>`;
             }
+            html += `<div class="leg-route-meta"><span><i class="fa-solid fa-bus"></i> ${vehiclesOnLeg.length} vehicle${vehiclesOnLeg.length === 1 ? '' : 's'} on this route right now</span><span><i class="fa-solid fa-star"></i> ${formatRatingSummary(leg.route)}</span></div>`;
             html += '<div class="leg-stops">';
             leg.stops.forEach((s, j) => {
                 const highlight = j === 0 || j === leg.stops.length - 1;
@@ -1190,6 +1210,27 @@ function renderJourneyPanel(journey) {
 
     resultsEl.innerHTML = html;
 }
+
+document.getElementById('journey-results').addEventListener('click', async (event) => {
+    const selectVehicleButton = event.target.closest('[data-select-vehicle-id]');
+    if (selectVehicleButton && currentJourney) {
+        const legIndex = Number(selectVehicleButton.dataset.selectLegIndex);
+        const vehicleId = Number(selectVehicleButton.dataset.selectVehicleId);
+        const busLeg = currentJourney.legs[legIndex];
+        if (busLeg) {
+            selectVehicleForLeg(busLeg, legIndex, vehicleId);
+        }
+        return;
+    }
+
+    const rateButton = event.target.closest('[data-rate-type]');
+    if (rateButton) {
+        const type = rateButton.dataset.rateType;
+        const id = Number(rateButton.dataset.rateId);
+        const value = Number(rateButton.dataset.rateValue);
+        await submitEntityRating(type, id, value);
+    }
+});
 
 function estimatePolylineDistance(coords) {
     let total = 0;
@@ -1226,16 +1267,7 @@ function stopVehiclePolling() {
     vehicleMarkers = {};
 }
 
-async function pollVehicles() {
-    if (!uiPrefs.showVehicles) return;
-    try {
-        allVehicles = await api(`${API}?type=vehicles`);
-    } catch { return; }
-
-    if (currentJourney) {
-        assignVehiclesToJourney(currentJourney);
-    }
-
+function renderVisibleJourneyVehicles() {
     const routeIds = new Set();
     if (currentJourney) {
         currentJourney.legs.forEach(leg => {
@@ -1256,21 +1288,22 @@ async function pollVehicles() {
         const etaInfo = assignedLeg
             ? `<br/><small>ETA to ${assignedLeg.boardingStop.name}: ${formatDuration(assignedLeg.etaSeconds)}</small>`
             : '';
+        const ratingInfo = `<br/><small>Rating: ${formatRatingSummary(v)}</small>`;
 
         if (vehicleMarkers[key]) {
             smoothMoveMarker(vehicleMarkers[key], [v.lat, v.lng], 2500);
             vehicleMarkers[key].setIcon(icon);
             if (assignedLeg) {
-                vehicleMarkers[key].setPopupContent(`<b>${v.name}</b>${etaInfo}`);
+                vehicleMarkers[key].setPopupContent(`<b>${v.name}</b>${etaInfo}${ratingInfo}`);
                 vehicleMarkers[key].setZIndexOffset(1200);
             } else {
-                vehicleMarkers[key].setPopupContent(`<b>${v.name}</b>`);
+                vehicleMarkers[key].setPopupContent(`<b>${v.name}</b>${ratingInfo}`);
                 vehicleMarkers[key].setZIndexOffset(800);
             }
         } else {
-            const tooltipText = assignedLeg ? `${v.name} (Assigned)` : v.name;
+            const tooltipText = assignedLeg ? `${v.name} (Selected)` : v.name;
             const m = L.marker([v.lat, v.lng], { icon, zIndexOffset: assignedLeg ? 1200 : 800 }).addTo(map)
-                .bindPopup(`<b>${v.name}</b>${etaInfo}`)
+                .bindPopup(`<b>${v.name}</b>${etaInfo}${ratingInfo}`)
                 .bindTooltip(tooltipText, { permanent: true, direction: 'top', className: 'vehicle-label', offset: [0, -20] });
             vehicleMarkers[key] = m;
         }
@@ -1282,6 +1315,18 @@ async function pollVehicles() {
     Object.keys(vehicleMarkers).forEach(key => {
         if (!activeKeys.has(key)) { map.removeLayer(vehicleMarkers[key]); delete vehicleMarkers[key]; }
     });
+}
+
+async function pollVehicles() {
+    if (!uiPrefs.showVehicles) return;
+    try {
+        allVehicles = await api(`${API}?type=vehicles`);
+    } catch { return; }
+
+    if (currentJourney) {
+        assignVehiclesToJourney(currentJourney);
+    }
+    renderVisibleJourneyVehicles();
 
     if (currentJourney) {
         renderJourneyPanel(currentJourney);

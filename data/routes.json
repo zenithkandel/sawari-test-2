@@ -19,7 +19,53 @@
         "snapToRoad": true,
         "ratingAverage": 0,
         "ratingCount": 0,
-        "id": 1
+        "id": 1,
+        "stops": [
+            {
+                "id": 1,
+                "name": "Chakrapath"
+            },
+            {
+                "id": 2,
+                "name": "Teaching Hospital"
+            },
+            {
+                "id": 3,
+                "name": "Panipokhari"
+            },
+            {
+                "id": 4,
+                "name": "Lazimpat"
+            },
+            {
+                "id": 5,
+                "name": "Lainchaur"
+            },
+            {
+                "id": 6,
+                "name": "Jamal"
+            },
+            {
+                "id": 7,
+                "name": "Ghantaghar"
+            },
+            {
+                "id": 8,
+                "name": "Bhadrakali"
+            },
+            {
+                "id": 9,
+                "name": "Sahid Gate"
+            },
+            {
+                "id": 10,
+                "name": "RNAC"
+            },
+            {
+                "id": 11,
+                "name": "AI Yatayat"
+            }
+        ]
     },
     {
         "name": "Budhanilkantha-Ratnapark",

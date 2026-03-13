@@ -232,5 +232,1913 @@
         "icon": "fa-bus",
         "iconType": "fontawesome",
         "id": 26
+    },
+    {
+        "name": "ASCOL Stop",
+        "lat": 27.717321508668093,
+        "lng": 85.31478703515569,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 27
+    },
+    {
+        "name": "Adarsha",
+        "lat": 27.66651579794753,
+        "lng": 85.4340110062304,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 28
+    },
+    {
+        "name": "Airport Bus Station",
+        "lat": 27.70038098305323,
+        "lng": 85.35388290882112,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 29
+    },
+    {
+        "name": "Anamnagar Stop",
+        "lat": 27.699412059342507,
+        "lng": 85.32856822754208,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 30
+    },
+    {
+        "name": "Apex College Stop",
+        "lat": 27.699022587583922,
+        "lng": 85.33827782911163,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 31
+    },
+    {
+        "name": "Attarkhel",
+        "lat": 27.73453004615077,
+        "lng": 85.38256642611412,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 32
+    },
+    {
+        "name": "B & B Hospital/KCM Stop",
+        "lat": 27.664178242570465,
+        "lng": 85.33015608664145,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 33
+    },
+    {
+        "name": "Baakha Bazaar",
+        "lat": 27.6828794,
+        "lng": 85.3858308,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 34
+    },
+    {
+        "name": "Babarmahal Stop",
+        "lat": 27.6900786037129,
+        "lng": 85.32892759789512,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 35
+    },
+    {
+        "name": "Babarmahal Stop",
+        "lat": 27.692453604506564,
+        "lng": 85.32396564941628,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 36
+    },
+    {
+        "name": "Badegaun",
+        "lat": 27.611284220843213,
+        "lng": 85.3576578505017,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 37
+    },
+    {
+        "name": "Bagbazar Stop",
+        "lat": 27.705980623610888,
+        "lng": 85.31688995488884,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 38
+    },
+    {
+        "name": "Bal Mandir",
+        "lat": 27.714581377724762,
+        "lng": 85.32951771842808,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 39
+    },
+    {
+        "name": "Balaju",
+        "lat": 27.727027761712318,
+        "lng": 85.30458391329698,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 40
+    },
+    {
+        "name": "Balkhu Stop",
+        "lat": 27.684777,
+        "lng": 85.29797,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 41
+    },
+    {
+        "name": "Balkumari Stop",
+        "lat": 27.6736699,
+        "lng": 85.3424814,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 42
+    },
+    {
+        "name": "Banasthali Stop",
+        "lat": 27.72477213962459,
+        "lng": 85.29753355147126,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 43
+    },
+    {
+        "name": "Banepa",
+        "lat": 27.630092719333195,
+        "lng": 85.52397251375933,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 44
+    },
+    {
+        "name": "Baneshwor Bus Station",
+        "lat": 27.688359070894293,
+        "lng": 85.33488770200445,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 45
+    },
+    {
+        "name": "Baphal",
+        "lat": 27.699116789507865,
+        "lng": 85.28153671366024,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 46
+    },
+    {
+        "name": "Barahi Movies",
+        "lat": 27.665969422611063,
+        "lng": 85.42169990993376,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 47
+    },
+    {
+        "name": "Basundhara",
+        "lat": 27.7406158,
+        "lng": 85.3293507,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 48
+    },
+    {
+        "name": "Batuk Bhairav",
+        "lat": 27.6644749,
+        "lng": 85.3240029,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 49
+    },
+    {
+        "name": "Bhadrakali",
+        "lat": 27.6991375,
+        "lng": 85.318307,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 50
+    },
+    {
+        "name": "Bhaktapur Bus Park",
+        "lat": 27.6713069,
+        "lng": 85.4224157,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 51
+    },
+    {
+        "name": "Bhimsengola stop",
+        "lat": 27.7003049893476,
+        "lng": 85.34327744944058,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 52
+    },
+    {
+        "name": "Bhrikuti Mandap",
+        "lat": 27.700527308560346,
+        "lng": 85.31656616982016,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 53
+    },
+    {
+        "name": "Bhrikuti Mandap Stop",
+        "lat": 27.7020670797842,
+        "lng": 85.31876205904446,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 54
+    },
+    {
+        "name": "Bijulibazar Stop",
+        "lat": 27.692258856386132,
+        "lng": 85.3296196460724,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 55
+    },
+    {
+        "name": "Bir Hospital",
+        "lat": 27.7057227,
+        "lng": 85.3140743,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 56
+    },
+    {
+        "name": "BishnuDevi Health Centre",
+        "lat": 27.680562,
+        "lng": 85.2764393,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 57
+    },
+    {
+        "name": "Boudha",
+        "lat": 27.720479459796827,
+        "lng": 85.36311507225038,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 58
+    },
+    {
+        "name": "Buddhanagar Stop",
+        "lat": 27.689266341585014,
+        "lng": 85.33101440092973,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 59
+    },
+    {
+        "name": "Byasi Stop",
+        "lat": 27.67478236099022,
+        "lng": 85.42736472550186,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 60
+    },
+    {
+        "name": "Chabahil चाबाहील",
+        "lat": 27.71700808296587,
+        "lng": 85.34660870861605,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 61
+    },
+    {
+        "name": "Changu Narayan",
+        "lat": 27.7163215,
+        "lng": 85.43078,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 62
+    },
+    {
+        "name": "Chapgaun",
+        "lat": 27.5929413,
+        "lng": 85.3244031,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 63
+    },
+    {
+        "name": "Chardobato",
+        "lat": 27.673504410217177,
+        "lng": 85.37998106536044,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 64
+    },
+    {
+        "name": "Chobhar Gate",
+        "lat": 27.6704494,
+        "lng": 85.2906221,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 65
+    },
+    {
+        "name": "Chunudevi",
+        "lat": 27.667114432136746,
+        "lng": 85.4168612135083,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 66
+    },
+    {
+        "name": "Chyamasingh",
+        "lat": 27.67341889624895,
+        "lng": 85.43833494926754,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 67
+    },
+    {
+        "name": "Ciy Center Stop",
+        "lat": 27.7094618498415,
+        "lng": 85.32783329486847,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 68
+    },
+    {
+        "name": "Daanchi",
+        "lat": 27.726959997524837,
+        "lng": 85.41472571664072,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 69
+    },
+    {
+        "name": "Damkal",
+        "lat": 27.67579901003647,
+        "lng": 85.31569899239035,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 70
+    },
+    {
+        "name": "Deuba Chowk stop",
+        "lat": 27.7737519327256,
+        "lng": 85.3603738447658,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 71
+    },
+    {
+        "name": "Dhokashi",
+        "lat": 27.670661,
+        "lng": 85.2790338,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 72
+    },
+    {
+        "name": "Dholahiti",
+        "lat": 27.647910814381905,
+        "lng": 85.31981774230151,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 73
+    },
+    {
+        "name": "Dhulikhel Stop",
+        "lat": 27.6184151,
+        "lng": 85.5540152,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 74
+    },
+    {
+        "name": "Dhumbarahi",
+        "lat": 27.7317994,
+        "lng": 85.3443707,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 75
+    },
+    {
+        "name": "Dhungeadda Pipalbot",
+        "lat": 27.691308137313797,
+        "lng": 85.27559835539985,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 76
+    },
+    {
+        "name": "Dhungedhara",
+        "lat": 27.7234101,
+        "lng": 85.2946749,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 77
+    },
+    {
+        "name": "Dillibazaar stop",
+        "lat": 27.705392,
+        "lng": 85.326787,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 78
+    },
+    {
+        "name": "Gahabahal",
+        "lat": 27.674297,
+        "lng": 85.3210465,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 79
+    },
+    {
+        "name": "Gairidhara",
+        "lat": 27.71772041280447,
+        "lng": 85.32786012436215,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 80
+    },
+    {
+        "name": "Gairigaun Stop",
+        "lat": 27.687499294329665,
+        "lng": 85.35062672928755,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 81
+    },
+    {
+        "name": "Gaushala Chowk Stop",
+        "lat": 27.707776,
+        "lng": 85.343315,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 82
+    },
+    {
+        "name": "Godawari",
+        "lat": 27.594516419374894,
+        "lng": 85.37770364655141,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 83
+    },
+    {
+        "name": "Gokarna Bus Stop",
+        "lat": 27.7403061,
+        "lng": 85.3907196,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 84
+    },
+    {
+        "name": "Gongabu Stop",
+        "lat": 27.734868893125114,
+        "lng": 85.31333058741495,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 85
+    },
+    {
+        "name": "Gopi Krishna Stop",
+        "lat": 27.7226748,
+        "lng": 85.3453352,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 86
+    },
+    {
+        "name": "Gopi Krishna Stop",
+        "lat": 27.7206294,
+        "lng": 85.3460992,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 87
+    },
+    {
+        "name": "Gothatar",
+        "lat": 27.703133,
+        "lng": 85.3694428,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 88
+    },
+    {
+        "name": "Gwarko Chowk Stop",
+        "lat": 27.66663,
+        "lng": 85.332157,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 89
+    },
+    {
+        "name": "Gyaneshwor Chowk",
+        "lat": 27.70863548422915,
+        "lng": 85.33180296914617,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 90
+    },
+    {
+        "name": "Hanumanthan Stop",
+        "lat": 27.6935216,
+        "lng": 85.3276028,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 91
+    },
+    {
+        "name": "Harihar bhawan",
+        "lat": 27.681488883201045,
+        "lng": 85.31774777191163,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 92
+    },
+    {
+        "name": "Harisiddhi",
+        "lat": 27.637705892764977,
+        "lng": 85.34055601757453,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 93
+    },
+    {
+        "name": "Hattiban",
+        "lat": 27.65009545101879,
+        "lng": 85.33242349909301,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 94
+    },
+    {
+        "name": "Hyatt Regency",
+        "lat": 27.719330261098836,
+        "lng": 85.35410285119426,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 95
+    },
+    {
+        "name": "Indrayeni Stop",
+        "lat": 27.729979968401523,
+        "lng": 85.4337127377398,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 96
+    },
+    {
+        "name": "Jadibuti",
+        "lat": 27.6751899,
+        "lng": 85.3539203,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 97
+    },
+    {
+        "name": "Jadibuti",
+        "lat": 27.675371448506223,
+        "lng": 85.35150112942641,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 98
+    },
+    {
+        "name": "Jagati",
+        "lat": 27.66648729147576,
+        "lng": 85.43646812315572,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 99
+    },
+    {
+        "name": "Jawalakhel",
+        "lat": 27.67310534445946,
+        "lng": 85.31353711835128,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 100
+    },
+    {
+        "name": "JayaBageshwari Stop",
+        "lat": 27.712064385694443,
+        "lng": 85.34499406567794,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 101
+    },
+    {
+        "name": "Jorpati",
+        "lat": 27.721747363315263,
+        "lng": 85.37267446394551,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 102
+    },
+    {
+        "name": "Jwagal",
+        "lat": 27.68549945635466,
+        "lng": 85.31810761731965,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 103
+    },
+    {
+        "name": "KMC stop",
+        "lat": 27.696514736143723,
+        "lng": 85.35147429006139,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 104
+    },
+    {
+        "name": "Kalanki",
+        "lat": 27.693342,
+        "lng": 85.281683,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 105
+    },
+    {
+        "name": "Kalimati",
+        "lat": 27.698339,
+        "lng": 85.299423,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 106
+    },
+    {
+        "name": "Kamal Binayak",
+        "lat": 27.677632754953567,
+        "lng": 85.43758913351822,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 107
+    },
+    {
+        "name": "Kamal Pokhari Mahalaxmi",
+        "lat": 27.650803,
+        "lng": 85.355846,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 108
+    },
+    {
+        "name": "Kantipath",
+        "lat": 27.711532485605012,
+        "lng": 85.31500688004938,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 109
+    },
+    {
+        "name": "Kapan Stop",
+        "lat": 27.7294183,
+        "lng": 85.3540637,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 110
+    },
+    {
+        "name": "KattyaniChowk Stop",
+        "lat": 27.695370034798852,
+        "lng": 85.34442544970595,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 111
+    },
+    {
+        "name": "Khasibazaar",
+        "lat": 27.68929959220008,
+        "lng": 85.28431172203615,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 112
+    },
+    {
+        "name": "Khumaltar",
+        "lat": 27.656999,
+        "lng": 85.326272,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 113
+    },
+    {
+        "name": "Khumaltar",
+        "lat": 27.65393750576522,
+        "lng": 85.32164489915544,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 114
+    },
+    {
+        "name": "Koteshwor Stop",
+        "lat": 27.679043672445687,
+        "lng": 85.3495967227744,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 115
+    },
+    {
+        "name": "Krishna Mandir Imadol",
+        "lat": 27.659669,
+        "lng": 85.343878,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 116
+    },
+    {
+        "name": "Krishna Pauroti Stop",
+        "lat": 27.710288209194037,
+        "lng": 85.32253855504507,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 117
+    },
+    {
+        "name": "Kumari Club",
+        "lat": 27.682644517304933,
+        "lng": 85.2985274952127,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 118
+    },
+    {
+        "name": "Kumaripati",
+        "lat": 27.6707964353916,
+        "lng": 85.32007635133306,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 119
+    },
+    {
+        "name": "Kupondole stop",
+        "lat": 27.68793630867814,
+        "lng": 85.31623007594492,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 120
+    },
+    {
+        "name": "Lagankhel",
+        "lat": 27.662577,
+        "lng": 85.323966,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 121
+    },
+    {
+        "name": "Lagankhel Stop",
+        "lat": 27.667100178979855,
+        "lng": 85.32250107815388,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 122
+    },
+    {
+        "name": "Lamatar",
+        "lat": 27.636850301951274,
+        "lng": 85.38833163929476,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 123
+    },
+    {
+        "name": "Lazimpat stop",
+        "lat": 27.7225227,
+        "lng": 85.3209237,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 124
+    },
+    {
+        "name": "Lokanthali",
+        "lat": 27.67478236099022,
+        "lng": 85.3598320385448,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 125
+    },
+    {
+        "name": "Lubhu",
+        "lat": 27.64285727889514,
+        "lng": 85.37340784858537,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 126
+    },
+    {
+        "name": "Mahakali Stop",
+        "lat": 27.67594153017469,
+        "lng": 85.4317849985549,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 127
+    },
+    {
+        "name": "Mahalaxmi Stop",
+        "lat": 27.67608880078887,
+        "lng": 85.43393608082816,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 128
+    },
+    {
+        "name": "Mahapal",
+        "lat": 27.6735497,
+        "lng": 85.3238901,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 129
+    },
+    {
+        "name": "Maiti Devi chowk",
+        "lat": 27.70389563411532,
+        "lng": 85.33266663921509,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 130
+    },
+    {
+        "name": "Maitighar",
+        "lat": 27.693784,
+        "lng": 85.321208,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 131
+    },
+    {
+        "name": "Maitighar Stop-South",
+        "lat": 27.694035326370795,
+        "lng": 85.31930923215133,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 132
+    },
+    {
+        "name": "Matatirtha Stop",
+        "lat": 27.680611337173485,
+        "lng": 85.23284018409879,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 133
+    },
+    {
+        "name": "Milan Chowk Stop",
+        "lat": 27.69513729322283,
+        "lng": 85.34067033981023,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 134
+    },
+    {
+        "name": "Minbhawan",
+        "lat": 27.687565796625947,
+        "lng": 85.33849775297604,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 135
+    },
+    {
+        "name": "Mulpani tiwari tole",
+        "lat": 27.718906332825792,
+        "lng": 85.3937491077006,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 136
+    },
+    {
+        "name": "Nagaon Dobato",
+        "lat": 27.6747945,
+        "lng": 85.2777568,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 137
+    },
+    {
+        "name": "Naikap",
+        "lat": 27.687213765087346,
+        "lng": 85.26638764364287,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 138
+    },
+    {
+        "name": "Narayantar",
+        "lat": 27.721834570761054,
+        "lng": 85.38283701641284,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 139
+    },
+    {
+        "name": "Natole",
+        "lat": 27.67601279017407,
+        "lng": 85.31813980629566,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 140
+    },
+    {
+        "name": "Naxal Bhagwati",
+        "lat": 27.712648522982875,
+        "lng": 85.32867015142386,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 141
+    },
+    {
+        "name": "Naya Bato",
+        "lat": 27.6761142,
+        "lng": 85.2938967,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 142
+    },
+    {
+        "name": "Naya Bazar",
+        "lat": 27.6771493,
+        "lng": 85.2813895,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 143
+    },
+    {
+        "name": "Naya Buspark",
+        "lat": 27.73508730564873,
+        "lng": 85.30823924275693,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 144
+    },
+    {
+        "name": "Naya Naikap",
+        "lat": 27.701121918909866,
+        "lng": 85.28910757838634,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 145
+    },
+    {
+        "name": "New Baneshwor",
+        "lat": 27.690364,
+        "lng": 85.335923,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 146
+    },
+    {
+        "name": "New Plaza Stop",
+        "lat": 27.70077044996401,
+        "lng": 85.32330027279126,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 147
+    },
+    {
+        "name": "Nikosera",
+        "lat": 27.6800127769328,
+        "lng": 85.39840222392165,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 148
+    },
+    {
+        "name": "Panauti",
+        "lat": 27.5871361,
+        "lng": 85.5133345,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 149
+    },
+    {
+        "name": "Panga Dobato",
+        "lat": 27.6747581,
+        "lng": 85.2804077,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 150
+    },
+    {
+        "name": "Patan Dhoka",
+        "lat": 27.6797052,
+        "lng": 85.3204857,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 151
+    },
+    {
+        "name": "Patan Hospital",
+        "lat": 27.668477975548733,
+        "lng": 85.32170711467148,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 152
+    },
+    {
+        "name": "Pepsi Cola Chowk",
+        "lat": 27.6892092,
+        "lng": 85.3603535,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 153
+    },
+    {
+        "name": "Pingalasthan",
+        "lat": 27.705728907176034,
+        "lng": 85.3470647433766,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 154
+    },
+    {
+        "name": "Police Headquarter Stop",
+        "lat": 27.716623422918367,
+        "lng": 85.33024727557836,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 155
+    },
+    {
+        "name": "Pyanggau Stop",
+        "lat": 27.597588152597943,
+        "lng": 85.32381904532127,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 156
+    },
+    {
+        "name": "Radhe Radhe",
+        "lat": 27.674611334987365,
+        "lng": 85.39737227046693,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 157
+    },
+    {
+        "name": "Rata Makai Chowk",
+        "lat": 27.661726060074432,
+        "lng": 85.34232103035316,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 158
+    },
+    {
+        "name": "Ratna Rajya Stop",
+        "lat": 27.695697772095034,
+        "lng": 85.33754827319528,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 159
+    },
+    {
+        "name": "Ratopul Stop",
+        "lat": 27.708079821073568,
+        "lng": 85.3362020819012,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 160
+    },
+    {
+        "name": "Ravi Bhavan",
+        "lat": 27.695316403835115,
+        "lng": 85.28934050577658,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 161
+    },
+    {
+        "name": "Sallaghari Stop",
+        "lat": 27.669798743537886,
+        "lng": 85.41116414233265,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 162
+    },
+    {
+        "name": "Sallaghari Stop",
+        "lat": 27.674045997128292,
+        "lng": 85.4097533620867,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 163
+    },
+    {
+        "name": "Sallaghari Stop",
+        "lat": 27.670929460283837,
+        "lng": 85.40944755324145,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 164
+    },
+    {
+        "name": "Sanagaun Imadole",
+        "lat": 27.649795,
+        "lng": 85.358958,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 165
+    },
+    {
+        "name": "Sanepa height",
+        "lat": 27.6744676,
+        "lng": 85.3022166,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 166
+    },
+    {
+        "name": "Sanga",
+        "lat": 27.64186917834339,
+        "lng": 85.47739869812064,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 167
+    },
+    {
+        "name": "Sangam Chowk Stop",
+        "lat": 27.693194594179232,
+        "lng": 85.34054695572772,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 168
+    },
+    {
+        "name": "Sankhamul Stop",
+        "lat": 27.6811284,
+        "lng": 85.3315875,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 169
+    },
+    {
+        "name": "Sankhu Stop",
+        "lat": 27.731025878831137,
+        "lng": 85.46559064787976,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 170
+    },
+    {
+        "name": "Sankhu old buspark",
+        "lat": 27.727708518431992,
+        "lng": 85.46173796247722,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 171
+    },
+    {
+        "name": "SanoThimi",
+        "lat": 27.6826801,
+        "lng": 85.3723428,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 172
+    },
+    {
+        "name": "Sataungal",
+        "lat": 27.686848519721273,
+        "lng": 85.25122926103484,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 173
+    },
+    {
+        "name": "Satdobato Chowk Stop",
+        "lat": 27.65889,
+        "lng": 85.324588,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 174
+    },
+    {
+        "name": "Saughal",
+        "lat": 27.670479,
+        "lng": 85.3272192,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 175
+    },
+    {
+        "name": "SchEMS",
+        "lat": 27.69433931833766,
+        "lng": 85.3371459183986,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 176
+    },
+    {
+        "name": "Shantinagar Stop",
+        "lat": 27.687048027677736,
+        "lng": 85.34099229990366,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 177
+    },
+    {
+        "name": "ShivaDarshan Hall Stop",
+        "lat": 27.692301606003294,
+        "lng": 85.33618570114437,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 178
+    },
+    {
+        "name": "Shivapuri Park Stop",
+        "lat": 27.7910669,
+        "lng": 85.3704099,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 179
+    },
+    {
+        "name": "Shobhabhagwati",
+        "lat": 27.71811931548166,
+        "lng": 85.31207264950397,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 180
+    },
+    {
+        "name": "Sinamangal",
+        "lat": 27.698405129508508,
+        "lng": 85.34848094973647,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 181
+    },
+    {
+        "name": "Sinamangal/Ring Road Stop सिनामंगल",
+        "lat": 27.695265538642442,
+        "lng": 85.35500944030912,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 182
+    },
+    {
+        "name": "Singha Durbar East Stop",
+        "lat": 27.6966083,
+        "lng": 85.3281501,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 183
+    },
+    {
+        "name": "Singha Durbar West Stop",
+        "lat": 27.696626,
+        "lng": 85.3211991,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 184
+    },
+    {
+        "name": "Sitapaila",
+        "lat": 27.7073860292121,
+        "lng": 85.28248625165054,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 185
+    },
+    {
+        "name": "Soltimode",
+        "lat": 27.696575855305454,
+        "lng": 85.29355825521812,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 186
+    },
+    {
+        "name": "Sorhakhutte",
+        "lat": 27.718860130867945,
+        "lng": 85.30961036928913,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 187
+    },
+    {
+        "name": "Srijananagar",
+        "lat": 27.67293906663023,
+        "lng": 85.40416898564284,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 188
+    },
+    {
+        "name": "Sundhara Stop",
+        "lat": 27.7005417,
+        "lng": 85.3135033,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 189
+    },
+    {
+        "name": "Suryabinayek",
+        "lat": 27.66574612060028,
+        "lng": 85.42421580348098,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 190
+    },
+    {
+        "name": "Swayambhu",
+        "lat": 27.716029567194173,
+        "lng": 85.28353768658415,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 191
+    },
+    {
+        "name": "TU Gate",
+        "lat": 27.6788796,
+        "lng": 85.2972123,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 192
+    },
+    {
+        "name": "Teaching Hospital stop",
+        "lat": 27.7345232,
+        "lng": 85.3307108,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 193
+    },
+    {
+        "name": "Teku",
+        "lat": 27.696609244453143,
+        "lng": 85.3056282805329,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 194
+    },
+    {
+        "name": "Tempo Stop Near Old Baneshwar",
+        "lat": 27.701497134508173,
+        "lng": 85.34012310500754,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 195
+    },
+    {
+        "name": "Thaiba",
+        "lat": 27.62504965657903,
+        "lng": 85.34774441348245,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 196
+    },
+    {
+        "name": "Thali",
+        "lat": 27.726697546646307,
+        "lng": 85.40489200798392,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 197
+    },
+    {
+        "name": "Thankot",
+        "lat": 27.706621785491237,
+        "lng": 85.20568550866945,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 198
+    },
+    {
+        "name": "Thankot Checkpost",
+        "lat": 27.688924334670688,
+        "lng": 85.22722363471986,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 199
+    },
+    {
+        "name": "Thapagaun Stop",
+        "lat": 27.691080860349,
+        "lng": 85.33396483948351,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 200
+    },
+    {
+        "name": "Thapathali",
+        "lat": 27.690758,
+        "lng": 85.317475,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 201
+    },
+    {
+        "name": "Thecho",
+        "lat": 27.61775422523509,
+        "lng": 85.31952219972803,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 202
+    },
+    {
+        "name": "Thimi Stop",
+        "lat": 27.67335713611914,
+        "lng": 85.38628935937297,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 203
+    },
+    {
+        "name": "Tikabhairab",
+        "lat": 27.575893584585273,
+        "lng": 85.31370172066798,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 204
+    },
+    {
+        "name": "Tinkune",
+        "lat": 27.676654,
+        "lng": 85.2835434,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 205
+    },
+    {
+        "name": "Tinkune Bhaktapur",
+        "lat": 27.67222644449583,
+        "lng": 85.40683508906447,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 206
+    },
+    {
+        "name": "Tinkune Subidhanagar",
+        "lat": 27.686097986524956,
+        "lng": 85.3454661813534,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 207
+    },
+    {
+        "name": "Tribhuvan park",
+        "lat": 27.690362660766993,
+        "lng": 85.22172356062526,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 208
+    },
+    {
+        "name": "Tripureshwor",
+        "lat": 27.693765,
+        "lng": 85.314111,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 209
+    },
+    {
+        "name": "Tyogal",
+        "lat": 27.6686312,
+        "lng": 85.3298476,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 210
+    },
+    {
+        "name": "UN Stop",
+        "lat": 27.67807455936041,
+        "lng": 85.3163480610597,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 211
+    },
+    {
+        "name": "gathaghar",
+        "lat": 27.673979486599617,
+        "lng": 85.37304461125746,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 212
+    },
+    {
+        "name": "kaushaltar",
+        "lat": 27.67451156969539,
+        "lng": 85.36425770316207,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 213
+    },
+    {
+        "name": "lele",
+        "lat": 27.57190406505785,
+        "lng": 85.33188030025386,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 214
+    },
+    {
+        "name": "saat tale chowk",
+        "lat": 27.7269595,
+        "lng": 85.350484,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 215
+    },
+    {
+        "name": "Nepal Yatayat Bus Station",
+        "lat": 27.717765655722005,
+        "lng": 85.40395828201305,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 216
+    },
+    {
+        "name": "Milan Chwok",
+        "lat": 27.715676650995075,
+        "lng": 85.39828266998909,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 217
+    },
+    {
+        "name": "Baba Chwok",
+        "lat": 27.712475342393248,
+        "lng": 85.39299861023258,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 218
+    },
+    {
+        "name": "Godhar Thapa Chwok",
+        "lat": 27.707988024695876,
+        "lng": 85.39035925506356,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 219
+    },
+    {
+        "name": "Khursani Chwok",
+        "lat": 27.707602311302786,
+        "lng": 85.38312796631084,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 220
+    },
+    {
+        "name": "Pipalbot Chwok",
+        "lat": 27.706837622890966,
+        "lng": 85.38015622121856,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 221
+    },
+    {
+        "name": "Adarsha Tol",
+        "lat": 27.706928037075034,
+        "lng": 85.37720612204342,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 222
+    },
+    {
+        "name": "Mantar Chwok",
+        "lat": 27.70599281202735,
+        "lng": 85.37071471648956,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 223
+    },
+    {
+        "name": "Tikathali Stop - Nepal Yatayat",
+        "lat": 27.667319,
+        "lng": 85.360486,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 224
+    },
+    {
+        "name": "Kharibot",
+        "lat": 27.66501,
+        "lng": 85.358936,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 225
+    },
+    {
+        "name": "Bhogateshwor Mahadev",
+        "lat": 27.667865832080444,
+        "lng": 85.35313986750288,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 226
+    },
+    {
+        "name": "Nagpokhari",
+        "lat": 27.713323259683758,
+        "lng": 85.32381780399187,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 227
+    },
+    {
+        "name": "Naxal",
+        "lat": 27.713128,
+        "lng": 85.326621,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 228
+    },
+    {
+        "name": "Chucchepati",
+        "lat": 27.719136908102023,
+        "lng": 85.3504843286376,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 229
+    },
+    {
+        "name": "Pani Tanki",
+        "lat": 27.722151113835576,
+        "lng": 85.3539009625667,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 230
+    },
+    {
+        "name": "Mahankal",
+        "lat": 27.724316,
+        "lng": 85.356925,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 231
+    },
+    {
+        "name": "Ramhiti Chwok",
+        "lat": 27.725921,
+        "lng": 85.362697,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 232
+    },
+    {
+        "name": "Kharibot Chwok",
+        "lat": 27.735882076148975,
+        "lng": 85.37706652464506,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 233
+    },
+    {
+        "name": "Haraharamahadev stop - Nepal Yatayat",
+        "lat": 27.697304179539877,
+        "lng": 85.38074539845395,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 234
+    },
+    {
+        "name": "Sunrise Chwok",
+        "lat": 27.693076748711487,
+        "lng": 85.36727044404377,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 235
+    },
+    {
+        "name": "Sai Ram Chwok",
+        "lat": 27.689936923193407,
+        "lng": 85.36332184859299,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 236
+    },
+    {
+        "name": "Ekantakuna",
+        "lat": 27.66884418671191,
+        "lng": 85.30630918707462,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 237
+    },
+    {
+        "name": "Kuleshwor",
+        "lat": 27.692677653179327,
+        "lng": 85.29841266287768,
+        "color": "#1d4ed8",
+        "icon": "fa-bus",
+        "iconType": "fontawesome",
+        "id": 238
     }
 ]

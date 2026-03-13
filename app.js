@@ -25,6 +25,8 @@ let vehiclePollTimer = null;
 let currentJourney = null;
 let panelCollapsed = false;
 let assignedVehiclesByLeg = {};
+let availableVehiclesByLeg = {};
+let selectedVehicleIdsByLeg = {};
 let activeRouteBounds = null;
 let routeFocusMode = false;
 let globalSearchMarker = null;
@@ -298,8 +300,73 @@ function getLegKey(leg, index) {
     return `${routeId}_${boardStopId}_${index}`;
 }
 
+function getEntityRatingAverage(entity) {
+    return Number(entity?.ratingAverage) || 0;
+}
+
+function getEntityRatingCount(entity) {
+    return Number(entity?.ratingCount) || 0;
+}
+
+function formatRatingSummary(entity) {
+    const count = getEntityRatingCount(entity);
+    if (!count) return 'No ratings yet';
+    return `${getEntityRatingAverage(entity).toFixed(1)} / 5 (${count})`;
+}
+
+function renderStars(value, max = 5) {
+    const rounded = Math.round(value);
+    let html = '';
+    for (let i = 1; i <= max; i++) {
+        html += `<i class="fa-solid fa-star ${i <= rounded ? 'filled' : ''}"></i>`;
+    }
+    return html;
+}
+
+function buildRatingControl(type, id, entity, label) {
+    return `
+        <div class="rating-block">
+            <div class="rating-block-head">
+                <span>${label}</span>
+                <strong>${formatRatingSummary(entity)}</strong>
+            </div>
+            <div class="rating-display">${renderStars(getEntityRatingAverage(entity))}</div>
+            <div class="rating-actions">
+                ${[1, 2, 3, 4, 5].map((value) => `<button class="rating-btn" data-rate-type="${type}" data-rate-id="${id}" data-rate-value="${value}" title="Rate ${value} star${value > 1 ? 's' : ''}">${value}</button>`).join('')}
+            </div>
+        </div>`;
+}
+
+async function submitEntityRating(type, id, value) {
+    const list = type === 'vehicle' ? allVehicles : allRoutes;
+    const entity = list.find((item) => item.id === id);
+    if (!entity) return;
+
+    const ratingValue = Math.max(1, Math.min(5, Number(value) || 0));
+    if (!ratingValue) return;
+
+    const currentCount = getEntityRatingCount(entity);
+    const currentAverage = getEntityRatingAverage(entity);
+    const ratingCount = currentCount + 1;
+    const ratingAverage = Number((((currentAverage * currentCount) + ratingValue) / ratingCount).toFixed(2));
+
+    const payload = { ...entity, ratingAverage, ratingCount };
+    await api(`${API}?type=${type === 'vehicle' ? 'vehicles' : 'routes'}`, 'PUT', payload);
+
+    entity.ratingAverage = ratingAverage;
+    entity.ratingCount = ratingCount;
+
+    if (currentJourney) {
+        assignVehiclesToJourney(currentJourney);
+        renderJourneyPanel(currentJourney);
+    }
+
+    showToast(`${type === 'vehicle' ? 'Vehicle' : 'Route'} rated ${ratingValue}/5`, 'success', 1400);
+}
+
 function assignVehiclesToJourney(journey) {
     assignedVehiclesByLeg = {};
+    availableVehiclesByLeg = {};
     if (!journey) return;
 
     journey.legs.forEach((leg, index) => {
@@ -308,40 +375,61 @@ function assignVehiclesToJourney(journey) {
         const boardingStop = getLegBoardingStop(leg);
         if (!boardingStop) return;
 
+        const legKey = getLegKey(leg, index);
         const candidates = allVehicles.filter(v => v.routeId === leg.route.id);
         if (!candidates.length) return;
 
-        let best = null;
+        const ranked = [];
         for (const vehicle of candidates) {
             const distanceToBoarding = getDistanceMetersBetween(vehicle.lat, vehicle.lng, boardingStop.lat, boardingStop.lng);
             const etaSeconds = computeEtaSeconds(distanceToBoarding, vehicle.speed);
             const score = etaSeconds + distanceToBoarding * 0.015;
-            if (!best || score < best.score) {
-                best = {
-                    legIndex: index,
-                    legKey: getLegKey(leg, index),
-                    vehicleId: vehicle.id,
-                    vehicleName: vehicle.name,
-                    vehicleImage: vehicle.vehicle_image || (vehicle.icon ? `assets/icons/${vehicle.icon}` : ''),
-                    routeId: leg.route.id,
-                    boardingStop,
-                    distanceToBoarding,
-                    etaSeconds,
-                    speedKmh: vehicle.speed || DEFAULT_BUS_SPEED_KMH,
-                    score
-                };
-            }
+            ranked.push({
+                legIndex: index,
+                legKey,
+                vehicleId: vehicle.id,
+                vehicleName: vehicle.name,
+                vehicleImage: vehicle.vehicle_image || (vehicle.icon ? `assets/icons/${vehicle.icon}` : ''),
+                routeId: leg.route.id,
+                boardingStop,
+                distanceToBoarding,
+                etaSeconds,
+                speedKmh: vehicle.speed || DEFAULT_BUS_SPEED_KMH,
+                score,
+                ratingAverage: getEntityRatingAverage(vehicle),
+                ratingCount: getEntityRatingCount(vehicle)
+            });
         }
 
-        if (best) {
-            assignedVehiclesByLeg[best.legKey] = best;
-        }
+        ranked.sort((a, b) => a.score - b.score);
+        availableVehiclesByLeg[legKey] = ranked;
+
+        const preferredVehicleId = selectedVehicleIdsByLeg[legKey];
+        const selectedVehicle = ranked.find((item) => item.vehicleId === preferredVehicleId) || ranked[0];
+        if (!selectedVehicle) return;
+
+        selectedVehicleIdsByLeg[legKey] = selectedVehicle.vehicleId;
+        assignedVehiclesByLeg[legKey] = selectedVehicle;
     });
 }
 
 function getAssignedVehicleForLeg(leg, index) {
     const key = getLegKey(leg, index);
     return assignedVehiclesByLeg[key] || null;
+}
+
+function getAvailableVehiclesForLeg(leg, index) {
+    const key = getLegKey(leg, index);
+    return availableVehiclesByLeg[key] || [];
+}
+
+function selectVehicleForLeg(leg, index, vehicleId) {
+    const legKey = getLegKey(leg, index);
+    selectedVehicleIdsByLeg[legKey] = vehicleId;
+    if (!currentJourney) return;
+    assignVehiclesToJourney(currentJourney);
+    renderJourneyPanel(currentJourney);
+    renderVisibleJourneyVehicles();
 }
 
 function getAssignedVehicleIds() {

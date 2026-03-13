@@ -149,18 +149,31 @@ map.createPane('labels');
 map.getPane('labels').style.zIndex = 450;
 map.getPane('labels').style.pointerEvents = 'none';
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+const TILE_URLS = {
+    dark: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
+    light: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+    darkLabels: 'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',
+    lightLabels: 'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',
+};
+const currentTheme = () => document.documentElement.getAttribute('data-theme') || 'dark';
+
+const baseLayer = L.tileLayer(TILE_URLS[currentTheme()], {
     subdomains: 'abcd',
     attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
     maxZoom: 20
 }).addTo(map);
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
+const labelsLayer = L.tileLayer(TILE_URLS[currentTheme() + 'Labels'], {
     subdomains: 'abcd',
     attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
     maxZoom: 20,
     pane: 'labels'
 }).addTo(map);
+
+function setMapTheme(theme) {
+    baseLayer.setUrl(TILE_URLS[theme] || TILE_URLS.dark);
+    labelsLayer.setUrl(TILE_URLS[theme + 'Labels'] || TILE_URLS.darkLabels);
+}
 
 L.control.zoom({ position: 'topright' }).addTo(map);
 L.control.scale({ position: 'bottomleft', imperial: false, maxWidth: 150 }).addTo(map);
@@ -620,6 +633,116 @@ function expandPanelIfCollapsed() {
     document.getElementById('btn-collapse').innerHTML = '<i class="fa-solid fa-chevron-up"></i>';
 }
 
+// ---- Theme Toggle ----
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    setMapTheme(theme);
+    const icon = document.querySelector('#btn-theme-toggle i');
+    if (icon) icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+}
+
+document.getElementById('btn-theme-toggle').addEventListener('click', () => {
+    const next = currentTheme() === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    localStorage.setItem('sawari-theme', next);
+});
+
+// ---- Explore Routes Panel ----
+const explorePanel = document.getElementById('explore-panel');
+const exploreList = document.getElementById('explore-list');
+const exploreFilter = document.getElementById('explore-filter');
+let exploreHighlightLayers = [];
+
+document.getElementById('btn-explore').addEventListener('click', () => {
+    explorePanel.classList.toggle('hidden');
+    if (!explorePanel.classList.contains('hidden')) {
+        renderExploreRoutes();
+        exploreFilter.focus();
+    }
+});
+
+document.getElementById('btn-close-explore').addEventListener('click', () => {
+    explorePanel.classList.add('hidden');
+    clearExploreHighlight();
+});
+
+exploreFilter.addEventListener('input', () => renderExploreRoutes());
+
+function renderExploreRoutes() {
+    const q = exploreFilter.value.toLowerCase().trim();
+    const filtered = allRoutes.filter(r => !q || r.name.toLowerCase().includes(q));
+
+    if (!filtered.length) {
+        exploreList.innerHTML = '<div class="explore-empty"><i class="fa-solid fa-circle-info"></i> No routes found</div>';
+        return;
+    }
+
+    exploreList.innerHTML = filtered.map(r => {
+        const stopCount = (r.stopIds || []).length;
+        return `
+            <button class="explore-route-item" data-route-id="${r.id}">
+                <span class="explore-route-color" style="background:${r.color || '#555'}"></span>
+                <div class="explore-route-info">
+                    <strong>${escapeHtml(r.name)}</strong>
+                    <small>${stopCount} stop${stopCount !== 1 ? 's' : ''}</small>
+                </div>
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>`;
+    }).join('');
+}
+
+exploreList.addEventListener('click', (e) => {
+    const item = e.target.closest('[data-route-id]');
+    if (!item) return;
+    const routeId = Number(item.dataset.routeId);
+    showExploreRoute(routeId);
+});
+
+function showExploreRoute(routeId) {
+    clearExploreHighlight();
+    const route = allRoutes.find(r => r.id === routeId);
+    if (!route) return;
+
+    const coords = (route.stopIds || [])
+        .map(id => allStops.find(s => s.id === id))
+        .filter(Boolean)
+        .map(s => [s.lat, s.lng]);
+
+    if (coords.length >= 2) {
+        const poly = L.polyline(coords, {
+            color: route.color || '#555',
+            weight: 5,
+            opacity: 0.85
+        }).addTo(map);
+        exploreHighlightLayers.push(poly);
+
+        // Add stop markers along the route
+        (route.stopIds || []).forEach(id => {
+            const stop = publicStops.find(s => s.id === id);
+            if (!stop) return;
+            const m = L.marker([stop.lat, stop.lng], { icon: createStopIcon(stop, 24) })
+                .addTo(map)
+                .bindPopup(`<b>${stop.name}</b>`);
+            exploreHighlightLayers.push(m);
+        });
+
+        map.fitBounds(poly.getBounds(), { padding: getFitPadding() });
+    }
+
+    // Highlight active item
+    exploreList.querySelectorAll('.explore-route-item').forEach(el => {
+        el.classList.toggle('active', Number(el.dataset.routeId) === routeId);
+    });
+
+    showToast(`Showing: ${route.name}`, 'info', 2000);
+}
+
+function clearExploreHighlight() {
+    exploreHighlightLayers.forEach(l => map.removeLayer(l));
+    exploreHighlightLayers = [];
+    exploreList.querySelectorAll('.explore-route-item.active').forEach(el => el.classList.remove('active'));
+}
+
 document.getElementById('toggle-routes').addEventListener('change', (e) => {
     uiPrefs.showRoutes = e.target.checked;
     applyLayerVisibility();
@@ -843,7 +966,12 @@ async function navigate() {
     clearJourneyLayers();
     const resultsEl = document.getElementById('journey-results');
     resultsEl.classList.remove('hidden');
-    resultsEl.innerHTML = '<div class="loading-overlay"><div class="loading-spinner"></div>Finding your route...</div>';
+    resultsEl.innerHTML = `
+        <div class="skeleton">
+            <div class="skeleton-card"><div class="skeleton-line w80"></div><div class="skeleton-line w60"></div></div>
+            <div class="skeleton-card"><div class="skeleton-line w90"></div><div class="skeleton-line w40"></div><div class="skeleton-line w70"></div></div>
+            <div class="skeleton-card"><div class="skeleton-line w50"></div><div class="skeleton-line w80"></div></div>
+        </div>`;
     setStatus('Calculating journey...', '');
 
     const navBtn = document.getElementById('btn-navigate');

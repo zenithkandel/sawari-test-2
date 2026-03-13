@@ -12,10 +12,12 @@ const STORAGE = {
 };
 
 let allStops = [], allRoutes = [], allVehicles = [];
+let allObstructions = [];
 let allIcons = { fontawesome: [] };
 let hiddenStops = new Set(), hiddenRoutes = new Set();
 let addStopMode = false, pendingStopLatLng = null, editingStopLatLng = null;
 let routeBuilding = false, routeStopIds = [], editRouteStopIds = [];
+let addObstructionMode = false, pendingObstructionLatLng = null;
 let newVehicleLatLng = null, vehicleMarkers = {}, movingIntervals = {};
 let mapMarkers = [], mapPolylines = [];
 let expandedRouteId = null;
@@ -189,14 +191,15 @@ window.addEventListener('hashchange', activateTabFromHash);
 // ---- Load Data ----
 async function loadAll() {
     try {
-        [allStops, allRoutes, allVehicles, allIcons] = await Promise.all([
+        [allStops, allRoutes, allVehicles, allIcons, allObstructions] = await Promise.all([
             api(`${API}?type=stops`), api(`${API}?type=routes`),
-            api(`${API}?type=vehicles`), api(`${API}?type=icons`)
+            api(`${API}?type=vehicles`), api(`${API}?type=icons`), api(`${API}?type=obstructions`)
         ]);
         renderMap();
         renderStopsTable();
         renderRoutesList();
         renderVehiclesTable();
+        renderObstructionsTable();
         populateIconSelects();
         populateRouteSelects();
         updateCounts();
@@ -207,6 +210,7 @@ function updateCounts() {
     document.getElementById('stops-count').textContent = allStops.length;
     document.getElementById('routes-count').textContent = allRoutes.length;
     document.getElementById('vehicles-count').textContent = allVehicles.length;
+    document.getElementById('obstructions-count').textContent = allObstructions.length;
     document.getElementById('stat-total-stops').textContent = allStops.length;
     document.getElementById('stat-total-routes').textContent = allRoutes.length;
     document.getElementById('stat-total-vehicles').textContent = allVehicles.length;
@@ -258,6 +262,23 @@ function renderMap() {
             mapMarkers.push(m);
         }
     });
+
+    allObstructions.forEach(obs => {
+        if (!Number.isFinite(+obs.lat) || !Number.isFinite(+obs.lng)) return;
+        const radius = Math.max(10, Number(obs.radiusMeters) || 60);
+        const color = obs.active === false ? '#64748b' : (obs.severity === 'high' ? '#dc2626' : obs.severity === 'medium' ? '#f59e0b' : '#0ea5e9');
+        const circle = L.circle([obs.lat, obs.lng], {
+            radius,
+            color,
+            fillColor: color,
+            fillOpacity: obs.active === false ? 0.08 : 0.2,
+            weight: 2,
+            dashArray: obs.active === false ? '6 6' : null
+        })
+            .addTo(map)
+            .bindPopup(`<b>${obs.name || 'Road issue'}</b><br><small>Radius: ${radius}m</small><br><small>${obs.active === false ? 'Inactive' : 'Active'}</small>`);
+        mapPolylines.push(circle);
+    });
 }
 
 async function renderRoutePolylines() {
@@ -275,7 +296,10 @@ async function renderRoutePolylines() {
 
 // ---- Map Click ----
 map.on('click', e => {
-    if (addStopMode) {
+    if (addObstructionMode) {
+        pendingObstructionLatLng = e.latlng;
+        document.getElementById('obstruction-coords').innerHTML = `<i class="fa-solid fa-check" style="color:#2ecc71"></i> ${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+    } else if (addStopMode) {
         pendingStopLatLng = e.latlng;
         document.getElementById('stop-coords').innerHTML = `<i class="fa-solid fa-check" style="color:#2ecc71"></i> ${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
     } else if (!document.getElementById('edit-stop-modal').classList.contains('hidden')) {
@@ -489,11 +513,40 @@ function addStopToRoute(s) {
     showToast(`Added "${s.name}"`, 'info', 1000);
 }
 
+function createDraggableRouteChip(id, i, removeHandlerName) {
+    const s = allStops.find(x => x.id === id);
+    const label = s ? s.name : id;
+    return `<span class="route-chip draggable-chip" draggable="true" data-index="${i}"><span class="chip-num">${i + 1}</span>${label}<span class="remove-chip" onclick="${removeHandlerName}(${i})">&times;</span></span>`;
+}
+
+function enableChipReorder(containerId, idsRef, renderFn) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    let dragFromIndex = null;
+    container.querySelectorAll('.draggable-chip').forEach((chip) => {
+        chip.addEventListener('dragstart', (event) => {
+            dragFromIndex = Number(event.currentTarget.dataset.index);
+            event.dataTransfer.effectAllowed = 'move';
+        });
+        chip.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+        });
+        chip.addEventListener('drop', (event) => {
+            event.preventDefault();
+            const dragToIndex = Number(event.currentTarget.dataset.index);
+            if (!Number.isInteger(dragFromIndex) || !Number.isInteger(dragToIndex) || dragFromIndex === dragToIndex) return;
+            const [moved] = idsRef.splice(dragFromIndex, 1);
+            idsRef.splice(dragToIndex, 0, moved);
+            renderFn();
+        });
+    });
+}
+
 function renderRouteChips() {
-    document.getElementById('route-chips').innerHTML = routeStopIds.map((id, i) => {
-        const s = allStops.find(x => x.id === id);
-        return `<span class="route-chip"><span class="chip-num">${i + 1}</span>${s ? s.name : id}<span class="remove-chip" onclick="removeRouteChip(${i})">&times;</span></span>`;
-    }).join('');
+    document.getElementById('route-chips').innerHTML = routeStopIds.map((id, i) => createDraggableRouteChip(id, i, 'removeRouteChip')).join('');
+    enableChipReorder('route-chips', routeStopIds, renderRouteChips);
 }
 window.removeRouteChip = i => {
     routeStopIds.splice(i, 1); renderRouteChips();
@@ -562,10 +615,8 @@ window.editRoute = id => {
 document.getElementById('edit-route-weight').addEventListener('input', e => document.getElementById('edit-route-weight-val').textContent = e.target.value);
 
 function renderEditRouteChips() {
-    document.getElementById('edit-route-chips').innerHTML = editRouteStopIds.map((id, i) => {
-        const s = allStops.find(x => x.id === id);
-        return `<span class="route-chip"><span class="chip-num">${i + 1}</span>${s ? s.name : id}<span class="remove-chip" onclick="removeEditRouteChip(${i})">&times;</span></span>`;
-    }).join('');
+    document.getElementById('edit-route-chips').innerHTML = editRouteStopIds.map((id, i) => createDraggableRouteChip(id, i, 'removeEditRouteChip')).join('');
+    enableChipReorder('edit-route-chips', editRouteStopIds, renderEditRouteChips);
 }
 window.removeEditRouteChip = i => { editRouteStopIds.splice(i, 1); renderEditRouteChips(); };
 
@@ -758,6 +809,132 @@ function startRouteMotion(v, coords) {
     }
     movingIntervals[v.id] = requestAnimationFrame(step);
 }
+
+// ====================== ROAD ISSUES TAB ======================
+
+document.getElementById('obstruction-search').addEventListener('input', renderObstructionsTable);
+document.getElementById('obstruction-sort').addEventListener('change', renderObstructionsTable);
+
+document.getElementById('btn-add-obstruction').addEventListener('click', () => {
+    addObstructionMode = !addObstructionMode;
+    document.getElementById('obstruction-form').classList.toggle('hidden', !addObstructionMode);
+    if (addObstructionMode) {
+        document.getElementById('obstruction-name').focus();
+        showToast('Click map to place road issue', 'info', 1400);
+    } else {
+        pendingObstructionLatLng = null;
+        document.getElementById('obstruction-coords').innerHTML = '<i class="fa-solid fa-location-dot"></i> Click map to place road issue';
+    }
+});
+
+document.getElementById('btn-cancel-obstruction').addEventListener('click', () => {
+    addObstructionMode = false;
+    pendingObstructionLatLng = null;
+    document.getElementById('obstruction-form').classList.add('hidden');
+    document.getElementById('obstruction-coords').innerHTML = '<i class="fa-solid fa-location-dot"></i> Click map to place road issue';
+});
+
+document.getElementById('btn-refresh-obstructions').addEventListener('click', () => {
+    loadAll();
+    showToast('Road issues refreshed', 'info', 1100);
+});
+
+document.getElementById('btn-save-obstruction').addEventListener('click', async () => {
+    const name = document.getElementById('obstruction-name').value.trim();
+    if (!name) {
+        showToast('Enter issue name', 'warning');
+        return;
+    }
+    if (!pendingObstructionLatLng) {
+        showToast('Click map to place issue', 'warning');
+        return;
+    }
+
+    const payload = {
+        name,
+        lat: pendingObstructionLatLng.lat,
+        lng: pendingObstructionLatLng.lng,
+        radiusMeters: Math.max(10, Number(document.getElementById('obstruction-radius').value) || 60),
+        severity: document.getElementById('obstruction-severity').value,
+        active: document.getElementById('obstruction-active').checked
+    };
+
+    await api(`${API}?type=obstructions`, 'POST', payload);
+    addObstructionMode = false;
+    pendingObstructionLatLng = null;
+    document.getElementById('obstruction-form').classList.add('hidden');
+    document.getElementById('obstruction-name').value = '';
+    document.getElementById('obstruction-radius').value = 60;
+    document.getElementById('obstruction-active').checked = true;
+    document.getElementById('obstruction-coords').innerHTML = '<i class="fa-solid fa-location-dot"></i> Click map to place road issue';
+    showToast('Road issue added', 'success');
+    loadAll();
+});
+
+function renderObstructionsTable() {
+    const q = (document.getElementById('obstruction-search').value || '').toLowerCase();
+    const sortKey = document.getElementById('obstruction-sort').value;
+    let filtered = allObstructions.filter(o => !q || (o.name || '').toLowerCase().includes(q));
+    filtered = sortItems(filtered, sortKey);
+
+    const tbody = document.getElementById('obstructions-tbody');
+    if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="td-empty">No road issues found</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = filtered.map((o) => {
+        const radius = Math.max(10, Number(o.radiusMeters) || 60);
+        const statusClass = o.active === false ? 'status-idle' : 'status-active';
+        return `<tr>
+            <td class="td-id">${o.id}</td>
+            <td class="td-name">${o.name || 'Road issue'}</td>
+            <td class="td-coords">${Number(o.lat).toFixed(4)}, ${Number(o.lng).toFixed(4)}</td>
+            <td>${radius}m</td>
+            <td><span class="status-badge ${statusClass}">${o.active === false ? 'Inactive' : 'Active'}</span></td>
+            <td class="td-actions">
+                <button onclick="zoomObstruction(${o.id})" title="Zoom"><i class="fa-solid fa-crosshairs"></i></button>
+                <button onclick="toggleObstruction(${o.id})" title="Toggle"><i class="fa-solid fa-power-off"></i></button>
+                <button onclick="editObstructionRadius(${o.id})" title="Radius"><i class="fa-solid fa-ruler-combined"></i></button>
+                <button class="del" onclick="deleteObstruction(${o.id})" title="Delete"><i class="fa-solid fa-trash"></i></button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+window.zoomObstruction = (id) => {
+    const item = allObstructions.find(x => x.id === id);
+    if (!item) return;
+    map.flyTo([item.lat, item.lng], 16);
+};
+
+window.toggleObstruction = async (id) => {
+    const item = allObstructions.find(x => x.id === id);
+    if (!item) return;
+    await api(`${API}?type=obstructions`, 'PUT', { id, active: item.active === false ? true : false });
+    showToast(`Road issue ${item.active === false ? 'activated' : 'deactivated'}`, 'info', 1300);
+    loadAll();
+};
+
+window.editObstructionRadius = async (id) => {
+    const item = allObstructions.find(x => x.id === id);
+    if (!item) return;
+    const next = prompt('Radius in meters:', String(item.radiusMeters || 60));
+    if (next === null) return;
+    const radiusMeters = Math.max(10, Number(next) || 60);
+    await api(`${API}?type=obstructions`, 'PUT', { id, radiusMeters });
+    showToast('Radius updated', 'success', 1300);
+    loadAll();
+};
+
+window.deleteObstruction = async (id) => {
+    const item = allObstructions.find(x => x.id === id);
+    if (!item) return;
+    if (!confirm(`Delete road issue "${item.name}"?`)) return;
+    await api(`${API}?type=obstructions&id=${id}`, 'DELETE');
+    showToast('Road issue deleted', 'success', 1300);
+    loadAll();
+};
 
 // ---- Modals ----
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden')); editingStopLatLng = null; } });

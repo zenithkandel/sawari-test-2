@@ -350,6 +350,18 @@ body {
     color: var(--text-muted);
 }
 
+.suggestion-item .suggestion-type {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    background: var(--bg-hover);
+    padding: 2px 6px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
 /* --- Buttons --- */
 .search-actions { display: flex; gap: 6px; }
 

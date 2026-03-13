@@ -479,6 +479,8 @@ async function loadData() {
         publicStops = allStops.filter(s => (s.type || 'actual') !== 'road-helper');
         renderContextLayers();
         applyLayerVisibility();
+        // Initial vehicle poll since toggle defaults to on
+        if (uiPrefs.showVehicles) pollVehicles();
         showToast(`Loaded ${publicStops.length} stops, ${allRoutes.length} routes`, 'info', 2000);
     } catch (err) {
         showToast('Failed to load data. Is the server running?', 'error', 5000);
@@ -1716,7 +1718,7 @@ async function searchPlaces(query) {
 }
 
 function renderSuggestions(container, results, options = {}) {
-    const { query = '', activeIndex = -1, onSelect = null } = options;
+    const { query = '', activeIndex = -1, onSelect = null, localMode = false } = options;
 
     if (!results.length) {
         container.innerHTML = '';
@@ -1724,12 +1726,17 @@ function renderSuggestions(container, results, options = {}) {
         return;
     }
 
-    container.innerHTML = results.map((place, index) => `
+    container.innerHTML = results.map((place, index) => {
+        const icon = place._icon || 'fa-location-dot';
+        const color = place._color || '#0ea5e9';
+        const typeLabel = place._type === 'route' ? 'Route' : place._type === 'stop' ? 'Stop' : '';
+        return `
         <div class="suggestion-item ${index === activeIndex ? 'active' : ''}" data-index="${index}">
-            <div class="suggestion-icon" style="background:#0ea5e9"><i class="fa-solid fa-location-dot"></i></div>
+            <div class="suggestion-icon" style="background:${color}"><i class="fa-solid ${icon}"></i></div>
             <span class="suggestion-name">${highlightText(place.name, query)}</span>
-        </div>
-    `).join('');
+            ${typeLabel ? `<span class="suggestion-type">${typeLabel}</span>` : ''}
+        </div>`;
+    }).join('');
     container.classList.remove('hidden');
 
     if (typeof onSelect === 'function') {
@@ -1756,7 +1763,7 @@ function attachAutocomplete(inputElement, dropdownElement, onSelect, options = {
     let currentMatches = [];
     let requestToken = 0;
 
-    const { onEmpty = null } = options;
+    const { onEmpty = null, localSearch = false } = options;
 
     function hideDropdown() {
         dropdownElement.classList.add('hidden');
@@ -1793,6 +1800,62 @@ function attachAutocomplete(inputElement, dropdownElement, onSelect, options = {
         }
 
         const currentToken = ++requestToken;
+
+        // Local search: match stops and routes first
+        if (localSearch) {
+            const ql = q.toLowerCase();
+            const localResults = [];
+
+            // Search stops
+            publicStops.forEach(s => {
+                if (s.name && s.name.toLowerCase().includes(ql)) {
+                    localResults.push({
+                        name: s.name,
+                        lat: s.lat,
+                        lon: s.lng,
+                        lng: s.lng,
+                        _type: 'stop',
+                        _id: s.id,
+                        _icon: 'fa-bus',
+                        _color: s.color || '#e74c3c'
+                    });
+                }
+            });
+
+            // Search routes
+            allRoutes.forEach(r => {
+                if (r.name && r.name.toLowerCase().includes(ql)) {
+                    // Get midpoint of route for centering
+                    const stops = (r.stopIds || []).map(id => allStops.find(s => s.id === id)).filter(Boolean);
+                    const mid = stops.length > 0 ? stops[Math.floor(stops.length / 2)] : null;
+                    if (mid) {
+                        localResults.push({
+                            name: r.name,
+                            lat: mid.lat,
+                            lon: mid.lng,
+                            lng: mid.lng,
+                            _type: 'route',
+                            _id: r.id,
+                            _icon: 'fa-route',
+                            _color: r.color || '#555'
+                        });
+                    }
+                }
+            });
+
+            if (localResults.length > 0) {
+                currentMatches = localResults.slice(0, 8);
+                if (currentToken !== requestToken) return;
+                activeIndex = -1;
+                renderSuggestions(dropdownElement, currentMatches, {
+                    query: q,
+                    activeIndex,
+                    onSelect: selectMatch,
+                    localMode: true
+                });
+                return;
+            }
+        }
 
         try {
             currentMatches = await searchPlaces(q);
@@ -1897,10 +1960,15 @@ attachAutocomplete(
     (place) => {
         selectedPlaces.global = { ...place };
         if (globalSearchMarker) map.removeLayer(globalSearchMarker);
-        globalSearchMarker = L.marker([place.lat, place.lon], { zIndexOffset: 900 }).addTo(map);
-        map.flyTo([place.lat, place.lon], Math.max(map.getZoom(), 16));
+        globalSearchMarker = L.marker([place.lat, place.lon || place.lng], { zIndexOffset: 900 }).addTo(map);
+        map.flyTo([place.lat, place.lon || place.lng], Math.max(map.getZoom(), 16));
         globalSearchMarker.bindPopup(`<b>${escapeHtml(place.name)}</b>`).openPopup();
         setStatus(`Showing ${place.name}`, 'success');
+
+        // If it's a route, highlight it
+        if (place._type === 'route') {
+            showExploreRoute(place._id);
+        }
     },
     {
         onEmpty: () => {
@@ -1909,9 +1977,12 @@ attachAutocomplete(
                 map.removeLayer(globalSearchMarker);
                 globalSearchMarker = null;
             }
-        }
+        },
+        localSearch: true
     }
 );
 
 // ---- Init ----
 loadData();
+// Auto-start GPS on page load
+startGPS();

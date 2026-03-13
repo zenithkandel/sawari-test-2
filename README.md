@@ -27,6 +27,8 @@ Built with vanilla JavaScript, PHP, Leaflet, and flat-file JSON storage. No fram
 
 - Multi-leg journey planning (direct routes and 1-transfer journeys)
 - Place autocomplete via Nominatim geocoding (Kathmandu-bounded)
+- Local stop suggestions merged with online geocoding results
+- AI-powered natural language location input (Groq/LLaMA)
 - Live vehicle tracking with 5-second polling and smooth marker animation
 - Obstruction-aware routing via OSRM
 - GPS integration with heading, accuracy circle, and "Use as Start"
@@ -45,6 +47,7 @@ Built with vanilla JavaScript, PHP, Leaflet, and flat-file JSON storage. No fram
 - Referential integrity enforcement (stops referenced by routes, routes by vehicles)
 - Dependency-aware deletion with force-delete cascade
 - Entity search (Ctrl+K) and keyboard shortcuts
+- AI Assistant (Ctrl+I) — natural language commands and data queries via Groq/LLaMA
 - Context menus, inspector panel, layer toggles, and quick filters
 
 ---
@@ -57,6 +60,7 @@ Built with vanilla JavaScript, PHP, Leaflet, and flat-file JSON storage. No fram
 | Maps      | Leaflet 1.9.4, CartoDB tile layers                  |
 | Routing   | OSRM (openstreetmap.de + project-osrm.org fallback) |
 | Geocoding | Nominatim (OpenStreetMap)                           |
+| AI        | Groq API (LLaMA 3.3 70B) for NL extraction/queries |
 | Icons     | Font Awesome 6.5.1                                  |
 | Fonts     | Inter (Google Fonts)                                |
 | Backend   | Vanilla PHP                                         |

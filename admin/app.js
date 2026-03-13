@@ -18,6 +18,7 @@
     CommandBar.init();
     LayerPanel.init();
     Inspector.init();
+    AiAssistant.init();
 
     // Load initial data
     await loadAllData();

@@ -89,7 +89,9 @@
           <option value="medium" selected>Medium</option>
           <option value="high">High</option>
         </select>
-        <label style="display:flex;align-items:center;gap:6px;padding:0 8px">
+        <label
+          style="display: flex; align-items: center; gap: 6px; padding: 0 8px"
+        >
           <input id="new-active" type="checkbox" checked /> Active
         </label>
         <button id="btn-pick-map" class="ghost">Pick On Map</button>
@@ -248,17 +250,22 @@
       function updateKpis() {
         byId("kpi-total").textContent = issues.length;
         byId("kpi-selected").textContent = selected.size;
-        byId("kpi-active").textContent = issues.filter((x) => x.active !== false).length;
+        byId("kpi-active").textContent = issues.filter(
+          (x) => x.active !== false,
+        ).length;
         byId("kpi-hidden").textContent = hidden.size;
         byId("selected-text").textContent = `${selected.size} selected`;
       }
 
       function renderRows(preserveMapView = false) {
         const q = byId("search").value.trim().toLowerCase();
-        const rows = issues.filter((x) => !q || (x.name || "").toLowerCase().includes(q));
+        const rows = issues.filter(
+          (x) => !q || (x.name || "").toLowerCase().includes(q),
+        );
         const body = byId("rows");
         if (!rows.length) {
-          body.innerHTML = '<tr><td colspan="7" class="empty">No issues found</td></tr>';
+          body.innerHTML =
+            '<tr><td colspan="7" class="empty">No issues found</td></tr>';
           renderMap([], preserveMapView);
           updateKpis();
           return;
@@ -297,7 +304,9 @@
       async function mutateSelected(mutator, okMsg) {
         if (!selected.size) return toast("Select issues first");
         const rows = issues.filter((x) => selected.has(x.id));
-        await Promise.all(rows.map((x) => api("obstructions", "PUT", mutator(x))));
+        await Promise.all(
+          rows.map((x) => api("obstructions", "PUT", mutator(x))),
+        );
         toast(okMsg);
         await load();
       }
@@ -311,7 +320,9 @@
       });
 
       byId("check-all").addEventListener("change", (e) => {
-        const boxes = byId("rows").querySelectorAll('input[type="checkbox"][data-id]');
+        const boxes = byId("rows").querySelectorAll(
+          'input[type="checkbox"][data-id]',
+        );
         boxes.forEach((b) => {
           b.checked = e.target.checked;
           const id = Number(b.dataset.id);
@@ -337,7 +348,10 @@
           const id = Number(radiusBtn.dataset.radius);
           const issue = issues.find((x) => x.id === id);
           if (!issue) return;
-          const next = window.prompt("Radius in meters", String(issue.radiusMeters || 60));
+          const next = window.prompt(
+            "Radius in meters",
+            String(issue.radiusMeters || 60),
+          );
           if (next === null) return;
           const radiusMeters = Math.max(10, Number(next) || 60);
           await api("obstructions", "PUT", { ...issue, radiusMeters });
@@ -351,7 +365,10 @@
           const id = Number(toggle.dataset.toggle);
           const issue = issues.find((x) => x.id === id);
           if (!issue) return;
-          await api("obstructions", "PUT", { ...issue, active: issue.active === false ? true : false });
+          await api("obstructions", "PUT", {
+            ...issue,
+            active: issue.active === false ? true : false,
+          });
           toast("Issue status updated");
           await load();
           return;
@@ -379,7 +396,10 @@
         const name = byId("new-name").value.trim();
         const lat = Number(byId("new-lat").value);
         const lng = Number(byId("new-lng").value);
-        const radiusMeters = Math.max(10, Number(byId("new-radius").value) || 60);
+        const radiusMeters = Math.max(
+          10,
+          Number(byId("new-radius").value) || 60,
+        );
         if (!name || !Number.isFinite(lat) || !Number.isFinite(lng)) {
           toast("Enter name, latitude and longitude");
           return;
@@ -405,7 +425,9 @@
 
       byId("btn-pick-map").addEventListener("click", () => {
         pickFromMap = !pickFromMap;
-        byId("btn-pick-map").textContent = pickFromMap ? "Click Map..." : "Pick On Map";
+        byId("btn-pick-map").textContent = pickFromMap
+          ? "Click Map..."
+          : "Pick On Map";
         if (pickFromMap) toast("Click anywhere on map to choose coordinates");
       });
 
@@ -418,18 +440,28 @@
           tone: "warn",
         });
         if (!ok) return;
-        await Promise.all([...selected].map((id) => api("obstructions", "DELETE", null, `&id=${id}`)));
+        await Promise.all(
+          [...selected].map((id) =>
+            api("obstructions", "DELETE", null, `&id=${id}`),
+          ),
+        );
         selected.clear();
         toast("Selected issues deleted");
         await load();
       });
 
       byId("btn-activate-selected").addEventListener("click", async () => {
-        await mutateSelected((x) => ({ ...x, active: true }), "Selected issues activated");
+        await mutateSelected(
+          (x) => ({ ...x, active: true }),
+          "Selected issues activated",
+        );
       });
 
       byId("btn-deactivate-selected").addEventListener("click", async () => {
-        await mutateSelected((x) => ({ ...x, active: false }), "Selected issues deactivated");
+        await mutateSelected(
+          (x) => ({ ...x, active: false }),
+          "Selected issues deactivated",
+        );
       });
 
       byId("btn-hide-selected").addEventListener("click", () => {

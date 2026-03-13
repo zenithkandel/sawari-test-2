@@ -74,12 +74,13 @@ Built with vanilla JavaScript, PHP, Leaflet, and flat-file JSON storage. No fram
 
 ```
 sawari/
-├── .env                            # ADMIN_PASSWORD config
+├── .env                            # ADMIN_PASSWORD, GROQ_API_KEY config
 ├── .gitignore                      # Excludes .env
-├── index.html                      # Public transit navigator
+├── index.php                       # Public transit navigator (PHP for env injection)
 ├── app.js                          # Public frontend logic
 ├── style.css                       # Public frontend styles
 ├── routing.js                      # OSRM routing utilities
+├── location-extractor.html         # Standalone AI location extractor prototype
 │
 ├── admin/
 │   ├── index.php                   # Admin entry (auth gate + workspace)
@@ -102,10 +103,11 @@ sawari/
 │   │   ├── vehicles/vehicles.js    # Vehicles feature module
 │   │   └── obstructions/obstructions.js
 │   └── components/
-│       ├── command-bar/command-bar.js   # Toolbar + keyboard shortcuts
-│       ├── layer-panel/layer-panel.js   # Layer toggles + filters
-│       ├── inspector/inspector.js       # Property editor panel
-│       └── notifications/notifications.js # Toasts + sync status
+│       ├── command-bar/command-bar.js     # Toolbar + keyboard shortcuts
+│       ├── layer-panel/layer-panel.js     # Layer toggles + filters
+│       ├── inspector/inspector.js         # Property editor panel
+│       ├── notifications/notifications.js # Toasts + sync status
+│       └── ai-assistant/ai-assistant.js   # AI chat assistant (NL commands + queries)
 │
 ├── backend/
 │   ├── handlers/
@@ -153,7 +155,10 @@ sawari/
 
    ```
    ADMIN_PASSWORD=sawari@111
+   GROQ_API_KEY=your_groq_api_key_here
    ```
+
+   Get a free Groq API key from [console.groq.com](https://console.groq.com).
 
 3. Ensure the `data/` and `assets/` directories are writable by the web server.
 
@@ -169,11 +174,15 @@ sawari/
 
 ## Public Frontend
 
-**Entry point:** `index.html` + `app.js` + `style.css` + `routing.js`
+**Entry point:** `index.php` + `app.js` + `style.css` + `routing.js`
+
+### AI Location Input
+
+Type a natural language prompt (e.g., "take me from bagbazar to basundhara") into the AI input at the top of the search panel. The app calls the Groq API to extract start/destination, resolves them against known stops or Nominatim, auto-fills both inputs, and triggers navigation. Requires `GROQ_API_KEY` in `.env`.
 
 ### Journey Planning
 
-1. Enter a start and destination via the search inputs (place autocomplete via Nominatim) or by clicking the map (right-click context menu).
+1. Enter a start and destination via the search inputs (place autocomplete via Nominatim + local stop suggestions) or by clicking the map (right-click context menu), or use the AI input for natural language.
 2. The app finds stops near both points, then searches for:
    - **Direct routes** — routes that pass through stops near both start and end
    - **Transfer routes** — pairs of routes connected via a shared transfer stop
@@ -321,8 +330,27 @@ sawari/
 | `Ctrl+Z` | Undo                          |
 | `Ctrl+Y` | Redo                          |
 | `Ctrl+K` | Search entities               |
+| `Ctrl+I` | Open AI Assistant             |
 | `Ctrl+B` | Toggle sidebar                |
 | `Esc`    | Cancel / deselect             |
+
+### AI Assistant
+
+Open via the wand icon in the command bar or `Ctrl+I`. Provides two capabilities powered by Groq API (LLaMA 3.3 70B):
+
+**Natural Language Commands:**
+- "Add a stop called New Baneshwor" → creates a stop with AI-suggested coordinates
+- "Rename stop #5 to Kalanki Chowk" → generates an update action card
+- "Delete the obstruction at Thapathali" → generates a delete action card with confirmation
+
+All destructive actions show a confirmation card — the admin clicks "Create", "Update", or "Delete" to execute, or "Skip" to dismiss.
+
+**Natural Language Queries:**
+- "Which routes pass through Ratnapark?" → answers from current data
+- "How many vehicles are moving right now?" → real-time count
+- "Show me all active obstructions" → lists matching entities
+
+The AI receives a snapshot of all current entities as context, so answers are always based on live data.
 
 ---
 

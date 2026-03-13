@@ -1753,17 +1753,36 @@ function renderSuggestions(container, results, options = {}) {
         return;
     }
 
-    container.innerHTML = results.map((place, index) => {
+    // Check if we have mixed sources (local + online)
+    const hasLocal = results.some(r => r._source === 'local');
+    const hasOnline = results.some(r => r._source === 'online');
+    const showHeaders = hasLocal && hasOnline;
+
+    let html = '';
+    let inSection = null;
+
+    results.forEach((place, index) => {
+        const source = place._source || 'online';
+
+        if (showHeaders && source !== inSection) {
+            inSection = source;
+            const label = source === 'local' ? 'Stops' : 'Places';
+            const sectionIcon = source === 'local' ? 'fa-bus' : 'fa-globe';
+            html += `<div class="suggestion-section"><i class="fa-solid ${sectionIcon}"></i> ${label}</div>`;
+        }
+
         const icon = place._icon || 'fa-location-dot';
         const color = place._color || '#0ea5e9';
         const typeLabel = place._type === 'route' ? 'Route' : place._type === 'stop' ? 'Stop' : '';
-        return `
+        html += `
         <div class="suggestion-item ${index === activeIndex ? 'active' : ''}" data-index="${index}">
             <div class="suggestion-icon" style="background:${color}"><i class="fa-solid ${icon}"></i></div>
             <span class="suggestion-name">${highlightText(place.name, query)}</span>
             ${typeLabel ? `<span class="suggestion-type">${typeLabel}</span>` : ''}
         </div>`;
-    }).join('');
+    });
+
+    container.innerHTML = html;
     container.classList.remove('hidden');
 
     if (typeof onSelect === 'function') {
@@ -1813,6 +1832,52 @@ function attachAutocomplete(inputElement, dropdownElement, onSelect, options = {
         }
     }
 
+    function searchLocalStops(q) {
+        const ql = q.toLowerCase();
+        const results = [];
+        publicStops.forEach(s => {
+            if (s.name && s.name.toLowerCase().includes(ql)) {
+                results.push({
+                    name: s.name,
+                    lat: s.lat,
+                    lon: s.lng,
+                    lng: s.lng,
+                    _type: 'stop',
+                    _id: s.id,
+                    _icon: 'fa-bus',
+                    _color: s.color || '#e74c3c',
+                    _source: 'local'
+                });
+            }
+        });
+        return results;
+    }
+
+    function searchLocalRoutes(q) {
+        const ql = q.toLowerCase();
+        const results = [];
+        allRoutes.forEach(r => {
+            if (r.name && r.name.toLowerCase().includes(ql)) {
+                const stops = (r.stopIds || []).map(id => allStops.find(s => s.id === id)).filter(Boolean);
+                const mid = stops.length > 0 ? stops[Math.floor(stops.length / 2)] : null;
+                if (mid) {
+                    results.push({
+                        name: r.name,
+                        lat: mid.lat,
+                        lon: mid.lng,
+                        lng: mid.lng,
+                        _type: 'route',
+                        _id: r.id,
+                        _icon: 'fa-route',
+                        _color: r.color || '#555',
+                        _source: 'local'
+                    });
+                }
+            }
+        });
+        return results;
+    }
+
     async function showSuggestions(query) {
         const q = query.trim();
         if (!q) {
@@ -1828,48 +1893,9 @@ function attachAutocomplete(inputElement, dropdownElement, onSelect, options = {
 
         const currentToken = ++requestToken;
 
-        // Local search: match stops and routes first
         if (localSearch) {
-            const ql = q.toLowerCase();
-            const localResults = [];
-
-            // Search stops
-            publicStops.forEach(s => {
-                if (s.name && s.name.toLowerCase().includes(ql)) {
-                    localResults.push({
-                        name: s.name,
-                        lat: s.lat,
-                        lon: s.lng,
-                        lng: s.lng,
-                        _type: 'stop',
-                        _id: s.id,
-                        _icon: 'fa-bus',
-                        _color: s.color || '#e74c3c'
-                    });
-                }
-            });
-
-            // Search routes
-            allRoutes.forEach(r => {
-                if (r.name && r.name.toLowerCase().includes(ql)) {
-                    // Get midpoint of route for centering
-                    const stops = (r.stopIds || []).map(id => allStops.find(s => s.id === id)).filter(Boolean);
-                    const mid = stops.length > 0 ? stops[Math.floor(stops.length / 2)] : null;
-                    if (mid) {
-                        localResults.push({
-                            name: r.name,
-                            lat: mid.lat,
-                            lon: mid.lng,
-                            lng: mid.lng,
-                            _type: 'route',
-                            _id: r.id,
-                            _icon: 'fa-route',
-                            _color: r.color || '#555'
-                        });
-                    }
-                }
-            });
-
+            // Local-only mode (global search bar): stops + routes, no Nominatim
+            const localResults = [...searchLocalStops(q), ...searchLocalRoutes(q)];
             if (localResults.length > 0) {
                 currentMatches = localResults.slice(0, 8);
                 if (currentToken !== requestToken) return;
@@ -1882,28 +1908,54 @@ function attachAutocomplete(inputElement, dropdownElement, onSelect, options = {
                 });
                 return;
             }
-        }
-
-        try {
-            currentMatches = await searchPlaces(q);
-        } catch (error) {
-            if (currentToken !== requestToken) return;
-            console.warn('Place autocomplete error:', error.message);
             hideDropdown();
             return;
+        }
+
+        // Mixed mode (start/end inputs): show local stops immediately, then fetch Nominatim
+        const localStopResults = searchLocalStops(q).slice(0, 4);
+
+        // Show local results right away while Nominatim loads
+        if (localStopResults.length > 0) {
+            currentMatches = localStopResults;
+            activeIndex = -1;
+            renderSuggestions(dropdownElement, currentMatches, {
+                query: q,
+                activeIndex,
+                onSelect: selectMatch,
+                localMode: false
+            });
+        }
+
+        // Fetch Nominatim results in parallel
+        let onlineResults = [];
+        try {
+            onlineResults = await searchPlaces(q);
+        } catch (error) {
+            console.warn('Place autocomplete error:', error.message);
         }
 
         if (currentToken !== requestToken || inputElement.value.trim() !== q) return;
-        if (!currentMatches.length) {
+
+        // Merge: local stops first, then online results (deduplicated)
+        const merged = [...localStopResults];
+        onlineResults.forEach(r => {
+            r._source = 'online';
+            merged.push(r);
+        });
+
+        if (!merged.length) {
             hideDropdown();
             return;
         }
 
+        currentMatches = merged;
         activeIndex = -1;
         renderSuggestions(dropdownElement, currentMatches, {
             query: q,
             activeIndex,
-            onSelect: selectMatch
+            onSelect: selectMatch,
+            localMode: false
         });
     }
 

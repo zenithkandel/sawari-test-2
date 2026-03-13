@@ -26,10 +26,11 @@ const AiAssistant = (() => {
             if (btn) {
                 chatInput.value = btn.textContent;
                 send();
+                return;
             }
-            // Action buttons from AI response
-            const actionBtn = e.target.closest('.ai-action-btn');
-            if (actionBtn) executeAction(actionBtn);
+            // Action buttons from AI response (only confirm buttons, not cancel)
+            const actionBtn = e.target.closest('.ai-action-btn.confirm');
+            if (actionBtn && !actionBtn.disabled) executeAction(actionBtn);
         });
 
         // Keyboard shortcut: Ctrl+I
@@ -55,6 +56,14 @@ const AiAssistant = (() => {
             ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])
         );
     }
+
+    function tryParseJson(str) {
+        try { return JSON.parse(str); } catch { return null; }
+    }
+
+    // Store payloads by ID to avoid HTML-encoding issues in data attributes
+    const payloadStore = {};
+    let payloadCounter = 0;
 
     function addMessage(role, html) {
         // Remove welcome message on first interaction
@@ -173,27 +182,22 @@ RULES:
             const reply = data.choices?.[0]?.message?.content?.trim() || '';
             thinking.remove();
 
-            // Check if reply is a JSON action
-            const actionMatch = reply.match(/^\s*\{[\s\S]*\}\s*$/);
-            if (actionMatch) {
-                try {
-                    const action = JSON.parse(actionMatch[0]);
-                    renderAction(action);
-                } catch {
-                    // Not valid JSON, render as text
-                    addMessage('assistant', formatReply(reply));
-                }
+            // Strip markdown code fences if present
+            const cleaned = reply.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
+
+            // Try to parse as a single JSON action
+            let parsed = tryParseJson(cleaned);
+            if (parsed && parsed.action) {
+                renderAction(parsed);
             } else {
-                // Check if reply contains embedded JSON (text + JSON)
-                const embeddedJson = reply.match(/\{[^{}]*"action"\s*:\s*"[^"]+?"[^{}]*\}/);
-                if (embeddedJson) {
-                    const textPart = reply.replace(embeddedJson[0], '').trim();
+                // Check if reply contains embedded JSON within text
+                const jsonMatch = reply.match(/\{[^{}]*"action"\s*:\s*"[^"]*"[^{}]*\}/);
+                if (jsonMatch) {
+                    parsed = tryParseJson(jsonMatch[0]);
+                    const textPart = reply.replace(jsonMatch[0], '').replace(/```(?:json)?|```/gi, '').trim();
                     if (textPart) addMessage('assistant', formatReply(textPart));
-                    try {
-                        const action = JSON.parse(embeddedJson[0]);
-                        renderAction(action);
-                    } catch {
-                        // Fallback: just show the text
+                    if (parsed && parsed.action) {
+                        renderAction(parsed);
                     }
                 } else {
                     addMessage('assistant', formatReply(reply));

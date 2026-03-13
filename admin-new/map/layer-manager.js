@@ -24,6 +24,8 @@ const LayerManager = (() => {
         Store.on('entities:vehicles', () => renderVehicles());
         Store.on('entities:obstructions', () => renderObstructions());
         Store.on('selection', () => updateSelectionVisuals());
+        // Re-render stops when route builder state changes (toggle draggable)
+        Store.on('change:routeBuilder', () => renderStops());
         Store.on('layer', ({ layer, visible }) => {
             if (visible) layers[layer].addTo(MapEngine.getMap());
             else MapEngine.getMap().removeLayer(layers[layer]);
@@ -35,7 +37,8 @@ const LayerManager = (() => {
     }
 
     function createStopIcon(stop, selected) {
-        const cls = `stop-marker${selected ? ' selected' : ''}`;
+        const isRouteBuilding = Store.get('routeBuilder')?.active;
+        const cls = `stop-marker${selected ? ' selected' : ''}${isRouteBuilding ? ' route-pick' : ''}`;
         return L.divIcon({
             className: '',
             html: `<div class="${cls}" style="background:${stop.color}" data-id="${stop.id}"><i class="fa-solid ${stop.icon || 'fa-bus'}"></i></div>`,

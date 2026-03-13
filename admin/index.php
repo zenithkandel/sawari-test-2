@@ -15,6 +15,7 @@ if (file_exists($envFile)) {
   }
 }
 $adminPassword = $env['ADMIN_PASSWORD'] ?? 'sawari@111';
+$groqApiKey = $env['GROQ_API_KEY'] ?? '';
 
 // Handle logout
 if (isset($_GET['logout'])) {
@@ -261,6 +262,10 @@ if (empty($_SESSION['admin_authenticated'])):
       </button>
     </div>
     <div class="cb-right">
+      <button id="btn-ai-assistant" class="cb-icon-btn ai-glow" title="AI Assistant (Ctrl+I)">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+      </button>
+      <div class="cb-divider"></div>
       <button id="btn-theme-toggle" class="cb-icon-btn" title="Toggle light/dark theme">
         <i class="fa-solid fa-sun"></i>
       </button>
@@ -405,6 +410,36 @@ if (empty($_SESSION['admin_authenticated'])):
     </div>
   </div>
 
+  <!-- ===== AI ASSISTANT MODAL ===== -->
+  <div id="ai-modal" class="modal-backdrop" style="display: none">
+    <div class="ai-dialog">
+      <div class="ai-dialog-header">
+        <div class="ai-dialog-title">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span>AI Assistant</span>
+        </div>
+        <button id="ai-modal-close" class="cb-icon-btn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="ai-chat-log" class="ai-chat-log">
+        <div class="ai-welcome">
+          <p>I can help you manage your transit data. Try:</p>
+          <div class="ai-examples">
+            <button class="ai-example-btn">Add a stop called New Baneshwor</button>
+            <button class="ai-example-btn">Show all vehicles on Lagankhel route</button>
+            <button class="ai-example-btn">Which routes pass through Ratnapark?</button>
+            <button class="ai-example-btn">How many active obstructions are there?</button>
+          </div>
+        </div>
+      </div>
+      <div class="ai-input-area">
+        <input type="text" id="ai-chat-input" placeholder="Ask AI to do something..." autocomplete="off" />
+        <button id="ai-chat-send" class="ai-chat-send-btn" title="Send">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== CONTEXT MENU ===== -->
   <div id="context-menu" class="context-menu" style="display: none"></div>
 
@@ -431,6 +466,7 @@ if (empty($_SESSION['admin_authenticated'])):
   <div id="toast-container"></div>
 
   <!-- ===== APPLICATION SCRIPTS ===== -->
+  <script>const GROQ_API_KEY = <?= json_encode($groqApiKey) ?>;</script>
   <script src="services/api-client.js"></script>
   <script src="state/store.js"></script>
   <script src="state/history.js"></script>
@@ -447,6 +483,7 @@ if (empty($_SESSION['admin_authenticated'])):
   <script src="components/layer-panel/layer-panel.js"></script>
   <script src="components/inspector/inspector.js"></script>
   <script src="components/notifications/notifications.js"></script>
+  <script src="components/ai-assistant/ai-assistant.js"></script>
   <script src="app.js"></script>
 </body>
 

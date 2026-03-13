@@ -28,18 +28,21 @@ require_once __DIR__ . '/../validators/obstruction-validator.php';
 $store = new FileStore($dataDir);
 $guard = new RelationGuard($store);
 
-function readJsonBody(): ?array {
+function readJsonBody(): ?array
+{
     $raw = file_get_contents('php://input');
     return $raw ? json_decode($raw, true) : null;
 }
 
-function jsonResponse($data, int $status = 200): void {
+function jsonResponse($data, int $status = 200): void
+{
     http_response_code($status);
     echo json_encode($data);
     exit;
 }
 
-function errorResponse(string $message, int $status = 400): void {
+function errorResponse(string $message, int $status = 400): void
+{
     jsonResponse(['error' => $message], $status);
 }
 
@@ -53,14 +56,16 @@ if (!in_array($type, $allowedTypes)) {
 
 // Icons: read-only catalog
 if ($type === 'icons') {
-    if ($method !== 'GET') errorResponse('Method not allowed', 405);
+    if ($method !== 'GET')
+        errorResponse('Method not allowed', 405);
 
     $images = [];
     if (is_dir($iconsDir)) {
         $allowed = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'avif'];
         foreach (scandir($iconsDir) as $f) {
             $ext = strtolower(pathinfo($f, PATHINFO_EXTENSION));
-            if (in_array($ext, $allowed)) $images[] = $f;
+            if (in_array($ext, $allowed))
+                $images[] = $f;
         }
     }
     $faFile = $dataDir . '/icons.json';
@@ -73,10 +78,12 @@ if ($type === 'icons') {
 
 // Dependencies check endpoint
 if ($type === 'dependencies') {
-    if ($method !== 'GET') errorResponse('Method not allowed', 405);
+    if ($method !== 'GET')
+        errorResponse('Method not allowed', 405);
     $entityType = $_GET['entity'] ?? '';
     $entityId = intval($_GET['id'] ?? 0);
-    if (!$entityType || !$entityId) errorResponse('entity and id parameters required');
+    if (!$entityType || !$entityId)
+        errorResponse('entity and id parameters required');
     $result = $guard->canDelete($entityType, $entityId);
     jsonResponse($result);
 }
@@ -96,7 +103,8 @@ switch ($method) {
         $id = $_GET['id'] ?? null;
         if ($id !== null) {
             $item = $store->findById($type, intval($id));
-            if (!$item) errorResponse('Item not found', 404);
+            if (!$item)
+                errorResponse('Item not found', 404);
             jsonResponse($item);
         }
         jsonResponse($data);
@@ -104,7 +112,8 @@ switch ($method) {
 
     case 'POST':
         $input = readJsonBody();
-        if (!$input) errorResponse('Invalid JSON body');
+        if (!$input)
+            errorResponse('Invalid JSON body');
 
         $validatorClass = $validators[$type] ?? null;
         if ($validatorClass) {
@@ -134,7 +143,8 @@ switch ($method) {
 
     case 'PUT':
         $input = readJsonBody();
-        if (!$input || !isset($input['id'])) errorResponse('ID required');
+        if (!$input || !isset($input['id']))
+            errorResponse('ID required');
 
         $validatorClass = $validators[$type] ?? null;
         if ($validatorClass) {
@@ -158,13 +168,15 @@ switch ($method) {
         }
 
         $updated = $store->update($type, intval($input['id']), $input);
-        if (!$updated) errorResponse('Item not found', 404);
+        if (!$updated)
+            errorResponse('Item not found', 404);
         jsonResponse($updated);
         break;
 
     case 'DELETE':
         $id = intval($_GET['id'] ?? 0);
-        if (!$id) errorResponse('ID required');
+        if (!$id)
+            errorResponse('ID required');
 
         $force = ($_GET['force'] ?? '') === 'true';
         $check = $guard->canDelete($type, $id);
@@ -182,7 +194,8 @@ switch ($method) {
         }
 
         $deleted = $store->delete($type, $id);
-        if (!$deleted) errorResponse('Item not found', 404);
+        if (!$deleted)
+            errorResponse('Item not found', 404);
         jsonResponse(['success' => true, 'detached' => !$check['canDelete']]);
         break;
 

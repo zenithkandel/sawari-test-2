@@ -1,15 +1,18 @@
 <?php
 // Relation Guard Service - enforces referential integrity
 
-class RelationGuard {
+class RelationGuard
+{
     private FileStore $store;
 
-    public function __construct(FileStore $store) {
+    public function __construct(FileStore $store)
+    {
         $this->store = $store;
     }
 
     // Check if a stop is referenced by any routes
-    public function stopDependencies(int $stopId): array {
+    public function stopDependencies(int $stopId): array
+    {
         $routes = $this->store->readAll('routes');
         $deps = [];
         foreach ($routes as $route) {
@@ -22,7 +25,8 @@ class RelationGuard {
     }
 
     // Check if a route is referenced by any vehicles
-    public function routeDependencies(int $routeId): array {
+    public function routeDependencies(int $routeId): array
+    {
         $vehicles = $this->store->readAll('vehicles');
         $deps = [];
         foreach ($vehicles as $v) {
@@ -34,7 +38,8 @@ class RelationGuard {
     }
 
     // Validate that all stopIds in a route reference existing stops
-    public function validateStopIds(array $stopIds): array {
+    public function validateStopIds(array $stopIds): array
+    {
         $stops = $this->store->readAll('stops');
         $validIds = array_column($stops, 'id');
         $invalid = [];
@@ -47,14 +52,17 @@ class RelationGuard {
     }
 
     // Validate that a routeId references an existing route
-    public function validateRouteId($routeId): bool {
-        if ($routeId === null || $routeId === '') return true; // null = unassigned
-        $route = $this->store->findById('routes', (int)$routeId);
+    public function validateRouteId($routeId): bool
+    {
+        if ($routeId === null || $routeId === '')
+            return true; // null = unassigned
+        $route = $this->store->findById('routes', (int) $routeId);
         return $route !== null;
     }
 
     // Check dependencies before delete, returns blocking info
-    public function canDelete(string $type, int $id): array {
+    public function canDelete(string $type, int $id): array
+    {
         $deps = [];
         if ($type === 'stops') {
             $deps = $this->stopDependencies($id);
@@ -69,7 +77,8 @@ class RelationGuard {
     }
 
     // Force delete with cascade - detach references
-    public function cascadeDetach(string $type, int $id): void {
+    public function cascadeDetach(string $type, int $id): void
+    {
         if ($type === 'stops') {
             // Remove stop from all routes' stopIds
             $routes = $this->store->readAll('routes');

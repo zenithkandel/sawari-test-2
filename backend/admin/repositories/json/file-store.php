@@ -1,21 +1,25 @@
 <?php
 // JSON File Store with file locking and version tokens
 
-class FileStore {
+class FileStore
+{
     private string $dataDir;
 
-    public function __construct(string $dataDir) {
+    public function __construct(string $dataDir)
+    {
         $this->dataDir = rtrim($dataDir, '/\\');
         if (!is_dir($this->dataDir)) {
             mkdir($this->dataDir, 0777, true);
         }
     }
 
-    private function filePath(string $type): string {
+    private function filePath(string $type): string
+    {
         return $this->dataDir . '/' . $type . '.json';
     }
 
-    public function readAll(string $type): array {
+    public function readAll(string $type): array
+    {
         $path = $this->filePath($type);
         if (!file_exists($path)) {
             file_put_contents($path, json_encode([]));
@@ -25,7 +29,8 @@ class FileStore {
         return is_array($data) ? $data : [];
     }
 
-    public function findById(string $type, int $id): ?array {
+    public function findById(string $type, int $id): ?array
+    {
         $items = $this->readAll($type);
         foreach ($items as $item) {
             if (($item['id'] ?? null) == $id) {
@@ -35,10 +40,12 @@ class FileStore {
         return null;
     }
 
-    public function create(string $type, array $input): array {
+    public function create(string $type, array $input): array
+    {
         $path = $this->filePath($type);
         $fp = fopen($path, 'c+');
-        if (!$fp) throw new RuntimeException("Cannot open $path");
+        if (!$fp)
+            throw new RuntimeException("Cannot open $path");
         flock($fp, LOCK_EX);
 
         $raw = stream_get_contents($fp);
@@ -46,7 +53,8 @@ class FileStore {
 
         $maxId = 0;
         foreach ($data as $item) {
-            if (isset($item['id']) && $item['id'] > $maxId) $maxId = $item['id'];
+            if (isset($item['id']) && $item['id'] > $maxId)
+                $maxId = $item['id'];
         }
         $input['id'] = $maxId + 1;
 
@@ -61,10 +69,12 @@ class FileStore {
         return $input;
     }
 
-    public function update(string $type, int $id, array $fields): ?array {
+    public function update(string $type, int $id, array $fields): ?array
+    {
         $path = $this->filePath($type);
         $fp = fopen($path, 'c+');
-        if (!$fp) throw new RuntimeException("Cannot open $path");
+        if (!$fp)
+            throw new RuntimeException("Cannot open $path");
         flock($fp, LOCK_EX);
 
         $raw = stream_get_contents($fp);
@@ -74,7 +84,8 @@ class FileStore {
         foreach ($data as &$item) {
             if (($item['id'] ?? null) == $id) {
                 foreach ($fields as $k => $v) {
-                    if ($k !== 'id') $item[$k] = $v;
+                    if ($k !== 'id')
+                        $item[$k] = $v;
                 }
                 $updated = $item;
                 break;
@@ -94,10 +105,12 @@ class FileStore {
         return $updated;
     }
 
-    public function delete(string $type, int $id): bool {
+    public function delete(string $type, int $id): bool
+    {
         $path = $this->filePath($type);
         $fp = fopen($path, 'c+');
-        if (!$fp) throw new RuntimeException("Cannot open $path");
+        if (!$fp)
+            throw new RuntimeException("Cannot open $path");
         flock($fp, LOCK_EX);
 
         $raw = stream_get_contents($fp);

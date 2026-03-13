@@ -1,222 +1,285 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sawari Admin — Map Workspace</title>
 
     <!-- Leaflet -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
 
     <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- App Styles -->
-    <link rel="stylesheet" href="styles/main.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles/main.css" />
+  </head>
+  <body>
     <!-- ===== COMMAND BAR (Top) ===== -->
     <header id="command-bar">
-        <div class="cb-left">
-            <button id="btn-sidebar-toggle" class="cb-icon-btn" title="Toggle sidebar (Ctrl+B)">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-            <a href="../admin/" class="cb-logo" title="Back to Admin Portal">
-                <i class="fa-solid fa-route"></i>
-                <span>Sawari</span>
-            </a>
-            <div class="cb-divider"></div>
-            <div id="tool-mode-group" class="cb-btn-group">
-                <button class="cb-tool-btn active" data-mode="select" title="Select mode (V)">
-                    <i class="fa-solid fa-arrow-pointer"></i>
-                    <span>Select</span>
-                </button>
-                <button class="cb-tool-btn" data-mode="add" title="Add mode (A)">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>Add</span>
-                </button>
-            </div>
+      <div class="cb-left">
+        <button
+          id="btn-sidebar-toggle"
+          class="cb-icon-btn"
+          title="Toggle sidebar (Ctrl+B)"
+        >
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="../admin/" class="cb-logo" title="Back to Admin Portal">
+          <i class="fa-solid fa-route"></i>
+          <span>Sawari</span>
+        </a>
+        <div class="cb-divider"></div>
+        <div id="tool-mode-group" class="cb-btn-group">
+          <button
+            class="cb-tool-btn active"
+            data-mode="select"
+            title="Select mode (V)"
+          >
+            <i class="fa-solid fa-arrow-pointer"></i>
+            <span>Select</span>
+          </button>
+          <button class="cb-tool-btn" data-mode="add" title="Add mode (A)">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add</span>
+          </button>
         </div>
-        <div class="cb-center">
-            <div id="add-entity-group" class="cb-btn-group" style="display:none;">
-                <button class="cb-entity-btn" data-entity="stop" title="Add Stop (S)">
-                    <i class="fa-solid fa-location-dot"></i>
-                    <span>Stop</span>
-                </button>
-                <button class="cb-entity-btn" data-entity="route" title="Add Route (R)">
-                    <i class="fa-solid fa-route"></i>
-                    <span>Route</span>
-                </button>
-                <button class="cb-entity-btn" data-entity="vehicle" title="Add Vehicle (W)">
-                    <i class="fa-solid fa-bus"></i>
-                    <span>Vehicle</span>
-                </button>
-                <button class="cb-entity-btn" data-entity="obstruction" title="Add Obstruction (O)">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>Obstruction</span>
-                </button>
-            </div>
-            <button id="btn-search" class="cb-search-btn" title="Search (Ctrl+K)">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <span>Search entities...</span>
-                <kbd>Ctrl+K</kbd>
-            </button>
+      </div>
+      <div class="cb-center">
+        <div id="add-entity-group" class="cb-btn-group" style="display: none">
+          <button class="cb-entity-btn" data-entity="stop" title="Add Stop (S)">
+            <i class="fa-solid fa-location-dot"></i>
+            <span>Stop</span>
+          </button>
+          <button
+            class="cb-entity-btn"
+            data-entity="route"
+            title="Add Route (R)"
+          >
+            <i class="fa-solid fa-route"></i>
+            <span>Route</span>
+          </button>
+          <button
+            class="cb-entity-btn"
+            data-entity="vehicle"
+            title="Add Vehicle (W)"
+          >
+            <i class="fa-solid fa-bus"></i>
+            <span>Vehicle</span>
+          </button>
+          <button
+            class="cb-entity-btn"
+            data-entity="obstruction"
+            title="Add Obstruction (O)"
+          >
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>Obstruction</span>
+          </button>
         </div>
-        <div class="cb-right">
-            <button id="btn-undo" class="cb-icon-btn" title="Undo (Ctrl+Z)" disabled>
-                <i class="fa-solid fa-rotate-left"></i>
-            </button>
-            <button id="btn-redo" class="cb-icon-btn" title="Redo (Ctrl+Y)" disabled>
-                <i class="fa-solid fa-rotate-right"></i>
-            </button>
-            <div class="cb-divider"></div>
-            <button id="btn-delete" class="cb-icon-btn danger" title="Delete selected (Del)" disabled>
-                <i class="fa-solid fa-trash"></i>
-            </button>
-        </div>
+        <button id="btn-search" class="cb-search-btn" title="Search (Ctrl+K)">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span>Search entities...</span>
+          <kbd>Ctrl+K</kbd>
+        </button>
+      </div>
+      <div class="cb-right">
+        <button
+          id="btn-undo"
+          class="cb-icon-btn"
+          title="Undo (Ctrl+Z)"
+          disabled
+        >
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+        <button
+          id="btn-redo"
+          class="cb-icon-btn"
+          title="Redo (Ctrl+Y)"
+          disabled
+        >
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
+        <div class="cb-divider"></div>
+        <button
+          id="btn-delete"
+          class="cb-icon-btn danger"
+          title="Delete selected (Del)"
+          disabled
+        >
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
     </header>
 
     <!-- ===== MAIN WORKSPACE ===== -->
     <div id="workspace">
-        <!-- Left rail: Layer panel -->
-        <aside id="layer-panel" class="panel">
-            <div class="panel-header">
-                <h3>Layers</h3>
-            </div>
-            <div class="panel-body">
-                <div class="layer-group">
-                    <label class="layer-toggle">
-                        <input type="checkbox" data-layer="stops" checked>
-                        <span class="layer-swatch" style="background:#1d4ed8"></span>
-                        <span class="layer-name">Stops</span>
-                        <span class="layer-count" data-count="stops">0</span>
-                    </label>
-                    <label class="layer-toggle">
-                        <input type="checkbox" data-layer="routes" checked>
-                        <span class="layer-swatch" style="background:#0f766e"></span>
-                        <span class="layer-name">Routes</span>
-                        <span class="layer-count" data-count="routes">0</span>
-                    </label>
-                    <label class="layer-toggle">
-                        <input type="checkbox" data-layer="vehicles" checked>
-                        <span class="layer-swatch" style="background:#b45309"></span>
-                        <span class="layer-name">Vehicles</span>
-                        <span class="layer-count" data-count="vehicles">0</span>
-                    </label>
-                    <label class="layer-toggle">
-                        <input type="checkbox" data-layer="obstructions" checked>
-                        <span class="layer-swatch" style="background:#dc2626"></span>
-                        <span class="layer-name">Obstructions</span>
-                        <span class="layer-count" data-count="obstructions">0</span>
-                    </label>
-                </div>
+      <!-- Left rail: Layer panel -->
+      <aside id="layer-panel" class="panel">
+        <div class="panel-header">
+          <h3>Layers</h3>
+        </div>
+        <div class="panel-body">
+          <div class="layer-group">
+            <label class="layer-toggle">
+              <input type="checkbox" data-layer="stops" checked />
+              <span class="layer-swatch" style="background: #1d4ed8"></span>
+              <span class="layer-name">Stops</span>
+              <span class="layer-count" data-count="stops">0</span>
+            </label>
+            <label class="layer-toggle">
+              <input type="checkbox" data-layer="routes" checked />
+              <span class="layer-swatch" style="background: #0f766e"></span>
+              <span class="layer-name">Routes</span>
+              <span class="layer-count" data-count="routes">0</span>
+            </label>
+            <label class="layer-toggle">
+              <input type="checkbox" data-layer="vehicles" checked />
+              <span class="layer-swatch" style="background: #b45309"></span>
+              <span class="layer-name">Vehicles</span>
+              <span class="layer-count" data-count="vehicles">0</span>
+            </label>
+            <label class="layer-toggle">
+              <input type="checkbox" data-layer="obstructions" checked />
+              <span class="layer-swatch" style="background: #dc2626"></span>
+              <span class="layer-name">Obstructions</span>
+              <span class="layer-count" data-count="obstructions">0</span>
+            </label>
+          </div>
 
-                <div class="panel-section">
-                    <h4>Quick Filters</h4>
-                    <button class="filter-btn active" data-filter="all">All</button>
-                    <button class="filter-btn" data-filter="active">Active Only</button>
-                    <button class="filter-btn" data-filter="moving">Moving Vehicles</button>
-                </div>
+          <div class="panel-section">
+            <h4>Quick Filters</h4>
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="active">Active Only</button>
+            <button class="filter-btn" data-filter="moving">
+              Moving Vehicles
+            </button>
+          </div>
 
-                <div class="panel-section">
-                    <h4>Stats</h4>
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <span class="stat-value" id="stat-stops">0</span>
-                            <span class="stat-label">Stops</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-value" id="stat-routes">0</span>
-                            <span class="stat-label">Routes</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-value" id="stat-vehicles">0</span>
-                            <span class="stat-label">Vehicles</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-value" id="stat-obstructions">0</span>
-                            <span class="stat-label">Issues</span>
-                        </div>
-                    </div>
-                </div>
+          <div class="panel-section">
+            <h4>Stats</h4>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <span class="stat-value" id="stat-stops">0</span>
+                <span class="stat-label">Stops</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value" id="stat-routes">0</span>
+                <span class="stat-label">Routes</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value" id="stat-vehicles">0</span>
+                <span class="stat-label">Vehicles</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value" id="stat-obstructions">0</span>
+                <span class="stat-label">Issues</span>
+              </div>
             </div>
-        </aside>
+          </div>
+        </div>
+      </aside>
 
-        <!-- Center: Map canvas -->
-        <main id="map-container">
-            <div id="map"></div>
-            <div id="map-crosshair" style="display:none;">
-                <i class="fa-solid fa-crosshairs"></i>
-            </div>
-            <div id="map-mode-hint" style="display:none;"></div>
-        </main>
+      <!-- Center: Map canvas -->
+      <main id="map-container">
+        <div id="map"></div>
+        <div id="map-crosshair" style="display: none">
+          <i class="fa-solid fa-crosshairs"></i>
+        </div>
+        <div id="map-mode-hint" style="display: none"></div>
+      </main>
 
-        <!-- Right: Inspector panel -->
-        <aside id="inspector-panel" class="panel">
-            <div class="panel-header">
-                <h3 id="inspector-title">Inspector</h3>
-                <button id="btn-close-inspector" class="cb-icon-btn" title="Close (Esc)">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div id="inspector-body" class="panel-body">
-                <div class="inspector-empty">
-                    <i class="fa-solid fa-arrow-pointer"></i>
-                    <p>Select an object on the map to inspect and edit its properties.</p>
-                </div>
-            </div>
-        </aside>
+      <!-- Right: Inspector panel -->
+      <aside id="inspector-panel" class="panel">
+        <div class="panel-header">
+          <h3 id="inspector-title">Inspector</h3>
+          <button
+            id="btn-close-inspector"
+            class="cb-icon-btn"
+            title="Close (Esc)"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div id="inspector-body" class="panel-body">
+          <div class="inspector-empty">
+            <i class="fa-solid fa-arrow-pointer"></i>
+            <p>
+              Select an object on the map to inspect and edit its properties.
+            </p>
+          </div>
+        </div>
+      </aside>
     </div>
 
     <!-- ===== STATUS STRIP (Bottom) ===== -->
     <footer id="status-strip">
-        <div class="status-left">
-            <span id="status-mode"><i class="fa-solid fa-arrow-pointer"></i> Select Mode</span>
-            <span class="status-divider">|</span>
-            <span id="status-coords">--</span>
-        </div>
-        <div class="status-center" id="status-actions"></div>
-        <div class="status-right">
-            <span id="status-sync" class="status-sync synced">
-                <i class="fa-solid fa-circle"></i> Synced
-            </span>
-        </div>
+      <div class="status-left">
+        <span id="status-mode"
+          ><i class="fa-solid fa-arrow-pointer"></i> Select Mode</span
+        >
+        <span class="status-divider">|</span>
+        <span id="status-coords">--</span>
+      </div>
+      <div class="status-center" id="status-actions"></div>
+      <div class="status-right">
+        <span id="status-sync" class="status-sync synced">
+          <i class="fa-solid fa-circle"></i> Synced
+        </span>
+      </div>
     </footer>
 
     <!-- ===== SEARCH MODAL ===== -->
-    <div id="search-modal" class="modal-backdrop" style="display:none;">
-        <div class="search-dialog">
-            <div class="search-input-wrap">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="search-input" placeholder="Search stops, routes, vehicles..." autocomplete="off">
-                <kbd>Esc</kbd>
-            </div>
-            <div id="search-results" class="search-results"></div>
+    <div id="search-modal" class="modal-backdrop" style="display: none">
+      <div class="search-dialog">
+        <div class="search-input-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search stops, routes, vehicles..."
+            autocomplete="off"
+          />
+          <kbd>Esc</kbd>
         </div>
+        <div id="search-results" class="search-results"></div>
+      </div>
     </div>
 
     <!-- ===== CONTEXT MENU ===== -->
-    <div id="context-menu" class="context-menu" style="display:none;"></div>
+    <div id="context-menu" class="context-menu" style="display: none"></div>
 
     <!-- ===== CONFIRM DIALOG ===== -->
-    <div id="confirm-backdrop" class="modal-backdrop" style="display:none;">
-        <div class="confirm-dialog">
-            <div class="confirm-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-            <h3 id="confirm-title">Confirm</h3>
-            <p id="confirm-message"></p>
-            <div id="confirm-deps"></div>
-            <div class="confirm-actions">
-                <button id="confirm-cancel" class="btn btn-ghost">Cancel</button>
-                <button id="confirm-ok" class="btn btn-danger">Delete</button>
-                <button id="confirm-force" class="btn btn-warn" style="display:none;">Force Delete</button>
-            </div>
+    <div id="confirm-backdrop" class="modal-backdrop" style="display: none">
+      <div class="confirm-dialog">
+        <div class="confirm-icon">
+          <i class="fa-solid fa-triangle-exclamation"></i>
         </div>
+        <h3 id="confirm-title">Confirm</h3>
+        <p id="confirm-message"></p>
+        <div id="confirm-deps"></div>
+        <div class="confirm-actions">
+          <button id="confirm-cancel" class="btn btn-ghost">Cancel</button>
+          <button id="confirm-ok" class="btn btn-danger">Delete</button>
+          <button id="confirm-force" class="btn btn-warn" style="display: none">
+            Force Delete
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- ===== TOAST CONTAINER ===== -->
@@ -240,5 +303,5 @@
     <script src="components/inspector/inspector.js"></script>
     <script src="components/notifications/notifications.js"></script>
     <script src="app.js"></script>
-</body>
+  </body>
 </html>

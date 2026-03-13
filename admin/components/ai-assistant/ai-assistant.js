@@ -61,6 +61,23 @@ const AiAssistant = (() => {
         try { return JSON.parse(str); } catch { return null; }
     }
 
+    function tryExtractJson(text) {
+        // Find JSON object in text by matching balanced braces
+        const start = text.indexOf('{');
+        if (start === -1) return null;
+        let depth = 0;
+        for (let i = start; i < text.length; i++) {
+            if (text[i] === '{') depth++;
+            else if (text[i] === '}') depth--;
+            if (depth === 0) {
+                const candidate = text.substring(start, i + 1);
+                const result = tryParseJson(candidate);
+                if (result && result.action) return result;
+            }
+        }
+        return null;
+    }
+
     // Store payloads by ID to avoid HTML-encoding issues in data attributes
     const payloadStore = {};
     let payloadCounter = 0;
@@ -191,13 +208,18 @@ RULES:
                 renderAction(parsed);
             } else {
                 // Check if reply contains embedded JSON within text
-                const jsonMatch = reply.match(/\{[^{}]*"action"\s*:\s*"[^"]*"[^{}]*\}/);
+                const jsonMatch = reply.match(/\{[^}]*"action"\s*:[^]*?\}(?:\s*\})?/);
                 if (jsonMatch) {
-                    parsed = tryParseJson(jsonMatch[0]);
-                    const textPart = reply.replace(jsonMatch[0], '').replace(/```(?:json)?|```/gi, '').trim();
+                    // Try to parse progressively longer substrings to find valid JSON
+                    parsed = tryExtractJson(reply);
+                    const textPart = parsed
+                        ? reply.replace(reply.substring(reply.indexOf('{'), reply.lastIndexOf('}') + 1), '').replace(/```(?:json)?|```/gi, '').trim()
+                        : null;
                     if (textPart) addMessage('assistant', formatReply(textPart));
                     if (parsed && parsed.action) {
                         renderAction(parsed);
+                    } else {
+                        addMessage('assistant', formatReply(reply));
                     }
                 } else {
                     addMessage('assistant', formatReply(reply));
@@ -225,21 +247,25 @@ RULES:
         let html = '';
 
         if (act === 'create') {
+            const pid = ++payloadCounter;
+            payloadStore[pid] = data;
             html = `<div class="ai-action-card">
                 <div class="ai-action-header"><i class="fa-solid fa-plus"></i> Create ${esc(entity)}</div>
                 <div class="ai-action-details">${Object.entries(data || {}).map(([k, v]) =>
                     `<span><strong>${esc(k)}:</strong> ${esc(String(v))}</span>`
                 ).join('')}</div>
                 <div class="ai-action-buttons">
-                    <button class="ai-action-btn confirm" data-action="create" data-entity="${esc(entity)}" data-payload='${esc(JSON.stringify(data))}'>
+                    <button class="ai-action-btn confirm" data-action="create" data-entity="${esc(entity)}" data-pid="${pid}">
                         <i class="fa-solid fa-check"></i> Create
                     </button>
-                    <button class="ai-action-btn cancel" onclick="this.closest('.ai-action-card').style.opacity='0.4'">
+                    <button class="ai-action-btn cancel" onclick="this.closest('.ai-action-card').style.opacity='0.4';this.closest('.ai-action-card').style.pointerEvents='none'">
                         <i class="fa-solid fa-xmark"></i> Skip
                     </button>
                 </div>
             </div>`;
         } else if (act === 'update') {
+            const pid = ++payloadCounter;
+            payloadStore[pid] = data;
             const current = Store.findEntity(entity + 's', id);
             const name = current ? current.name : `#${id}`;
             html = `<div class="ai-action-card">
@@ -248,10 +274,10 @@ RULES:
                     `<span><strong>${esc(k)}:</strong> ${esc(String(v))}</span>`
                 ).join('')}</div>
                 <div class="ai-action-buttons">
-                    <button class="ai-action-btn confirm" data-action="update" data-entity="${esc(entity)}" data-id="${id}" data-payload='${esc(JSON.stringify(data))}'>
+                    <button class="ai-action-btn confirm" data-action="update" data-entity="${esc(entity)}" data-id="${id}" data-pid="${pid}">
                         <i class="fa-solid fa-check"></i> Update
                     </button>
-                    <button class="ai-action-btn cancel" onclick="this.closest('.ai-action-card').style.opacity='0.4'">
+                    <button class="ai-action-btn cancel" onclick="this.closest('.ai-action-card').style.opacity='0.4';this.closest('.ai-action-card').style.pointerEvents='none'">
                         <i class="fa-solid fa-xmark"></i> Skip
                     </button>
                 </div>
@@ -265,7 +291,7 @@ RULES:
                     <button class="ai-action-btn confirm danger" data-action="delete" data-entity="${esc(entity)}" data-id="${id}">
                         <i class="fa-solid fa-check"></i> Delete
                     </button>
-                    <button class="ai-action-btn cancel" onclick="this.closest('.ai-action-card').style.opacity='0.4'">
+                    <button class="ai-action-btn cancel" onclick="this.closest('.ai-action-card').style.opacity='0.4';this.closest('.ai-action-card').style.pointerEvents='none'">
                         <i class="fa-solid fa-xmark"></i> Skip
                     </button>
                 </div>
@@ -288,7 +314,8 @@ RULES:
         const action = btn.dataset.action;
         const entity = btn.dataset.entity;
         const id = btn.dataset.id ? parseInt(btn.dataset.id) : null;
-        const payload = btn.dataset.payload ? JSON.parse(btn.dataset.payload) : null;
+        const pid = btn.dataset.pid;
+        const payload = pid ? payloadStore[pid] : null;
         const card = btn.closest('.ai-action-card');
 
         btn.disabled = true;

@@ -175,9 +175,12 @@ function activateTabFromHash() {
         stops: 'stops-tab',
         routes: 'routes-tab',
         vehicles: 'vehicles-tab',
+        issues: 'obstructions-tab',
+        obstructions: 'obstructions-tab',
         'stops-tab': 'stops-tab',
         'routes-tab': 'routes-tab',
-        'vehicles-tab': 'vehicles-tab'
+        'vehicles-tab': 'vehicles-tab',
+        'obstructions-tab': 'obstructions-tab'
     };
     activateTab(map[hash] || 'stops-tab');
 }
@@ -956,6 +959,12 @@ function applyGlobalQuickSearch(raw) {
         renderVehiclesTable();
         return;
     }
+    if (q.includes('issue') || q.includes('block') || q.includes('obstruction') || q.includes('damage')) {
+        activateTab('obstructions-tab');
+        document.getElementById('obstruction-search').value = q.replace(/issue|block|obstruction|damage/g, '').trim();
+        renderObstructionsTable();
+        return;
+    }
     activateTab('stops-tab');
     document.getElementById('stop-search').value = q.replace('stop', '').trim();
     renderStopsTable();
@@ -965,9 +974,11 @@ const commandCatalog = [
     { key: 'open stops', run: () => activateTab('stops-tab') },
     { key: 'open routes', run: () => activateTab('routes-tab') },
     { key: 'open vehicles', run: () => activateTab('vehicles-tab') },
+    { key: 'open road issues', run: () => activateTab('obstructions-tab') },
     { key: 'new stop', run: () => document.getElementById('btn-add-stop').click() },
     { key: 'new route', run: () => document.getElementById('btn-add-route').click() },
     { key: 'new vehicle', run: () => document.getElementById('btn-show-add-vehicle').click() },
+    { key: 'new road issue', run: () => document.getElementById('btn-add-obstruction').click() },
     { key: 'refresh all', run: () => loadAll() },
     { key: 'toggle map focus', run: () => document.getElementById('btn-map-focus').click() }
 ];
@@ -1036,6 +1047,7 @@ document.addEventListener('keydown', e => {
     if (e.altKey && e.key === '1') activateTab('stops-tab');
     if (e.altKey && e.key === '2') activateTab('routes-tab');
     if (e.altKey && e.key === '3') activateTab('vehicles-tab');
+    if (e.altKey && e.key === '4') activateTab('obstructions-tab');
 });
 
 // ---- Init ----

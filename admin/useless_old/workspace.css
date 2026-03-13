@@ -688,6 +688,15 @@ body.admin-theme {
 }
 
 .route-meta {
+
+    .draggable-chip {
+        cursor: grab;
+    }
+
+    .draggable-chip:active {
+        cursor: grabbing;
+    }
+
     margin-top: 2px;
     color: var(--ink-faint);
     font-size: 0.7rem;

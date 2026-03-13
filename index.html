@@ -175,6 +175,13 @@
         <div class="route-sidebar-actions">
           <button
             class="btn btn-sm"
+            id="btn-share-route"
+            title="Copy journey summary"
+          >
+            <i class="fa-solid fa-share-nodes"></i>
+          </button>
+          <button
+            class="btn btn-sm"
             id="btn-recenter-route"
             title="Recenter route"
           >
@@ -208,12 +215,60 @@
         <i class="fa-solid fa-crosshairs"></i>
       </button>
       <button
+        class="btn btn-sm hidden"
+        id="btn-nearby-stops"
+        title="Show nearby stops"
+      >
+        <i class="fa-solid fa-map-pin"></i> Nearby
+      </button>
+      <button
         class="btn btn-sm btn-success hidden"
         id="btn-use-gps-start"
         title="Use GPS as start location"
       >
         <i class="fa-solid fa-circle-dot"></i> Use as Start
       </button>
+    </div>
+
+    <!-- Nearby Stops Panel -->
+    <aside id="nearby-panel" class="nearby-panel hidden">
+      <div class="nearby-header">
+        <h3><i class="fa-solid fa-map-pin"></i> Nearby Stops</h3>
+        <button class="panel-icon-btn" id="btn-close-nearby"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="nearby-list" class="nearby-list"></div>
+    </aside>
+
+    <!-- Stats Bar -->
+    <div id="stats-bar" class="stats-bar">
+      <span id="stats-clock"><i class="fa-regular fa-clock"></i> --:--</span>
+      <span class="stats-divider"></span>
+      <span id="stats-stops"><i class="fa-solid fa-bus"></i> -- stops</span>
+      <span class="stats-divider"></span>
+      <span id="stats-routes"><i class="fa-solid fa-route"></i> -- routes</span>
+      <span class="stats-divider"></span>
+      <span id="stats-vehicles"><i class="fa-solid fa-van-shuttle"></i> -- live</span>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div id="shortcuts-modal" class="shortcuts-modal hidden">
+      <div class="shortcuts-backdrop"></div>
+      <div class="shortcuts-content">
+        <div class="shortcuts-header">
+          <h3><i class="fa-solid fa-keyboard"></i> Keyboard Shortcuts</h3>
+          <button class="panel-icon-btn" id="btn-close-shortcuts"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="shortcuts-grid">
+          <div class="shortcut-row"><kbd>/</kbd><span>Focus search</span></div>
+          <div class="shortcut-row"><kbd>?</kbd><span>Show shortcuts</span></div>
+          <div class="shortcut-row"><kbd>Enter</kbd><span>Navigate</span></div>
+          <div class="shortcut-row"><kbd>Esc</kbd><span>Cancel / close</span></div>
+          <div class="shortcut-row"><kbd>T</kbd><span>Toggle theme</span></div>
+          <div class="shortcut-row"><kbd>E</kbd><span>Explore routes</span></div>
+          <div class="shortcut-row"><kbd>G</kbd><span>Toggle GPS</span></div>
+          <div class="shortcut-row"><kbd>N</kbd><span>Nearby stops</span></div>
+        </div>
+      </div>
     </div>
 
     <div id="toast-container"></div>

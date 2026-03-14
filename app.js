@@ -1,6 +1,8 @@
 // ============================================================
 // Sawari - app.js
 // Main transit navigation application
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 
 const API = 'backend/handlers/api.php';

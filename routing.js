@@ -1,7 +1,8 @@
 // ============================================================
 // Sawari - routing.js
 // OSRM routing utilities for transit navigation
-// Adapted from sawari-test/routing.js
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 
 const routeCache = {

@@ -137,6 +137,11 @@ Every hardcoded constant, threshold, range, and default used in the system.
 | Temperature (admin AI)           | `0.1`                                             | `ai-assistant.js:225`        | Near-deterministic output         |
 | Max tokens (location extractor)  | `200`                                             | `location-extractor.html:89` | Short extraction results          |
 | Temperature (location extractor) | `0`                                               | `location-extractor.html:90` | Fully deterministic               |
+| Max tokens (task extraction)     | `300`                                             | `suggestions.php:137`        | Task extraction response limit    |
+| Temperature (task extraction)    | `0`                                               | `suggestions.php:138`        | Fully deterministic               |
+| Max tokens (landing chatbot)     | `500`                                             | `landing.js:101`             | Chatbot response length           |
+| Temperature (landing chatbot)    | `0.6`                                             | `landing.js:103`             | Conversational warmth             |
+| Chatbot context window           | `12` messages                                     | `landing.js:101`             | Rolling conversation history kept |
 | Default AI coordinates           | `27.7172, 85.3240`                                | `ai-assistant.js:386-387`    | Fallback lat/lng for new entities |
 
 ## Animation & Timing
@@ -232,6 +237,21 @@ Every hardcoded constant, threshold, range, and default used in the system.
 | `--status-strip-h` | `28px`                                          | Admin status bar height     |
 | `--panel-w`        | `260px`                                         | Admin layer panel width     |
 | `--inspector-w`    | `320px`                                         | Admin inspector panel width |
+
+## Suggestions System
+
+| Constant                   | Value                                                                    | Location                  | Description                                 |
+| -------------------------- | ------------------------------------------------------------------------ | ------------------------- | ------------------------------------------- |
+| Suggestions API path       | `'backend/handlers/suggestions.php'`                                     | `landing.js`, admin JS    | Public + admin suggestion endpoint          |
+| Min message length         | `10` chars                                                               | `suggestions.php:199`     | Minimum suggestion text length              |
+| Max message length         | `1000` chars                                                             | `suggestions.php:201`     | Maximum suggestion text length              |
+| Max name length            | `50` chars                                                               | `suggestions.php:221`     | Truncated on save                           |
+| Allowed categories         | `route_correction`, `missing_stop`, `fare_issue`, `new_route`, `general` | `suggestions.php:204`     | Dropdown options                            |
+| Allowed statuses           | `pending`, `approved`, `dismissed`, `completed`                          | `suggestions.php:236`     | Suggestion lifecycle states                 |
+| Groq task extraction timeout | `15` s                                                                 | `suggestions.php:130`     | cURL timeout for AI call                    |
+| Feedback auto-dismiss      | `8,000` ms                                                               | `landing.js:203`          | Success/error banner display time           |
+| Badge max display          | `99+`                                                                    | `suggestions.js:78`       | Badge shows "99+" for counts above 99       |
+| Data file                  | `data/suggestions.json`                                                  | `suggestions.php:20`      | JSON storage location                       |
 
 ### Responsive Breakpoints
 

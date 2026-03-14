@@ -306,6 +306,22 @@ Every feature in the system, from minor to major.
 - [x] `DELETE ?type=stops/routes/vehicles&id=N` — Delete entity
 - [x] `POST ?type=route-plan` — Obstruction-aware route planning
 
+### Suggestions API Endpoints
+
+- [x] `GET suggestions.php` — List all suggestions (for admin panel)
+- [x] `POST suggestions.php` — Submit suggestion with AI task extraction via Groq
+- [x] `PUT suggestions.php` — Update suggestion status (pending/approved/completed/dismissed)
+- [x] `DELETE suggestions.php?id=N` — Permanently delete a suggestion
+
+### AI Task Extraction
+
+- [x] Groq LLM analyses suggestion text against current stops/routes data
+- [x] Extracts structured task JSON: action, summary, entity details
+- [x] Supported actions: add_stop_to_route, remove_stop_from_route, rename_stop, rename_route, add_stop, update_stop, update_route
+- [x] Returns null for vague or non-actionable feedback (handled manually by admin)
+- [x] Markdown code block fallback parsing for LLM response quirks
+- [x] Validates extracted task has required fields (action, summary)
+
 ### Admin API Endpoints
 
 - [x] All public CRUD operations with server-side validation

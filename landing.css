@@ -7,7 +7,13 @@
    ============================================================ */
 
 /* --- Reset & Base --- */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 :root {
   --serif: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
@@ -51,7 +57,10 @@ a {
   text-decoration: none;
   transition: color 0.2s;
 }
-a:hover { color: var(--accent-hover); }
+
+a:hover {
+  color: var(--accent-hover);
+}
 
 /* --- Masthead --- */
 .masthead {
@@ -118,7 +127,10 @@ a:hover { color: var(--accent-hover); }
   text-decoration: none;
   transition: color 0.2s;
 }
-.nav-bar a:hover { color: var(--ink); }
+
+.nav-bar a:hover {
+  color: var(--ink);
+}
 
 .nav-dot {
   width: 3px;
@@ -135,6 +147,7 @@ a:hover { color: var(--accent-hover); }
   font-weight: 600;
   transition: background 0.2s, color 0.2s;
 }
+
 .nav-cta:hover {
   background: var(--ink);
   color: var(--paper) !important;
@@ -198,7 +211,10 @@ a:hover { color: var(--accent-hover); }
   border: none;
   transition: background 0.2s;
 }
-.btn-launch:hover { background: var(--accent); }
+
+.btn-launch:hover {
+  background: var(--accent);
+}
 
 .hero-side-fig img {
   width: 100%;
@@ -240,10 +256,10 @@ figcaption {
   border-bottom: 1px solid var(--rule);
 }
 
-.section-alt > h2,
-.section-alt > p,
-.section-alt > .steps-grid,
-.section-alt > .features-editorial {
+.section-alt>h2,
+.section-alt>p,
+.section-alt>.steps-grid,
+.section-alt>.features-editorial {
   max-width: 900px;
   margin-left: auto;
   margin-right: auto;
@@ -257,7 +273,9 @@ figcaption {
   line-height: 1.3;
 }
 
-.section-heading.center { text-align: center; }
+.section-heading.center {
+  text-align: center;
+}
 
 .section-intro {
   text-align: center;
@@ -425,9 +443,18 @@ figcaption {
   gap: 1rem;
 }
 
-.chat-log::-webkit-scrollbar { width: 4px; }
-.chat-log::-webkit-scrollbar-track { background: transparent; }
-.chat-log::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 2px; }
+.chat-log::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chat-log::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-log::-webkit-scrollbar-thumb {
+  background: var(--rule);
+  border-radius: 2px;
+}
 
 .chat-msg {
   display: flex;
@@ -533,12 +560,27 @@ figcaption {
   animation: typing-dot 1.2s ease-in-out infinite;
 }
 
-.chat-typing span:nth-child(2) { animation-delay: 0.15s; }
-.chat-typing span:nth-child(3) { animation-delay: 0.3s; }
+.chat-typing span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.chat-typing span:nth-child(3) {
+  animation-delay: 0.3s;
+}
 
 @keyframes typing-dot {
-  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
-  30% { opacity: 1; transform: translateY(-4px); }
+
+  0%,
+  60%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+
+  30% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
 }
 
 /* --- Footer --- */
@@ -594,7 +636,10 @@ figcaption {
   color: var(--ink-muted);
   text-decoration: none;
 }
-.footer-links a:hover { color: var(--ink); }
+
+.footer-links a:hover {
+  color: var(--ink);
+}
 
 .footer-bottom {
   margin-top: 2rem;
@@ -620,7 +665,9 @@ figcaption {
     grid-template-columns: 1fr;
   }
 
-  .col-img { order: -1; }
+  .col-img {
+    order: -1;
+  }
 
   .col-img img {
     height: 220px;
@@ -662,19 +709,35 @@ figcaption {
 }
 
 @media (max-width: 480px) {
-  body { font-size: 15px; }
+  body {
+    font-size: 15px;
+  }
 
-  .masthead-title { font-size: 2.6rem; }
+  .masthead-title {
+    font-size: 2.6rem;
+  }
 
-  .steps-grid { grid-template-columns: 1fr; }
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
 
-  .gallery-grid { grid-template-columns: 1fr; }
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
 
-  .gallery-wide { grid-column: span 1; }
+  .gallery-wide {
+    grid-column: span 1;
+  }
 
-  .gallery-wide img { height: 200px; }
+  .gallery-wide img {
+    height: 200px;
+  }
 
-  .hero-lead h2 { font-size: 1.3rem; }
+  .hero-lead h2 {
+    font-size: 1.3rem;
+  }
 
-  .chat-log { min-height: 240px; }
+  .chat-log {
+    min-height: 240px;
+  }
 }

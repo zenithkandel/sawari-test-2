@@ -166,6 +166,67 @@
     `;
   }
 
+  // --- Task execution ---
+
+  async function executeTask(task) {
+    if (!task || !task.action || !task.details) return false;
+
+    const d = task.details;
+
+    try {
+      switch (task.action) {
+        case 'add_stop_to_route': {
+          const route = Store.findEntity('routes', d.route_id);
+          if (!route) throw new Error(`Route #${d.route_id} not found`);
+          const stopIds = [...(route.stopIds || [])];
+          if (stopIds.includes(d.stop_id)) {
+            showToast(`Stop "${d.stop_name}" already on this route`, 'info');
+            return true; // Already there, consider it done
+          }
+          stopIds.push(d.stop_id);
+          await Commands.updateRoute(d.route_id, { stopIds });
+          return true;
+        }
+
+        case 'remove_stop_from_route': {
+          const route = Store.findEntity('routes', d.route_id);
+          if (!route) throw new Error(`Route #${d.route_id} not found`);
+          const stopIds = (route.stopIds || []).filter(sid => sid !== d.stop_id);
+          await Commands.updateRoute(d.route_id, { stopIds });
+          return true;
+        }
+
+        case 'rename_stop': {
+          await Commands.updateStop(d.stop_id, { name: d.new_name });
+          return true;
+        }
+
+        case 'rename_route': {
+          await Commands.updateRoute(d.route_id, { name: d.new_name });
+          return true;
+        }
+
+        case 'update_stop': {
+          await Commands.updateStop(d.stop_id, { [d.field]: d.value });
+          return true;
+        }
+
+        case 'update_route': {
+          await Commands.updateRoute(d.route_id, { [d.field]: d.value });
+          return true;
+        }
+
+        default:
+          showToast(`Unknown task action: ${task.action}`, 'error');
+          return false;
+      }
+    } catch (err) {
+      console.error('Task execution failed:', err);
+      showToast('Task failed: ' + err.message, 'error');
+      return false;
+    }
+  }
+
   // --- Actions ---
 
   async function handleAction(id, action) {
@@ -182,6 +243,25 @@
         showToast('Failed to delete suggestion', 'error');
       }
       return;
+    }
+
+    // When approving a suggestion with an extracted task, execute the task
+    if (action === 'approved') {
+      const suggestion = suggestions.find(s => s.id === id);
+      if (suggestion && suggestion.task) {
+        const confirmed = confirm(
+          `Apply this task?\n\n"${suggestion.task.summary}"\n\nThis will modify the transit data.`
+        );
+        if (!confirmed) return;
+
+        const success = await executeTask(suggestion.task);
+        if (!success) {
+          showToast('Task execution failed — suggestion not approved', 'error');
+          return;
+        }
+        // Task executed successfully, mark as completed directly
+        action = 'completed';
+      }
     }
 
     // Status update (approved, dismissed, completed)

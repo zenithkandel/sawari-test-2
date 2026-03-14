@@ -251,6 +251,9 @@ $groqApiKey = $env['GROQ_API_KEY'] ?? '';
 
   <div id="toast-container"></div>
 
+  <!-- Credit -->
+  <a href="https://zenithkandel.com.np" target="_blank" rel="noopener" class="site-credit">by Zenith Kandel</a>
+
   <template id="tpl-vehicle-bus">
     <svg viewBox="0 0 72 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <rect x="6" y="10" width="60" height="22" rx="8" fill="__COLOR__" stroke="#0f172a" stroke-width="2" />

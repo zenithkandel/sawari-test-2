@@ -2076,3 +2076,21 @@ body {
         max-width: none;
     }
 }
+
+/* --- Site Credit --- */
+.site-credit {
+    position: fixed;
+    bottom: 4px;
+    right: 8px;
+    z-index: 5;
+    font-size: 9px;
+    color: var(--text-muted);
+    opacity: 0.5;
+    text-decoration: none;
+    font-family: var(--font);
+    transition: opacity var(--transition);
+}
+.site-credit:hover {
+    opacity: 1;
+    color: var(--accent);
+}

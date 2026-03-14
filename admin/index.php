@@ -182,6 +182,9 @@ if (empty($_SESSION['admin_authenticated'])):
         <?php endif; ?>
       </form>
       <a href="../" class="login-back"><i class="fa-solid fa-arrow-left"></i> Back to main site</a>
+      <p style="text-align:center;margin-top:1.5rem;font-size:0.65rem;color:var(--text-muted);opacity:0.5;">
+        Built by <a href="https://zenithkandel.com.np" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;">Zenith Kandel</a>
+      </p>
     </div>
   </body>
 
@@ -396,6 +399,7 @@ if (empty($_SESSION['admin_authenticated'])):
     </div>
     <div class="status-center" id="status-actions"></div>
     <div class="status-right">
+      <a href="https://zenithkandel.com.np" target="_blank" rel="noopener" style="color:var(--text-muted);font-size:10px;text-decoration:none;opacity:0.4;margin-right:8px;">zenithkandel.com.np</a>
       <span id="status-sync" class="status-sync synced">
         <i class="fa-solid fa-circle"></i> Synced
       </span>

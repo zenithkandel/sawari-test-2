@@ -1,5 +1,7 @@
 // ============================================================
 // Sawari Admin - API Client
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 const ApiClient = (() => {
     const BASE = '../backend/admin/handlers/api.php';

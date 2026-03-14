@@ -1,5 +1,7 @@
 // ============================================================
 // Sawari Admin - Inspector Panel Component
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 const Inspector = (() => {
     const panel = document.getElementById('inspector-panel');

@@ -1,5 +1,7 @@
 // ============================================================
 // Sawari Admin - Map Engine (Leaflet Adapter)
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 const MapEngine = (() => {
     let map = null;

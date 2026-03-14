@@ -1,5 +1,7 @@
 // ============================================================
 // Sawari Admin - Selection Tools & Context Menus
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 const SelectionTools = (() => {
     const ctxMenu = document.getElementById('context-menu');

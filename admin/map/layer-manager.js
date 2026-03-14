@@ -1,5 +1,7 @@
 // ============================================================
 // Sawari Admin - Layer Manager
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 const LayerManager = (() => {
     const layers = {

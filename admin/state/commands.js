@@ -1,5 +1,7 @@
 // ============================================================
 // Sawari Admin - Command Bus
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 const Commands = (() => {
 

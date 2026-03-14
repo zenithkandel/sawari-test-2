@@ -1,5 +1,7 @@
 // ============================================================
 // Sawari Admin - Command Bar Component
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 const CommandBar = (() => {
     function init() {

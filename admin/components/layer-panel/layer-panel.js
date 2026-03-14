@@ -1,5 +1,7 @@
 // ============================================================
 // Sawari Admin - Layer Panel Component
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 const LayerPanel = (() => {
     function init() {

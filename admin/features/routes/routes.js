@@ -1,5 +1,7 @@
 // ============================================================
 // Sawari Admin - Routes Feature
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 const RoutesFeature = (() => {
     let previewLine = null;

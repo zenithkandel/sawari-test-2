@@ -1,5 +1,7 @@
 // ============================================================
 // Sawari Admin - Main Application Bootstrap
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 (async function App() {
     'use strict';

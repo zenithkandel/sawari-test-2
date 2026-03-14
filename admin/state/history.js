@@ -1,5 +1,7 @@
 // ============================================================
 // Sawari Admin - Undo/Redo History
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 const History = (() => {
     const stack = [];

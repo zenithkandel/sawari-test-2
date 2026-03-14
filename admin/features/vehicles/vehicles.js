@@ -1,5 +1,7 @@
 // ============================================================
 // Sawari Admin - Vehicles Feature
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 const VehiclesFeature = (() => {
     function init() {

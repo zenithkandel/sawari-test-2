@@ -1,5 +1,7 @@
 // ============================================================
 // Sawari Admin - Centralized State Store
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 const Store = (() => {
     const state = {

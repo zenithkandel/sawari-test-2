@@ -1,5 +1,7 @@
 // ============================================================
 // Sawari Admin - Notifications Component
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 const Notifications = (() => {
     const container = document.getElementById('toast-container');

@@ -1,6 +1,8 @@
 // ============================================================
 // Sawari Admin - AI Assistant Component
 // Supports: Natural language commands + natural language search
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 const AiAssistant = (() => {
     const modal = document.getElementById('ai-modal');

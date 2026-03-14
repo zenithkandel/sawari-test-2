@@ -1,5 +1,7 @@
 // ============================================================
 // Sawari Admin - Stops Feature
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 const StopsFeature = (() => {
     function init() {

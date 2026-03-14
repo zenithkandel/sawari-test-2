@@ -1,5 +1,7 @@
 // ============================================================
 // Sawari Admin - Draw Tools
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 const DrawTools = (() => {
     let tempMarker = null;

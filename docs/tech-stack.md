@@ -23,7 +23,7 @@ Sawari is a full-stack web application with a clear separation between the publi
 │  Public API           │    │  Admin API                     │
 │  backend/handlers/    │    │  backend/admin/handlers/       │
 │  api.php              │    │  api.php                       │
-│                       │    │  + validators/                 │
+│  suggestions.php      │    │  + validators/                 │
 │                       │    │  + services/relation-guard     │
 │                       │    │  + repositories/file-store     │
 └───────────┬───────────┘    └──────────┬─────────────────────┘
@@ -32,7 +32,7 @@ Sawari is a full-stack web application with a clear separation between the publi
 ┌─────────────────────────────────────────────────────────────┐
 │                    data/ (JSON files)                        │
 │  stops.json  routes.json  vehicles.json  obstructions.json  │
-│  icons.json                                                 │
+│  suggestions.json  icons.json                              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -89,8 +89,10 @@ admin/
 │   │   └── inspector.js      # Inspector — property editor panel
 │   ├── notifications/
 │   │   └── notifications.js  # Notifications — toast system, sync status
-│   └── ai-assistant/
-│       └── ai-assistant.js   # AiAssistant — NL commands via Groq LLM
+│   ├── ai-assistant/
+│   │   └── ai-assistant.js   # AiAssistant — NL commands via Groq LLM
+│   └── suggestions/
+│       └── suggestions.js    # Suggestions — community feedback with task execution
 └── styles/
     └── main.css              # All admin styles
 ```
@@ -113,7 +115,8 @@ admin/
 ```
 backend/
 ├── handlers/
-│   └── api.php               # Public API (read-heavy, basic CRUD, route planning)
+│   ├── api.php               # Public API (read-heavy, basic CRUD, route planning)
+│   └── suggestions.php       # Suggestions API (CRUD + Groq AI task extraction)
 ├── admin/
 │   ├── handlers/
 │   │   └── api.php           # Admin API (full CRUD + validation + relations)

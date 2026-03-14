@@ -57,6 +57,11 @@ There's a password-protected admin dashboard where transit data is managed. Admi
 - Upload vehicle images
 - Use an AI assistant to manage data with natural language (e.g., "create a stop called Balaju at 27.72, 85.30")
 - See dependency relationships (which routes use a stop, which vehicles run a route)
+- Review community suggestions and apply AI-extracted tasks with one click
+
+## Community Suggestions
+
+Anyone can submit a suggestion from the landing page — report a wrong route, a missing stop, or a fare issue. When a suggestion is submitted, AI reads the message and tries to extract a specific, actionable task from it (like "add Kalanki stop to the Basundhara-RNAC route"). If a task is found, it shows up in the admin panel ready for one-click approval. When the admin approves it, the transit data updates automatically. If the AI can't extract a clear task, the admin reviews the raw message manually.
 
 ## Data Coverage
 

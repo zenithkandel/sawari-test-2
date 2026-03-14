@@ -1,1 +1,24 @@
-[]
+[
+    {
+        "id": 1,
+        "name": "Zenith Kandel",
+        "category": "missing_stop",
+        "message": "basundhara-rnac stop misses the kalanki stop, please fix",
+        "task": {
+            "action": "add_stop_to_route",
+            "summary": "Add Kalanki stop to Basundhara-RNAC route",
+            "entity_type": "stop",
+            "entity_id": 105,
+            "entity_name": "Kalanki",
+            "details": {
+                "route_id": 1,
+                "route_name": "Basundhara-RNAC",
+                "stop_id": 105,
+                "stop_name": "Kalanki"
+            }
+        },
+        "status": "approved",
+        "created_at": "2026-03-14T11:49:11+01:00",
+        "resolved_at": "2026-03-14T11:49:30+01:00"
+    }
+]

@@ -57,6 +57,8 @@ $groqApiKey = $env['GROQ_API_KEY'] ?? '';
     <span class="nav-dot"></span>
     <a href="#ask">Ask Sawari</a>
     <span class="nav-dot"></span>
+    <a href="#contribute">Contribute</a>
+    <span class="nav-dot"></span>
     <a href="index.php" class="nav-cta">Open Navigator</a>
   </nav>
 

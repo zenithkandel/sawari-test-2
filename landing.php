@@ -87,11 +87,6 @@ $groqApiKey = $env['GROQ_API_KEY'] ?? '';
           </p>
           <a href="index.php" class="btn-launch">Plan a Journey &rarr;</a>
         </article>
-        <figure class="hero-side-fig">
-          <img src="https://images.unsplash.com/photo-1588975903078-6535c1e5d7e1?w=400&q=80"
-            alt="Traditional Nepali architecture in Bhaktapur" loading="eager" />
-          <figcaption>Bhaktapur Durbar Square, a short bus ride from Kathmandu.</figcaption>
-        </figure>
       </div>
     </div>
   </section>
@@ -287,7 +282,7 @@ $groqApiKey = $env['GROQ_API_KEY'] ?? '';
         <p class="footer-tagline">Open source under the MIT License.</p>
       </div>
       <div class="footer-right">
-        <p>Built by <a href="https://zenithkandel.com.np" target="_blank" rel="noopener">Zenith Kandel</a></p>
+        <p>Built by <a href="https://zenithkandel.com.np" target="_blank" rel="noopener">Team Spark</a></p>
         <p class="footer-links">
           <a href="index.php">Navigator</a> &middot;
           <a href="admin/">Admin</a> &middot;
@@ -296,7 +291,7 @@ $groqApiKey = $env['GROQ_API_KEY'] ?? '';
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; <?= date('Y') ?> Zenith Kandel. All rights reserved.</p>
+      <p>&copy; <?= date('Y') ?> Team Spark. All rights reserved.</p>
     </div>
   </footer>
 

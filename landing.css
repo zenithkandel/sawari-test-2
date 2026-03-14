@@ -583,6 +583,194 @@ figcaption {
   }
 }
 
+/* --- Suggestion Form --- */
+.suggest-container {
+  max-width: 800px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.suggest-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.suggest-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.suggest-label {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--ink-light);
+}
+
+.suggest-opt {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink-muted);
+}
+
+.suggest-input,
+.suggest-select,
+.suggest-textarea {
+  padding: 10px 14px;
+  border: 1px solid var(--rule);
+  background: var(--cream);
+  font-family: var(--body);
+  font-size: 15px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.suggest-input:focus,
+.suggest-select:focus,
+.suggest-textarea:focus {
+  border-color: var(--ink-light);
+}
+
+.suggest-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a453c' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.suggest-textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+}
+
+.suggest-charcount {
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--ink-faint);
+  text-align: right;
+}
+
+.suggest-submit {
+  align-self: flex-start;
+  padding: 10px 24px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.suggest-submit:hover {
+  background: var(--accent);
+}
+
+.suggest-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.suggest-feedback {
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 10px 14px;
+  border: 1px solid var(--rule);
+  line-height: 1.5;
+}
+
+.suggest-feedback.success {
+  background: #f0f7f0;
+  border-color: #a3c9a3;
+  color: #2d5a2d;
+}
+
+.suggest-feedback.error {
+  background: #fdf0ef;
+  border-color: #d4a3a0;
+  color: #8b2500;
+}
+
+.suggest-aside {
+  padding: 1.5rem;
+  background: var(--paper-alt);
+  border: 1px solid var(--rule);
+}
+
+.suggest-aside h3 {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.suggest-steps {
+  list-style: none;
+  counter-reset: steps;
+  padding: 0;
+  margin: 0 0 1.2rem;
+}
+
+.suggest-steps li {
+  counter-increment: steps;
+  font-size: 13px;
+  color: var(--ink-light);
+  line-height: 1.6;
+  padding-left: 28px;
+  position: relative;
+  margin-bottom: 0.8rem;
+}
+
+.suggest-steps li::before {
+  content: counter(steps);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.suggest-note {
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--ink-muted);
+  line-height: 1.5;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.suggest-note i {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
 /* --- Footer --- */
 .page-footer {
   padding: 0 1.5rem 2rem;
@@ -686,6 +874,10 @@ figcaption {
   }
 
   .features-editorial {
+    grid-template-columns: 1fr;
+  }
+
+  .suggest-container {
     grid-template-columns: 1fr;
   }
 

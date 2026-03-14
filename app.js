@@ -1263,6 +1263,57 @@ function renderJourneyPanel(journey) {
         </div>`;
     }
 
+    // Bus fare estimation (Nepal DoTM/NTA tariff)
+    if (totalBusDist > 0) {
+        const busLegsData = journey.legs.filter(l => l.type === 'bus' && l.coords);
+        // Nepal fare tariff rates
+        const FARE_BUS_MIN = 18;       // Rs, covers first 5 km
+        const FARE_BUS_BASE_KM = 5;
+        const FARE_BUS_PER_KM = 1.80;
+        const FARE_MICRO_MIN = 20;     // Rs, covers first 4 km
+        const FARE_MICRO_BASE_KM = 4;
+        const FARE_MICRO_PER_KM = 2.35;
+
+        function calcFare(distMeters, minFare, baseKm, perKm) {
+            const km = distMeters / 1000;
+            if (km <= baseKm) return minFare;
+            return Math.ceil(minFare + (km - baseKm) * perKm);
+        }
+
+        let totalBusFare = 0, totalMicroFare = 0;
+        const legFares = busLegsData.map(leg => {
+            const dist = estimatePolylineDistance(leg.coords);
+            const busFare = calcFare(dist, FARE_BUS_MIN, FARE_BUS_BASE_KM, FARE_BUS_PER_KM);
+            const microFare = calcFare(dist, FARE_MICRO_MIN, FARE_MICRO_BASE_KM, FARE_MICRO_PER_KM);
+            totalBusFare += busFare;
+            totalMicroFare += microFare;
+            return { name: leg.route?.name || 'Bus', dist, busFare, microFare };
+        });
+
+        const fareDisplay = totalBusFare === totalMicroFare
+            ? `Rs ${totalBusFare}`
+            : `Rs ${totalBusFare} – ${totalMicroFare}`;
+
+        let fareBreakdown = '';
+        if (legFares.length > 1) {
+            fareBreakdown = legFares.map(f =>
+                `<span class="fare-leg"><i class="fa-solid fa-bus"></i> ${escapeHtml(f.name)}: Rs ${f.busFare}–${f.microFare}</span>`
+            ).join('');
+        }
+
+        html += `
+        <div class="fare-card">
+            <div class="fare-icon"><i class="fa-solid fa-ticket"></i></div>
+            <div class="fare-info">
+                <div class="fare-title">Estimated Fare: <strong>${fareDisplay}</strong></div>
+                <div class="fare-detail">
+                    ${legFares.length > 1 ? 'Total for all legs' : 'Per passenger'} · Bus to microbus range
+                </div>
+                ${fareBreakdown ? `<div class="fare-breakdown">${fareBreakdown}</div>` : ''}
+            </div>
+        </div>`;
+    }
+
     const busLegsForAssignments = journey.legs
         .map((leg, legIndex) => ({ leg, legIndex }))
         .filter(({ leg }) => leg.type === 'bus' && leg.route);

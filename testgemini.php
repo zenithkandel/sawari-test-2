@@ -1,7 +1,8 @@
 <?php
-// ---------------------------
-// PHP BACKEND LOGIC
-// ---------------------------
+// ============================================================
+// Sawari - Location extraction via Nominatim
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// ============================================================
 header("Content-Type: application/json");
 
 if (isset($_POST['prompt'])) {

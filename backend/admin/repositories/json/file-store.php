@@ -1,5 +1,8 @@
 <?php
-// JSON File Store with file locking and version tokens
+// ============================================================
+// Sawari - JSON File Store
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// ============================================================
 
 class FileStore
 {

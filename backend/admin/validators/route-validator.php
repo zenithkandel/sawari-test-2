@@ -1,5 +1,8 @@
 <?php
-// Route Validator
+// ============================================================
+// Sawari - Route Validator
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// ============================================================
 
 class RouteValidator
 {

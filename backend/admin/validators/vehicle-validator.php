@@ -1,5 +1,8 @@
 <?php
-// Vehicle Validator
+// ============================================================
+// Sawari - Vehicle Validator
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// ============================================================
 
 class VehicleValidator
 {

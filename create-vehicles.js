@@ -1,3 +1,6 @@
+// Sawari - Bulk vehicle creator utility
+// Author: Zenith Kandel — https://zenithkandel.com.np
+
 const fs = require('fs');
 const path = require('path');
 

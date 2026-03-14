@@ -1,5 +1,8 @@
 <?php
-// Relation Guard Service - enforces referential integrity
+// ============================================================
+// Sawari - Relation Guard Service
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// ============================================================
 
 class RelationGuard
 {

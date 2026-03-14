@@ -1,5 +1,8 @@
 <?php
-// Stop Validator
+// ============================================================
+// Sawari - Stop Validator
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// ============================================================
 
 class StopValidator
 {

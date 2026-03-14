@@ -1,5 +1,8 @@
 <?php
-// Obstruction Validator
+// ============================================================
+// Sawari - Obstruction Validator
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// ============================================================
 
 class ObstructionValidator
 {

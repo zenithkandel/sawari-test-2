@@ -1,4 +1,8 @@
 <?php
+// Sawari - Public Transit Navigator
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
+
 $envFile = __DIR__ . '/.env';
 $env = [];
 if (file_exists($envFile)) {

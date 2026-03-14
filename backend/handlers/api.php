@@ -2,6 +2,8 @@
 // ============================================================
 // Sawari - backend/handlers/api.php
 // Unified REST API for stops, routes, vehicles, and icons
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 
 header('Content-Type: application/json');

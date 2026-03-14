@@ -2,6 +2,8 @@
 // ============================================================
 // Sawari - backend/admin/handlers/api.php
 // New Admin API with validation, relation guards, and locking
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
 // ============================================================
 
 header('Content-Type: application/json');

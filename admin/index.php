@@ -1,4 +1,8 @@
 <?php
+// Sawari Admin - Dashboard & Map Workspace
+// Author: Zenith Kandel — https://zenithkandel.com.np
+// License: MIT
+
 session_start();
 
 // Load .env

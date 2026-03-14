@@ -1,3 +1,6 @@
+// Sawari - Data integrity verification
+// Author: Zenith Kandel — https://zenithkandel.com.np
+
 const s = require('./data/stops.json');
 const r = require('./data/routes.json');
 console.log('Stops:', s.length, '| Routes:', r.length);

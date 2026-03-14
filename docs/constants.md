@@ -89,6 +89,7 @@ Every hardcoded constant, threshold, range, and default used in the system.
 | Constant                  | Value                                 | Location                   | Description                     |
 | ------------------------- | ------------------------------------- | -------------------------- | ------------------------------- |
 | Public API path           | `'backend/handlers/api.php'`          | `app.js:6`                 | Public API endpoint             |
+| Suggestions API path      | `'backend/handlers/suggestions.php'`  | `landing.js`, admin JS     | Suggestion CRUD + task extraction |
 | Admin API path            | `'../backend/admin/handlers/api.php'` | `api-client.js:5`          | Admin API endpoint              |
 | Vehicle cache TTL         | `5,000` ms                            | `app.js:120`               | How long vehicle data is cached |
 | General cache TTL         | `30,000` ms                           | `app.js:120`               | How long other data is cached   |
@@ -132,7 +133,7 @@ Every hardcoded constant, threshold, range, and default used in the system.
 | Constant                         | Value                                             | Location                     | Description                       |
 | -------------------------------- | ------------------------------------------------- | ---------------------------- | --------------------------------- |
 | Groq API URL                     | `https://api.groq.com/openai/v1/chat/completions` | `ai-assistant.js:216`        | LLM inference endpoint            |
-| Model                            | `llama-3.3-70b-versatile`                         | `ai-assistant.js:223`        | LLM model ID                      |
+| Model                            | `llama-3.3-70b-versatile`                         | `ai-assistant.js:223`        | Used across admin AI, chatbot, task extraction |
 | Max tokens (admin AI)            | `1,200`                                           | `ai-assistant.js:224`        | Max response length               |
 | Temperature (admin AI)           | `0.1`                                             | `ai-assistant.js:225`        | Near-deterministic output         |
 | Max tokens (location extractor)  | `200`                                             | `location-extractor.html:89` | Short extraction results          |

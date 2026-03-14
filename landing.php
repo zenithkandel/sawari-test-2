@@ -24,10 +24,13 @@ $groqApiKey = $env['GROQ_API_KEY'] ?? '';
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sawari — Kathmandu Public Transit</title>
-  <meta name="description" content="Navigate Kathmandu's bus routes, micro routes, and tempo lines. Plan your journey across the valley." />
+  <meta name="description"
+    content="Navigate Kathmandu's bus routes, micro routes, and tempo lines. Plan your journey across the valley." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="stylesheet" href="landing.css" />
 </head>
@@ -62,8 +65,10 @@ $groqApiKey = $env['GROQ_API_KEY'] ?? '';
     <div class="hero-grid">
       <div class="hero-main">
         <figure class="hero-figure">
-          <img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&q=80" alt="A public bus on the streets of Kathmandu" loading="eager" />
-          <figcaption>A Sajha Yatayat bus navigating the narrow streets of old Kathmandu, near Asan. Photograph via Unsplash.</figcaption>
+          <img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&q=80"
+            alt="A public bus on the streets of Kathmandu" loading="eager" />
+          <figcaption>A Sajha Yatayat bus navigating the narrow streets of old Kathmandu, near Asan. Photograph via
+            Unsplash.</figcaption>
         </figure>
       </div>
       <div class="hero-sidebar">
@@ -83,7 +88,8 @@ $groqApiKey = $env['GROQ_API_KEY'] ?? '';
           <a href="index.php" class="btn-launch">Plan a Journey &rarr;</a>
         </article>
         <figure class="hero-side-fig">
-          <img src="https://images.unsplash.com/photo-1588975903078-6535c1e5d7e1?w=400&q=80" alt="Traditional Nepali architecture in Bhaktapur" loading="eager" />
+          <img src="https://images.unsplash.com/photo-1588975903078-6535c1e5d7e1?w=400&q=80"
+            alt="Traditional Nepali architecture in Bhaktapur" loading="eager" />
           <figcaption>Bhaktapur Durbar Square, a short bus ride from Kathmandu.</figcaption>
         </figure>
       </div>
@@ -118,8 +124,10 @@ $groqApiKey = $env['GROQ_API_KEY'] ?? '';
       </div>
       <div class="col-img">
         <figure>
-          <img src="https://images.unsplash.com/photo-1605640840605-14ac1855827b?w=500&q=80" alt="Crowded street in Kathmandu with vehicles" loading="lazy" />
-          <figcaption>Rush hour near New Road, Kathmandu. The daily choreography of buses, motorcycles, and pedestrians.</figcaption>
+          <img src="https://images.unsplash.com/photo-1605640840605-14ac1855827b?w=500&q=80"
+            alt="Crowded street in Kathmandu with vehicles" loading="lazy" />
+          <figcaption>Rush hour near New Road, Kathmandu. The daily choreography of buses, motorcycles, and pedestrians.
+          </figcaption>
         </figure>
       </div>
     </div>
@@ -178,23 +186,29 @@ $groqApiKey = $env['GROQ_API_KEY'] ?? '';
     <p class="section-intro">The roads, the vehicles, and the places that Sawari connects.</p>
     <div class="gallery-grid">
       <figure class="gallery-item gallery-wide">
-        <img src="https://images.unsplash.com/photo-1565073182887-6bcefbe225b1?w=700&q=80" alt="Panoramic view of Kathmandu valley" loading="lazy" />
-        <figcaption>The valley floor seen from Swayambhunath, with the city stretching toward the surrounding hills.</figcaption>
+        <img src="https://images.unsplash.com/photo-1565073182887-6bcefbe225b1?w=700&q=80"
+          alt="Panoramic view of Kathmandu valley" loading="lazy" />
+        <figcaption>The valley floor seen from Swayambhunath, with the city stretching toward the surrounding hills.
+        </figcaption>
       </figure>
       <figure class="gallery-item">
-        <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=400&q=80" alt="Nepali temple architecture" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=400&q=80" alt="Nepali temple architecture"
+          loading="lazy" />
         <figcaption>Patan Durbar Square. Three ancient cities, one transit network.</figcaption>
       </figure>
       <figure class="gallery-item">
-        <img src="https://images.unsplash.com/photo-1592285896110-6ac0b611e93c?w=400&q=80" alt="Prayer flags in Nepal" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1592285896110-6ac0b611e93c?w=400&q=80" alt="Prayer flags in Nepal"
+          loading="lazy" />
         <figcaption>Prayer flags mark passes and hilltops across the valley rim.</figcaption>
       </figure>
       <figure class="gallery-item">
-        <img src="https://images.unsplash.com/photo-1609920658906-8223bd289001?w=400&q=80" alt="Street market in Kathmandu" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1609920658906-8223bd289001?w=400&q=80"
+          alt="Street market in Kathmandu" loading="lazy" />
         <figcaption>Morning market near Asan, a transit hub since the Malla era.</figcaption>
       </figure>
       <figure class="gallery-item gallery-wide">
-        <img src="https://images.unsplash.com/photo-1543515972-b72cb4f0b989?w=700&q=80" alt="Boudhanath Stupa" loading="lazy" />
+        <img src="https://images.unsplash.com/photo-1543515972-b72cb4f0b989?w=700&q=80" alt="Boudhanath Stupa"
+          loading="lazy" />
         <figcaption>Boudhanath, the great stupa. Several bus routes circle its perimeter.</figcaption>
       </figure>
     </div>
@@ -208,27 +222,33 @@ $groqApiKey = $env['GROQ_API_KEY'] ?? '';
     <div class="features-editorial">
       <div class="feature-block">
         <h3><i class="fa-solid fa-route"></i> Route Planning</h3>
-        <p>Direct routes, transfer routes with shared stops, and walking fallbacks. The system tries every possible combination of nearby stops before giving up.</p>
+        <p>Direct routes, transfer routes with shared stops, and walking fallbacks. The system tries every possible
+          combination of nearby stops before giving up.</p>
       </div>
       <div class="feature-block">
         <h3><i class="fa-solid fa-ticket"></i> Fare Estimation</h3>
-        <p>Based on the government tariff schedule. Regular and student/elderly rates, per-leg breakdown for transfers, always rounded to Rs 5 like the real thing.</p>
+        <p>Based on the government tariff schedule. Regular and student/elderly rates, per-leg breakdown for transfers,
+          always rounded to Rs 5 like the real thing.</p>
       </div>
       <div class="feature-block">
         <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Natural Language</h3>
-        <p>Type "take me from Lagankhel to Ratnapark" and the AI extracts your start and end locations. No need to know the exact stop names.</p>
+        <p>Type "take me from Lagankhel to Ratnapark" and the AI extracts your start and end locations. No need to know
+          the exact stop names.</p>
       </div>
       <div class="feature-block">
         <h3><i class="fa-solid fa-location-arrow"></i> GPS & Nearby Stops</h3>
-        <p>Turn on GPS to see where you are, which stops are within walking distance, and which routes pass through them.</p>
+        <p>Turn on GPS to see where you are, which stops are within walking distance, and which routes pass through
+          them.</p>
       </div>
       <div class="feature-block">
         <h3><i class="fa-solid fa-leaf"></i> Carbon Comparison</h3>
-        <p>See how many grams of CO2 you save by taking the bus instead of a car. Small numbers, but they compound across a city of millions.</p>
+        <p>See how many grams of CO2 you save by taking the bus instead of a car. Small numbers, but they compound
+          across a city of millions.</p>
       </div>
       <div class="feature-block">
         <h3><i class="fa-solid fa-moon"></i> Dark & Light Themes</h3>
-        <p>Switch between dark and light map styles. The dark theme uses CARTO's dark basemap with label overlays — easy on the eyes at night.</p>
+        <p>Switch between dark and light map styles. The dark theme uses CARTO's dark basemap with label overlays — easy
+          on the eyes at night.</p>
       </div>
     </div>
   </section>
@@ -248,7 +268,8 @@ $groqApiKey = $env['GROQ_API_KEY'] ?? '';
         </div>
       </div>
       <form class="chat-input-area" id="chat-form">
-        <input type="text" id="chat-input" placeholder="e.g. How do I get from Kalanki to Chabahil?" autocomplete="off" />
+        <input type="text" id="chat-input" placeholder="e.g. How do I get from Kalanki to Chabahil?"
+          autocomplete="off" />
         <button type="submit" id="chat-send" title="Send">
           <i class="fa-solid fa-paper-plane"></i>
         </button>

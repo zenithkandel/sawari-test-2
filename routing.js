@@ -202,6 +202,21 @@ function findNearestStop(lat, lng, stops) {
     return { stop: nearest, distance: minDist };
 }
 
+function findNearbyStops(lat, lng, stops, maxDistance = 800) {
+    const results = [];
+    for (const s of stops) {
+        const d = haversineDistanceMeters([lat, lng], [s.lat, s.lng]);
+        if (d <= maxDistance) results.push({ stop: s, distance: d });
+    }
+    results.sort((a, b) => a.distance - b.distance);
+    // Always include at least the nearest stop even if beyond maxDistance
+    if (results.length === 0) {
+        const nearest = findNearestStop(lat, lng, stops);
+        if (nearest.stop) results.push(nearest);
+    }
+    return results;
+}
+
 function findConnectingRoutes(startStopId, endStopId, routes) {
     const results = [];
     for (const route of routes) {

@@ -1,8 +1,8 @@
 [
     {
         "name": "Budhanilkantha Yatayat 5588",
-        "lat": 27.776253260874306,
-        "lng": 85.36188125610352,
+        "lat": 27.748265485282406,
+        "lng": 85.34441471099854,
         "routeId": 2,
         "speed": 28,
         "color": "#1d87d7",
@@ -10,8 +10,8 @@
         "iconType": "image",
         "moving": false,
         "bearing": 0,
-        "ratingAverage": 0,
-        "ratingCount": 0,
+        "ratingAverage": 4,
+        "ratingCount": 1,
         "id": 1,
         "vehicle_image": "assets\/mayur-yatayat.jpg"
     },

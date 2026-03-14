@@ -1264,35 +1264,47 @@ function renderJourneyPanel(journey) {
     }
 
     // Bus fare estimation (Nepal DoTM/NTA tariff)
+    // Fares are always in multiples of Rs 5
     if (totalBusDist > 0) {
         const busLegsData = journey.legs.filter(l => l.type === 'bus' && l.coords);
-        // Nepal fare tariff rates
-        const FARE_BUS_MIN = 18;       // Rs, covers first 5 km
-        const FARE_BUS_BASE_KM = 5;
-        const FARE_BUS_PER_KM = 1.80;
-        const FARE_MICRO_MIN = 20;     // Rs, covers first 4 km
-        const FARE_MICRO_BASE_KM = 4;
-        const FARE_MICRO_PER_KM = 2.35;
+        // Nepal fare tariff: fares increment in Rs 5 steps
+        const FARE_REGULAR_MIN = 20;    // Rs, minimum for regular passengers
+        const FARE_STUDENT_MIN = 15;    // Rs, minimum for students/elderly (25% discount)
+        const FARE_BASE_KM = 5;         // km covered by minimum fare
+        const FARE_BUS_PER_KM = 1.80;   // regular bus rate after base
+        const FARE_MICRO_PER_KM = 2.35; // microbus rate after base
 
-        function calcFare(distMeters, minFare, baseKm, perKm) {
+        function roundTo5(amount) {
+            return Math.ceil(amount / 5) * 5;
+        }
+
+        function calcFare(distMeters, minFare, perKm) {
             const km = distMeters / 1000;
-            if (km <= baseKm) return minFare;
-            return Math.ceil(minFare + (km - baseKm) * perKm);
+            if (km <= FARE_BASE_KM) return minFare;
+            return roundTo5(minFare + (km - FARE_BASE_KM) * perKm);
         }
 
         let totalBusFare = 0, totalMicroFare = 0;
+        let totalBusFareStudent = 0, totalMicroFareStudent = 0;
         const legFares = busLegsData.map(leg => {
             const dist = estimatePolylineDistance(leg.coords);
-            const busFare = calcFare(dist, FARE_BUS_MIN, FARE_BUS_BASE_KM, FARE_BUS_PER_KM);
-            const microFare = calcFare(dist, FARE_MICRO_MIN, FARE_MICRO_BASE_KM, FARE_MICRO_PER_KM);
+            const busFare = calcFare(dist, FARE_REGULAR_MIN, FARE_BUS_PER_KM);
+            const microFare = calcFare(dist, FARE_REGULAR_MIN, FARE_MICRO_PER_KM);
+            const busFareStudent = calcFare(dist, FARE_STUDENT_MIN, FARE_BUS_PER_KM);
+            const microFareStudent = calcFare(dist, FARE_STUDENT_MIN, FARE_MICRO_PER_KM);
             totalBusFare += busFare;
             totalMicroFare += microFare;
-            return { name: leg.route?.name || 'Bus', dist, busFare, microFare };
+            totalBusFareStudent += busFareStudent;
+            totalMicroFareStudent += microFareStudent;
+            return { name: leg.route?.name || 'Bus', dist, busFare, microFare, busFareStudent, microFareStudent };
         });
 
         const fareDisplay = totalBusFare === totalMicroFare
             ? `Rs ${totalBusFare}`
             : `Rs ${totalBusFare} – ${totalMicroFare}`;
+        const studentFareDisplay = totalBusFareStudent === totalMicroFareStudent
+            ? `Rs ${totalBusFareStudent}`
+            : `Rs ${totalBusFareStudent} – ${totalMicroFareStudent}`;
 
         let fareBreakdown = '';
         if (legFares.length > 1) {
@@ -1306,6 +1318,9 @@ function renderJourneyPanel(journey) {
             <div class="fare-icon"><i class="fa-solid fa-ticket"></i></div>
             <div class="fare-info">
                 <div class="fare-title">Estimated Fare: <strong>${fareDisplay}</strong></div>
+                <div class="fare-discount">
+                    <i class="fa-solid fa-graduation-cap"></i> Students / Elderly: <strong>${studentFareDisplay}</strong>
+                </div>
                 <div class="fare-detail">
                     ${legFares.length > 1 ? 'Total for all legs' : 'Per passenger'} · Bus to microbus range
                 </div>

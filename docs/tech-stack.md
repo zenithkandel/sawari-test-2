@@ -268,6 +268,39 @@ Return route with fewest obstruction intersections
 Include obstruction hit details in response
 ```
 
+### 5. Community Suggestion → Task Execution
+
+```
+User submits suggestion on landing page
+    │
+    ▼
+POST suggestions.php with {name, category, message}
+    │
+    ▼
+Groq AI analyses message with current stops/routes context
+    │
+    ▼
+Extracts structured task (or null if vague/general):
+  {action: "add_stop_to_route", summary: "...", details: {route_id, stop_id, ...}}
+    │
+    ▼
+Suggestion + task saved to data/suggestions.json
+    │
+    ▼
+Admin opens Suggestions modal → sees pending suggestions
+    │
+    ▼
+If task extracted:
+  → Admin clicks Approve → confirm dialog → executeTask()
+  → Task runs via Commands.updateRoute() / Commands.updateStop()
+  → Transit data updated in real time
+  → Suggestion marked as "completed"
+    │
+If no task (null):
+  → Admin reviews raw message manually
+  → Can dismiss or handle outside the system
+```
+
 ## Storage Format
 
 All data lives in `data/*.json` as arrays of objects with auto-incremented `id` fields:

@@ -216,6 +216,21 @@ Every feature in the system, from minor to major.
 - [x] Powered by Groq API (Llama 3.3 70B Versatile)
 - [x] Dependency-aware (breaks multi-step operations into logical order)
 
+### Community Suggestions
+
+- [x] Lightbulb button in command bar with pending count badge
+- [x] Full-screen modal listing all community suggestions
+- [x] Filter by status: Pending, Approved, Completed, Dismissed, All
+- [x] Suggestion cards with category pill, submitter name, date, message
+- [x] AI-extracted task display (action type, summary, target entity)
+- [x] Approve action — confirms and executes extracted task against live transit data
+- [x] Task execution supports: add/remove stop from route, rename stop/route, update stop/route
+- [x] Dismiss action — marks suggestion as dismissed without applying
+- [x] Mark Completed action — for approved suggestions handled manually
+- [x] Delete action — permanently removes suggestion
+- [x] Auto-loads pending count on page load for badge notification
+- [x] Category color coding (blue=route correction, yellow=missing stop, red=fare issue, green=new route)
+
 ### Search
 
 - [x] Global search with `Ctrl+K`
@@ -252,6 +267,28 @@ Every feature in the system, from minor to major.
 - [x] Toast notifications (success, error, warn, info)
 - [x] Sync status indicator (Synced / Saving / Error)
 - [x] Action history in status bar (last 3 actions)
+
+---
+
+## Landing Page
+
+### Chatbot
+
+- [x] Groq-powered transit Q&A chatbot (Llama 3.3 70B)
+- [x] Conversational context (last 12 messages)
+- [x] Typing indicator animation during API calls
+
+### Community Suggestion Form
+
+- [x] Name field (optional, defaults to "Anonymous")
+- [x] Category dropdown: Route Correction, Missing Stop, Fare Issue, New Route, General
+- [x] Message textarea with live character counter (max 1000)
+- [x] Client-side validation (min 10 characters)
+- [x] Spinner state on submit button during POST
+- [x] Success/error feedback banner with auto-dismiss (8 seconds)
+- [x] Feedback indicates whether AI extracted a task or admin will review manually
+- [x] Sidebar explaining the suggestion → review → apply workflow
+- [x] Privacy note (no emails, no tracking)
 
 ---
 

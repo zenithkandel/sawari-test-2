@@ -985,28 +985,55 @@ async function navigate() {
     navBtn.innerHTML = '<div class="loading-spinner small" style="display:inline-block;"></div> Finding...';
 
     try {
-        // 1. Find nearest stops
-        const startResult = findNearestStop(startPoint.lat, startPoint.lng, publicStops);
-        const endResult = findNearestStop(endPoint.lat, endPoint.lng, publicStops);
+        // 1. Find nearby stops within walking range (~800m), sorted by distance
+        const MAX_WALK = 800; // meters
+        const startCandidates = findNearbyStops(startPoint.lat, startPoint.lng, publicStops, MAX_WALK);
+        const endCandidates = findNearbyStops(endPoint.lat, endPoint.lng, publicStops, MAX_WALK);
 
-        if (!startResult.stop || !endResult.stop) {
+        if (startCandidates.length === 0 || endCandidates.length === 0) {
             await showWalkingFallback('No bus stops found in the area.');
             return;
         }
 
-        // 2. Find connecting route
-        const directRoutes = findConnectingRoutes(startResult.stop.id, endResult.stop.id, allRoutes);
-        let journey;
+        // 2. Try all start/end stop pairs for a direct route (prefer shortest walk + fewest stops)
+        let bestDirect = null;
+        for (const sc of startCandidates) {
+            for (const ec of endCandidates) {
+                if (sc.stop.id === ec.stop.id) continue;
+                const routes = findConnectingRoutes(sc.stop.id, ec.stop.id, allRoutes);
+                if (routes.length > 0) {
+                    const walkCost = sc.distance + ec.distance;
+                    if (!bestDirect || walkCost < bestDirect.walkCost) {
+                        bestDirect = { startResult: sc, endResult: ec, route: routes[0], walkCost };
+                    }
+                }
+            }
+        }
 
-        if (directRoutes.length > 0) {
-            journey = await buildDirectJourney(startResult, endResult, directRoutes[0]);
+        let journey;
+        if (bestDirect) {
+            journey = await buildDirectJourney(bestDirect.startResult, bestDirect.endResult, bestDirect.route);
         } else {
-            // Try transfer
-            const transfer = findTransferRoutes(startResult.stop.id, endResult.stop.id, allRoutes, publicStops);
-            if (transfer) {
-                journey = await buildTransferJourney(startResult, endResult, transfer);
+            // 3. Try all start/end stop pairs for a transfer route
+            let bestTransfer = null;
+            for (const sc of startCandidates) {
+                for (const ec of endCandidates) {
+                    if (sc.stop.id === ec.stop.id) continue;
+                    const transfer = findTransferRoutes(sc.stop.id, ec.stop.id, allRoutes, publicStops);
+                    if (transfer) {
+                        const walkCost = sc.distance + ec.distance;
+                        if (!bestTransfer || transfer.totalStops < bestTransfer.transfer.totalStops ||
+                            (transfer.totalStops === bestTransfer.transfer.totalStops && walkCost < bestTransfer.walkCost)) {
+                            bestTransfer = { startResult: sc, endResult: ec, transfer, walkCost };
+                        }
+                    }
+                }
+            }
+
+            if (bestTransfer) {
+                journey = await buildTransferJourney(bestTransfer.startResult, bestTransfer.endResult, bestTransfer.transfer);
             } else {
-                // FALLBACK: Show walking route
+                // 4. LAST RESORT: Show walking route
                 await showWalkingFallback('No bus route connects these locations.');
                 return;
             }

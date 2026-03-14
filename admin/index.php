@@ -269,6 +269,11 @@ if (empty($_SESSION['admin_authenticated'])):
       </button>
     </div>
     <div class="cb-right">
+      <button id="btn-suggestions" class="cb-icon-btn" title="Community Suggestions">
+        <i class="fa-solid fa-lightbulb"></i>
+        <span id="suggestions-badge" class="cb-badge" style="display:none">0</span>
+      </button>
+      <div class="cb-divider"></div>
       <button id="btn-ai-assistant" class="cb-icon-btn ai-glow" title="AI Assistant (Ctrl+I)">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
       </button>
@@ -472,6 +477,31 @@ if (empty($_SESSION['admin_authenticated'])):
 
   <!-- ===== TOAST CONTAINER ===== -->
   <div id="toast-container"></div>
+
+  <!-- ===== SUGGESTIONS MODAL ===== -->
+  <div id="suggestions-modal" class="modal-backdrop" style="display: none">
+    <div class="suggestions-dialog">
+      <div class="suggestions-header">
+        <div class="suggestions-title">
+          <i class="fa-solid fa-lightbulb"></i>
+          <span>Community Suggestions</span>
+        </div>
+        <div class="suggestions-header-actions">
+          <select id="suggestions-filter" class="suggestions-filter-select">
+            <option value="all">All</option>
+            <option value="pending" selected>Pending</option>
+            <option value="approved">Approved</option>
+            <option value="completed">Completed</option>
+            <option value="dismissed">Dismissed</option>
+          </select>
+          <button id="suggestions-close" class="cb-icon-btn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div id="suggestions-list" class="suggestions-list">
+        <div class="suggestions-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading suggestions...</div>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== APPLICATION SCRIPTS ===== -->
   <script>const GROQ_API_KEY = <?= json_encode($groqApiKey) ?>;</script>

@@ -1309,7 +1309,7 @@ function renderJourneyPanel(journey) {
         let fareBreakdown = '';
         if (legFares.length > 1) {
             fareBreakdown = legFares.map(f =>
-                `<span class="fare-leg"><i class="fa-solid fa-bus"></i> ${escapeHtml(f.name)}: Rs ${f.busFare}–${f.microFare}</span>`
+                `<span class="fare-leg"><i class="fa-solid fa-bus"></i> ${escapeHtml(f.name)}: Rs ${f.busFare === f.microFare ? f.busFare : `${f.busFare}–${f.microFare}`}</span>`
             ).join('');
         }
 

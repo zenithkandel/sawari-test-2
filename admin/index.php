@@ -522,6 +522,7 @@ if (empty($_SESSION['admin_authenticated'])):
   <script src="components/inspector/inspector.js"></script>
   <script src="components/notifications/notifications.js"></script>
   <script src="components/ai-assistant/ai-assistant.js"></script>
+  <script src="components/suggestions/suggestions.js"></script>
   <script src="app.js"></script>
 </body>
 

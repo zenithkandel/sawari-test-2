@@ -136,4 +136,70 @@ Important: You are on the Sawari landing page. If users want to actually plan a 
 
   // Focus input on load
   chatInput.focus();
+
+  // --- Suggestion Form ---
+  const suggestForm = document.getElementById('suggest-form');
+  const suggestMessage = document.getElementById('suggest-message');
+  const suggestChars = document.getElementById('suggest-chars');
+  const suggestSubmit = document.getElementById('suggest-submit');
+  const suggestFeedback = document.getElementById('suggest-feedback');
+
+  if (suggestMessage) {
+    suggestMessage.addEventListener('input', function () {
+      suggestChars.textContent = this.value.length;
+    });
+  }
+
+  if (suggestForm) {
+    suggestForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById('suggest-name').value.trim() || 'Anonymous';
+      const category = document.getElementById('suggest-category').value;
+      const message = suggestMessage.value.trim();
+
+      if (!message || message.length < 10) {
+        showSuggestFeedback('Please write at least 10 characters.', 'error');
+        return;
+      }
+
+      suggestSubmit.disabled = true;
+      suggestSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+
+      try {
+        const res = await fetch('backend/handlers/suggestions.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, category, message })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Submission failed');
+        }
+
+        suggestForm.reset();
+        suggestChars.textContent = '0';
+
+        const taskNote = data.task
+          ? ' A specific task was extracted and will be reviewed by the admin team.'
+          : ' Your suggestion will be reviewed manually by the admin team.';
+        showSuggestFeedback('Thank you for your contribution!' + taskNote, 'success');
+      } catch (err) {
+        console.error('Suggestion error:', err);
+        showSuggestFeedback(err.message || 'Something went wrong. Please try again.', 'error');
+      } finally {
+        suggestSubmit.disabled = false;
+        suggestSubmit.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Suggestion';
+      }
+    });
+  }
+
+  function showSuggestFeedback(msg, type) {
+    suggestFeedback.textContent = msg;
+    suggestFeedback.className = 'suggest-feedback ' + type;
+    suggestFeedback.style.display = 'block';
+    setTimeout(() => { suggestFeedback.style.display = 'none'; }, 8000);
+  }
 })();

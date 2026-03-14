@@ -24,8 +24,10 @@ $envFile = $rootDir . '/.env';
 $env = [];
 if (file_exists($envFile)) {
     foreach (file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
-        if (str_starts_with(trim($line), '#')) continue;
-        if (strpos($line, '=') === false) continue;
+        if (str_starts_with(trim($line), '#'))
+            continue;
+        if (strpos($line, '=') === false)
+            continue;
         [$key, $value] = explode('=', $line, 2);
         $env[trim($key)] = trim($value);
     }
@@ -34,7 +36,8 @@ $groqApiKey = $env['GROQ_API_KEY'] ?? '';
 
 // --- Helpers ---
 
-function readSuggestions($file) {
+function readSuggestions($file)
+{
     if (!file_exists($file)) {
         file_put_contents($file, '[]');
         return [];
@@ -43,9 +46,11 @@ function readSuggestions($file) {
     return is_array($data) ? $data : [];
 }
 
-function writeSuggestions($file, $data) {
+function writeSuggestions($file, $data)
+{
     $fp = fopen($file, 'c+');
-    if (!$fp) return false;
+    if (!$fp)
+        return false;
     flock($fp, LOCK_EX);
     fseek($fp, 0);
     ftruncate($fp, 0);
@@ -55,13 +60,15 @@ function writeSuggestions($file, $data) {
     return true;
 }
 
-function jsonResponse($data, $status = 200) {
+function jsonResponse($data, $status = 200)
+{
     http_response_code($status);
     echo json_encode($data);
     exit;
 }
 
-function errorResponse($msg, $status = 400) {
+function errorResponse($msg, $status = 400)
+{
     jsonResponse(['error' => $msg], $status);
 }
 
@@ -69,8 +76,10 @@ function errorResponse($msg, $status = 400) {
  * Use Groq AI to extract an actionable task from a suggestion message.
  * Returns a task object or null if no clear task can be extracted.
  */
-function extractTask($message, $category, $apiKey) {
-    if (empty($apiKey)) return null;
+function extractTask($message, $category, $apiKey)
+{
+    if (empty($apiKey))
+        return null;
 
     // Load current data for context
     $rootDir = dirname(__DIR__, 2);
@@ -78,7 +87,7 @@ function extractTask($message, $category, $apiKey) {
     $routes = json_decode(file_get_contents($rootDir . '/data/routes.json'), true) ?: [];
 
     $stopNames = array_map(fn($s) => $s['name'] . ' (id:' . $s['id'] . ')', $stops);
-    $routeInfo = array_map(function($r) {
+    $routeInfo = array_map(function ($r) {
         $stopNames = isset($r['stops']) ? array_map(fn($s) => $s['name'], $r['stops']) : [];
         return $r['name'] . ' (id:' . $r['id'] . ', stops: [' . implode(', ', $stopNames) . '])';
     }, $routes);
@@ -148,12 +157,14 @@ PROMPT;
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    if ($httpCode !== 200 || !$response) return null;
+    if ($httpCode !== 200 || !$response)
+        return null;
 
     $data = json_decode($response, true);
     $content = trim($data['choices'][0]['message']['content'] ?? '');
 
-    if ($content === 'null' || $content === '') return null;
+    if ($content === 'null' || $content === '')
+        return null;
 
     // Try to parse JSON from the response
     $task = json_decode($content, true);
@@ -162,11 +173,13 @@ PROMPT;
         if (preg_match('/```(?:json)?\s*([\s\S]*?)\s*```/', $content, $m)) {
             $task = json_decode(trim($m[1]), true);
         }
-        if (json_last_error() !== JSON_ERROR_NONE) return null;
+        if (json_last_error() !== JSON_ERROR_NONE)
+            return null;
     }
 
     // Validate required fields
-    if (!isset($task['action']) || !isset($task['summary'])) return null;
+    if (!isset($task['action']) || !isset($task['summary']))
+        return null;
 
     return $task;
 }
@@ -183,15 +196,19 @@ if ($method === 'GET') {
 
 if ($method === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
-    if (!$input) errorResponse('Invalid JSON body');
+    if (!$input)
+        errorResponse('Invalid JSON body');
 
     $message = trim($input['message'] ?? '');
     $category = trim($input['category'] ?? 'general');
     $name = trim($input['name'] ?? 'Anonymous');
 
-    if (empty($message)) errorResponse('Message is required');
-    if (strlen($message) < 10) errorResponse('Message must be at least 10 characters');
-    if (strlen($message) > 1000) errorResponse('Message must be under 1000 characters');
+    if (empty($message))
+        errorResponse('Message is required');
+    if (strlen($message) < 10)
+        errorResponse('Message must be at least 10 characters');
+    if (strlen($message) > 1000)
+        errorResponse('Message must be under 1000 characters');
 
     $allowedCategories = ['route_correction', 'missing_stop', 'fare_issue', 'new_route', 'general'];
     if (!in_array($category, $allowedCategories)) {
@@ -205,7 +222,8 @@ if ($method === 'POST') {
     $suggestions = readSuggestions($dataFile);
     $maxId = 0;
     foreach ($suggestions as $s) {
-        if (($s['id'] ?? 0) > $maxId) $maxId = $s['id'];
+        if (($s['id'] ?? 0) > $maxId)
+            $maxId = $s['id'];
     }
 
     $entry = [
@@ -227,15 +245,18 @@ if ($method === 'POST') {
 if ($method === 'PUT') {
     // Update suggestion status (for admin: approve, dismiss, complete)
     $input = json_decode(file_get_contents('php://input'), true);
-    if (!$input || !isset($input['id'])) errorResponse('id is required');
+    if (!$input || !isset($input['id']))
+        errorResponse('id is required');
 
-    $id = (int)$input['id'];
+    $id = (int) $input['id'];
     $newStatus = $input['status'] ?? null;
     $allowedStatuses = ['pending', 'approved', 'dismissed', 'completed'];
-    if (!in_array($newStatus, $allowedStatuses)) errorResponse('Invalid status');
+    if (!in_array($newStatus, $allowedStatuses))
+        errorResponse('Invalid status');
 
     $fp = fopen($dataFile, 'c+');
-    if (!$fp) errorResponse('Could not open data file', 500);
+    if (!$fp)
+        errorResponse('Could not open data file', 500);
     flock($fp, LOCK_EX);
 
     $raw = stream_get_contents($fp);
@@ -270,11 +291,13 @@ if ($method === 'PUT') {
 }
 
 if ($method === 'DELETE') {
-    $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-    if (!$id) errorResponse('id query parameter is required');
+    $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+    if (!$id)
+        errorResponse('id query parameter is required');
 
     $fp = fopen($dataFile, 'c+');
-    if (!$fp) errorResponse('Could not open data file', 500);
+    if (!$fp)
+        errorResponse('Could not open data file', 500);
     flock($fp, LOCK_EX);
 
     $raw = stream_get_contents($fp);

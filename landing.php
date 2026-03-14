@@ -275,6 +275,57 @@ $groqApiKey = $env['GROQ_API_KEY'] ?? '';
     </div>
   </section>
 
+  <div class="divider-ornament">&#10053;</div>
+
+  <!-- Community Contributions -->
+  <section id="contribute" class="section">
+    <h2 class="section-heading center">Help Improve Sawari</h2>
+    <p class="section-intro">
+      Know a route we got wrong? A stop that's missing? Your local knowledge makes this tool better for everyone.
+    </p>
+    <div class="suggest-container">
+      <form id="suggest-form" class="suggest-form">
+        <div class="suggest-row">
+          <label for="suggest-name" class="suggest-label">Your Name <span class="suggest-opt">(optional)</span></label>
+          <input type="text" id="suggest-name" class="suggest-input" placeholder="Anonymous" maxlength="50" />
+        </div>
+        <div class="suggest-row">
+          <label for="suggest-category" class="suggest-label">Category</label>
+          <select id="suggest-category" class="suggest-select">
+            <option value="route_correction">Route Correction</option>
+            <option value="missing_stop">Missing Stop</option>
+            <option value="fare_issue">Fare Issue</option>
+            <option value="new_route">New Route Suggestion</option>
+            <option value="general" selected>General Feedback</option>
+          </select>
+        </div>
+        <div class="suggest-row">
+          <label for="suggest-message" class="suggest-label">Your Suggestion</label>
+          <textarea id="suggest-message" class="suggest-textarea" rows="4"
+            placeholder="e.g. The Basundhara-RNAC route doesn't actually stop at Teaching Hospital anymore, please update."
+            maxlength="1000" required></textarea>
+          <div class="suggest-charcount"><span id="suggest-chars">0</span> / 1000</div>
+        </div>
+        <button type="submit" class="suggest-submit" id="suggest-submit">
+          <i class="fa-solid fa-paper-plane"></i> Submit Suggestion
+        </button>
+        <div id="suggest-feedback" class="suggest-feedback" style="display:none"></div>
+      </form>
+      <div class="suggest-aside">
+        <h3>What happens next?</h3>
+        <ol class="suggest-steps">
+          <li>Your suggestion is analysed and, where possible, converted into a specific task for the admin team.</li>
+          <li>An admin reviews the suggestion and verifies it against real-world data.</li>
+          <li>If approved, the correction is applied to the transit database — routes, stops, and fares update accordingly.</li>
+        </ol>
+        <p class="suggest-note">
+          <i class="fa-solid fa-shield-halved"></i>
+          We don't collect emails or track you. Your name is optional and only shown to admins for context.
+        </p>
+      </div>
+    </div>
+  </section>
+
   <!-- Footer -->
   <footer class="page-footer">
     <div class="footer-rule"></div>

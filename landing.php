@@ -91,6 +91,7 @@ $groqApiKey = $env['GROQ_API_KEY'] ?? '';
     </div>
   </section>
 
+
   <div class="divider-ornament">&#10053;</div>
 
   <!-- About -->
